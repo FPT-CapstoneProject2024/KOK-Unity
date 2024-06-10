@@ -98,5 +98,22 @@ namespace KOK
             }
 
         }
+
+        /// <summary>
+        /// Delete local file with given file path. Use for clean up purpose after upload file to cloud storage.
+        /// </summary>
+        /// <param name="localFilePath">Path to the to be deleted local file.</param>
+        public static void DeleteLocalFile(string localFilePath)
+        {
+            if (File.Exists(localFilePath))
+            {
+                File.Delete(localFilePath);
+                Debug.Log($"File successfully deleted: {localFilePath}");
+            }
+            else
+            {
+                Debug.LogError($"File not found: {localFilePath}");
+            }
+        }
     }
 }
