@@ -1,3 +1,6 @@
+using Firebase.Storage;
+using System;
+using System.Collections;
 using UnityEngine;
 
 namespace KOK.Audio
@@ -135,16 +138,72 @@ namespace KOK.Audio
                 return;
             }
             isRecording = false;
-            SaveAudioClipToMp3();
+            HandleFinishRecording();
             Microphone.End(currentMicrophone.Name);
             Debug.Log("Stop recording!");
         }
 
-        private void SaveAudioClipToMp3()
+        private void HandleFinishRecording()
         {
+            string wavFilePath = SaveAudioClipAsWav();
+
+            // Compress .wav file to zip
+            string compressedFilePath = FileCompressionHelper.CompressWavFileAsZip(recordingSaveLocation, wavFilePath);
+            Debug.Log($"Compressed file path: {compressedFilePath}");
+
+            // Start upload and clean up coroutine
+            StartCoroutine(UploadAndCleanUpFiles(compressedFilePath, wavFilePath));
+        }
+
+        private IEnumerator UploadAndCleanUpFiles(string compressedFilePath, string wavFilePath)
+        {
+            bool uploadCompleted = false;
+            bool uploadSuccessful = false;
+            StorageMetadata fileMetadata = null;
+            AggregateException uploadException = null;
+
+            FirebaseStorageManager.Instance.UploadRecordingByLocalFile(compressedFilePath,
+                (metadata) =>
+                {
+                    uploadCompleted = true;
+                    uploadSuccessful = true;
+                    fileMetadata = metadata;
+                },
+                (exception) =>
+                {
+                    uploadCompleted = true;
+                    uploadException = exception;
+                });
+
+            yield return new WaitUntil(() => uploadCompleted);
+
+            if (uploadSuccessful)
+            {
+                try
+                {
+                    WavHelper.DeleteLocalFile(wavFilePath);
+                    WavHelper.DeleteLocalFile(compressedFilePath);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"An error occurred while deleting local files: {ex.Message}");
+                }
+            }
+            else
+            {
+                Debug.LogError($"Failed to upload file to Firebase: {uploadException}");
+            }
+        }
+
+        private string SaveAudioClipAsWav()
+        {
+            // Extract audio clip
             AudioClip trimmedClip = ExtractRecordedSound(audioSource.clip, currentMicrophone.MaximumFrequency);
-            string filePath = recordingSaveLocation + fileName + ".wav";
-            WavHelper.SaveWavFile(filePath, trimmedClip);
+
+            // Write data to .wav file
+            string wavFilePath = recordingSaveLocation + fileName + ".wav";
+            WavHelper.SaveWavFile(wavFilePath, trimmedClip);
+            return wavFilePath;
         }
 
         /// <summary>
