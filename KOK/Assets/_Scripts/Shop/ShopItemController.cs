@@ -11,7 +11,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace KOK
-{
+{     
     public class ShopItemController : MonoBehaviour
     {
         public TMP_InputField itemIdInput;
