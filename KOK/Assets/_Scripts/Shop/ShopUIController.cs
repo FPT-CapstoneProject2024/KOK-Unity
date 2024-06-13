@@ -7,12 +7,9 @@ namespace KOK
 {
     public class ShopUIController : MonoBehaviour
     {
-        // A dictionary to map category names to their respective panels
         public Dictionary<string, GameObject> categoryPanels = new Dictionary<string, GameObject>();
-        // A dictionary to map category names to their respective buttons
         public Dictionary<string, Button> categoryButtons = new Dictionary<string, Button>();
 
-        // A list to assign in the inspector for categories and corresponding panels
         public List<string> categories;
         public List<GameObject> panels;
         public List<Button> buttons;

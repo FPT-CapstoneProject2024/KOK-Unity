@@ -12,7 +12,7 @@ namespace KOK
 {
     public class ShopLayout : MonoBehaviour
     {
-        [SerializeField] private List<Item> itemList = new List<Item>();  // Use a List instead of an array
+        [SerializeField] private List<Item> itemList = new List<Item>();
 
         private string baseUrl = "https://localhost:7017/api/items";
         private List<string> itemNames = new List<string>();
@@ -69,7 +69,7 @@ namespace KOK
                 string response = request.downloadHandler.text;
 
                 var responseObject = JsonConvert.DeserializeObject<ResponseObject>(response);
-                var items = responseObject.Results;  // Adjust to use the correct property
+                var items = responseObject.Results; 
                  
                 if (itemNames == null)
                 {
@@ -80,16 +80,17 @@ namespace KOK
                     itemList = new List<Item>();
                 }
 
+                // clear before adding
                 itemNames.Clear();
-                itemList.Clear();  // Clear the list before adding new items
+                itemList.Clear();  
 
                 foreach (Item item in items)
                 {
                     itemNames.Add(item.ItemName);
-                    itemList.Add(item);  // Add items to the list
+                    itemList.Add(item);  
                 }
 
-                LayoutGenerate();  // Regenerate the layout with the new items
+                LayoutGenerate(); 
 
                 Debug.Log(response);
             }
