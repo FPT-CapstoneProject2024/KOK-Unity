@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Voice.Unity;
 using UnityEngine.UI;
+using Fusion;
 
 public class RoomClientController : MonoBehaviour
 {
@@ -39,4 +40,15 @@ public class RoomClientController : MonoBehaviour
             recorder.DebugEchoMode = false;
         }
     }
+
+    public static void TestRPC()
+    {
+
+        RPCVideoPlayerDemo.Rpc_TestPlayerList(FindAnyObjectByType<NetworkRunner>(), 1);
+    }
+
+    //public static void Rpc_PrepareVideo()
+    //{
+    //    RPCVideoPlayerDemo.Rpc_Prepare(FindAnyObjectByType<NetworkRunner>(), 1);
+    //}
 }
