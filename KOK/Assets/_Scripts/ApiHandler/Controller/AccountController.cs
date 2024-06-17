@@ -13,6 +13,7 @@ using KOK.ApiHandler.Model;
 using Newtonsoft.Json;
 using Google.MiniJSON;
 using System.Text.Json;
+using System.Net;
 
 namespace KOK.ApiHandler.Controller
 {
@@ -20,18 +21,27 @@ namespace KOK.ApiHandler.Controller
     {
         [SerializeField] private GameObject accountPanel;
 
-        public Account Account { get; private set; }
+        public Account Account { get;  set; }
 
-        public List<Account> Accounts { get; private set; }
+        public List<Account> Accounts { get;  set; }
 
         private string url = ApiInstance.url + "/accounts";
 
         public void GetAccountButton()
         {
-            //StartCoroutine(GetAccountRequest());
-            StartCoroutine(GetAccountByIdRequest(Guid.Parse("94deb139-4c4b-4a2c-8087-bf47de2f67af")));
-            //DemoJsonSerialize();
+            StartCoroutine(DemoCoroutine());
+            
         }
+        public IEnumerator DemoCoroutine()
+        {
+            yield return StartCoroutine(GetAccountByIdRequest(Guid.Parse("94deb139-4c4b-4a2c-8087-bf47de2f67af")));
+
+            Account.accountName = "ffffffffffffffffffffffff";
+            Account.password = "2113r12r";
+            Debug.Log(Account);
+            yield return StartCoroutine(PostAccount(Account));
+        }
+
         IEnumerator GetAccountRequest()
         {
             using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
@@ -80,43 +90,56 @@ namespace KOK.ApiHandler.Controller
                         break;
                     case UnityWebRequest.Result.Success:
                         Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
-                        ResponseObject response = JsonConvert.DeserializeObject<ResponseObject>(webRequest.downloadHandler.text);
-                        //ResponseObject response = System.Text.Json.JsonSerializer.Deserialize<ResponseObject>(webRequest.downloadHandler.text, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-                        //string test = "{\"accountId\":\"94deb139-4c4b-4a2c-8087-bf47de2f67af\",\"userName\":\"test23\",\"email\":\"string3\",\"gender\":0,\"accountName\":\"string2\",\"role\":0,\"star\":0,\"isOnline\":false,\"fullname\":\"string2\",\"yob\":0,\"identityCardNumber\":\"string\",\"phoneNumber\":\"string\",\"createdTime\":\"2024-06-11T10:41:37.453\",\"characterItemId\":null,\"roomItemId\":null,\"accountStatus\":1}";
-                        //Account response1 = System.Text.Json.JsonSerializer.Deserialize<Account>(test, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-                        //Account = response.value;
+                        ResponseObject<Account> response = JsonConvert.DeserializeObject<ResponseObject<Account>>(webRequest.downloadHandler.text);
+                        Debug.LogError(response.Message);
                         Account = response.Value;
-                        Debug.Log(Account);
                         break;
                 }
             }
         }
 
-        public void DemoJsonSerialize()
+        IEnumerator PostAccount(Account account)
         {
-            Test test = new()
+            using (UnityWebRequest www = UnityWebRequest.Post(url, account.ToString(), "application/json"))
             {
-                Name = "Test",
-                Age = 20
-            };
-            Debug.Log("test " + test);
-            string json = JsonConvert.SerializeObject(test);
-            Debug.Log("json " +json);
-            Test test2 = JsonConvert.DeserializeObject<Test>(json);
-            Debug.Log("test2 " +test2);
+                yield return www.SendWebRequest();
+
+                if (www.result != UnityWebRequest.Result.Success)
+                {
+                    ResponseObject<string> response = JsonConvert.DeserializeObject<ResponseObject<string>>(www.downloadHandler.text);
+                    Debug.LogError(www.error + response.Message);
+                }
+                else
+                {
+                    Debug.Log("Posts complete!");
+                }
+            }
         }
 
-    }
-
-    class Test
-    {
-        public string Name { get; set; }
-        public int Age { get; set; }
-        public override string ToString()
+        IEnumerator PutAccount(Account account)
         {
-            return JsonConvert.SerializeObject(this);
+            byte[] myData = System.Text.Encoding.UTF8.GetBytes("This is some test data");
+            using (UnityWebRequest www = UnityWebRequest.Put("https://www.my-server.com/upload", myData))
+            {
+                yield return www.SendWebRequest();
+
+                if (www.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.Log(www.error);
+                }
+                else
+                {
+                    Debug.Log("Upload complete!");
+                }
+            }
         }
 
+
+
+
     }
-    
+
+  
+
+
 }

@@ -9,11 +9,11 @@ using UnityEngine;
 namespace KOK.ApiHandler.Model
 {
     [Serializable]
-    public class ResponseObject
+    public class ResponseObject<T>
     {
         public string Message { get; set; }
 
-        public Account Value { get; set; }
+        public T Value { get; set; }
         public bool Result { get; set; }
 
         public override string ToString()
