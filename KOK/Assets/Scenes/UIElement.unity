@@ -602,6 +602,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5927112803672238118, guid: 9207cc1055fa3944a9c50f05485933cb, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7475569531979358226, guid: 9207cc1055fa3944a9c50f05485933cb, type: 3}
       propertyPath: m_Name
       value: Text (TMP)
@@ -1228,7 +1232,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 136586668970116860, guid: a9e614860a3803f46bf1c3a1df779d7f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 117.00001
+      value: 117.00015
       objectReference: {fileID: 0}
     - target: {fileID: 269125544143381932, guid: a9e614860a3803f46bf1c3a1df779d7f, type: 3}
       propertyPath: m_AnchorMax.x
