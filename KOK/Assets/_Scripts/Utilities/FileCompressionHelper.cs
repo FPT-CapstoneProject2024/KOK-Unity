@@ -1,5 +1,7 @@
+using System;
 using System.IO;
 using System.IO.Compression;
+using UnityEngine;
 
 namespace KOK
 {
@@ -10,21 +12,53 @@ namespace KOK
 
             string fileName = Path.GetFileNameWithoutExtension(sourceFilePath);
             string compressedFilePath = Path.Combine(sourceFileLocation, fileName + ".zip");
-            if (!File.Exists(compressedFilePath))
+            try
             {
-                using (FileStream fs = File.Create(compressedFilePath))
+                using (FileStream zipToOpen = new FileStream(compressedFilePath, FileMode.OpenOrCreate))
                 {
-                    // File.Create will create the file, so there's nothing else to do here
+                    using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
+                    {
+                        ZipArchiveEntry entry = archive.CreateEntryFromFile(sourceFilePath, fileName + ".wav", System.IO.Compression.CompressionLevel.Optimal);
+                    }
                 }
             }
-            using (FileStream zipToOpen = new FileStream(compressedFilePath, FileMode.Open))
+            catch (Exception ex)
             {
-                using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
-                {
-                    ZipArchiveEntry entry = archive.CreateEntryFromFile(sourceFilePath, fileName + ".wav", CompressionLevel.Optimal);
-                }
+                Debug.LogException(ex);
+                return string.Empty;
             }
+
             return compressedFilePath;
+        }
+
+        public static string ExtractWavFileFromZip(string zipFilePath, string destinationFolder)
+        {
+            try
+            {
+                using (ZipArchive archive = ZipFile.OpenRead(zipFilePath))
+                {
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        if (entry.FullName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                        {
+                            string destinationPath = Path.Combine(destinationFolder, entry.FullName);
+
+                            // Ensure the destination directory exists
+                            Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+
+                            // Extract the file
+                            entry.ExtractToFile(destinationPath, overwrite: true);
+                            return destinationPath;
+                        }
+                    }
+                }
+                throw new FileNotFoundException("No WAV file found in the ZIP archive.");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+                return string.Empty;
+            }
         }
     }
 }

@@ -150,6 +150,12 @@ namespace KOK.Audio
             // Compress .wav file to zip
             string compressedFilePath = FileCompressionHelper.CompressWavFileAsZip(recordingSaveLocation, wavFilePath);
             Debug.Log($"Compressed file path: {compressedFilePath}");
+            if (string.IsNullOrEmpty(compressedFilePath))
+            {
+                Debug.LogError("Failed to compress voice recording to zip file!");
+                //WavHelper.DeleteLocalFile(wavFilePath);
+                return;
+            }
 
             // Start upload and clean up coroutine
             StartCoroutine(UploadAndCleanUpFiles(compressedFilePath, wavFilePath));
@@ -162,7 +168,7 @@ namespace KOK.Audio
             StorageMetadata fileMetadata = null;
             AggregateException uploadException = null;
 
-            FirebaseStorageManager.Instance.UploadRecordingByLocalFile(compressedFilePath,
+            FirebaseStorageManager.Instance.UploadVoiceRecordingByLocalFile(compressedFilePath,
                 (metadata) =>
                 {
                     uploadCompleted = true;
