@@ -66,7 +66,7 @@ namespace KOK
                 });
         }
 
-        public void UploadRecordingByLocalFile(string localFilePath, Action<StorageMetadata> onSuccess, Action<AggregateException> onError)
+        public void UploadVoiceRecordingByLocalFile(string localFilePath, Action<StorageMetadata> onSuccess, Action<AggregateException> onError)
         {
             string fileName = Path.GetFileName(localFilePath);
             StorageReference fileRef = voiceRecordingReference.Child(fileName);
@@ -85,35 +85,35 @@ namespace KOK
                         StorageMetadata metadata = task.Result;
                         string md5Hash = metadata.Md5Hash;
                         Debug.Log("Finished uploading...");
-                        //LogFileMetadata(metadata);
                         onSuccess?.Invoke(metadata);
                     }
                 });
         }
 
-        public void DownloadRecordingFile(string cloudFileName, string localFilePath)
+        public async Task<string> GetRecordingDownloadUrl(string cloudFileName)
         {
             StorageReference fileRef = voiceRecordingReference.Child(cloudFileName);
-
-            fileRef.GetDownloadUrlAsync()
-                .ContinueWith((Task<Uri> task) =>
-                {
-                    if (task.IsFaulted || task.IsCanceled)
-                    {
-                        Debug.Log(task.Exception.ToString());
-                    }
-                    else
-                    {
-                        string downloadUrl = task.Result.ToString();
-                        StartCoroutine(DownloadFileCoroutine(downloadUrl, localFilePath));
-                    }
-                });
+            try
+            {
+                Uri downloadUri = await fileRef.GetDownloadUrlAsync();
+                return downloadUri.ToString();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Failed to get voice recording download Url: " + ex.ToString());
+                return null;
+            }
         }
 
-        private IEnumerator DownloadFileCoroutine(string downloadUrl, string localFilePath)
+        public async Task DownloadVoiceRecordingFile(string downloadUrl, string localFilePath)
         {
             UnityWebRequest request = UnityWebRequest.Get(downloadUrl);
-            yield return request.SendWebRequest();
+            var operation = request.SendWebRequest();
+
+            while (!operation.isDone)
+            {
+                await Task.Yield();
+            }
 
             if (request.result == UnityWebRequest.Result.Success)
             {
