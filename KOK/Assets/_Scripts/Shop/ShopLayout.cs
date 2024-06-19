@@ -33,7 +33,7 @@ namespace KOK
                 GameObject gameObj = Instantiate(displayButton, displayPanel.transform);
                 gameObj.transform.GetChild(0).GetComponent<TMP_Text>().text = itemNames[i];
 
-                int index = i;  // Capture the correct index for the closure
+                int index = i;
                 gameObj.GetComponent<Button>().onClick.AddListener(delegate ()
                 {
                     ItemClicked(index);

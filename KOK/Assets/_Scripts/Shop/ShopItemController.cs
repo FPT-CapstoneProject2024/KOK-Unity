@@ -1,8 +1,10 @@
+using KOK.Assets._Scripts;
 using Newtonsoft.Json;
 using SU24SE069_PLATFORM_KAROKE_DataAccess.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using TMPro;
 using UnityEditorInternal.Profiling.Memory.Experimental;
@@ -23,8 +25,10 @@ namespace KOK
         public TMP_InputField itemStatusInput;
         public Toggle canExpireToggle;
         public Toggle canStackToggle;
+        public TMP_Text notificationText;
+        public float notificationFadeDuration;
 
-        public string baseUrl = "https://localhost:7017/api/items"; 
+        public string baseUrl = "https://localhost:7017/api/items";
 
         public void OnCreateSubmit()
         {
@@ -85,10 +89,20 @@ namespace KOK
             if (request.result == UnityWebRequest.Result.Success)
             {
                 Debug.Log("Item successfully sent to the API.");
+                Helper helper = new Helper();
+                notificationText.text = "Item successfully sent to the API.";
+                yield return helper.FadeTextToFullAlpha(notificationFadeDuration, notificationText);
+                yield return new WaitForSeconds(2); // Wait for 2 seconds before starting to fade out
+                yield return helper.FadeTextToZeroAlpha(notificationFadeDuration, notificationText);               
             }
             else
             {
                 Debug.LogError("Error sending item to the API: " + request.error);
+                Helper helper = new Helper();
+                notificationText.text = "Error sending item to the API: " + request.error;
+                yield return helper.FadeTextToFullAlpha(notificationFadeDuration, notificationText);
+                yield return new WaitForSeconds(2); // Wait for 2 seconds before starting to fade out
+                yield return helper.FadeTextToZeroAlpha(notificationFadeDuration, notificationText);               
             }
         }
 
