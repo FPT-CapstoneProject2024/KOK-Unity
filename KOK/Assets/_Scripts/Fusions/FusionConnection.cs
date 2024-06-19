@@ -362,7 +362,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayVideoButtonClick()
     {
-        if (RPCVideoPlayerDemo.videoPlayer.isPlaying)
+        if (RPCVideoPlayer.videoPlayer.isPlaying)
         {
             StopVideo();
         }
@@ -375,11 +375,16 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     private void PlayVideo()
     {
         string url = SongManager.songs[songListDropdown.value].songURL;
-        RPCVideoPlayerDemo.Rpc_OnPlayVideoButtonClick(runner, url);
+        RPCVideoPlayer.Rpc_OnPlayVideoButtonClick(runner, url, songListDropdown.value);
     }
 
     private void StopVideo()
     {
-        RPCVideoPlayerDemo.Rpc_Stop(runner);
+        RPCVideoPlayer.Rpc_Stop(runner);
+    }
+
+    public void TestDebug()
+    {
+        RPCVideoPlayer.Rpc_DebugLog(runner, _playerName);
     }
 }

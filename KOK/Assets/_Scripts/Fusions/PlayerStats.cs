@@ -15,6 +15,10 @@ public class PlayerStats : NetworkBehaviour
     [Networked] public Color PlayerColor { get; set; }
     [SerializeField] SpriteRenderer playerRenderer;
 
+    [SerializeField] int roleInRoom;
+
+    [SerializeField] public VideoPlayer videoPlayer;
+
     private void Start()
     {
         if (this.HasStateAuthority)
@@ -25,6 +29,8 @@ public class PlayerStats : NetworkBehaviour
         playerNameLabel.text = PlayerName.ToString();
         playerNameLabel.color = PlayerColor;
         playerRenderer.color = PlayerColor;
+
+        videoPlayer = FindAnyObjectByType<VideoPlayer>();
     }
 
     private void FixedUpdate()
