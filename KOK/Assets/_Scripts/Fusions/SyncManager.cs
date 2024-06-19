@@ -30,11 +30,10 @@ namespace KOK
             foreach (NetworkRunner runner in NetworkRunner.Instances)
             {
                 var delta = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>().videoPlayer.time - videoPlayer.time;
-                if (delta < -2 && delta > 2)
+                if (delta < -1 && delta > 1)
                 {
                     runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>().videoPlayer.time = videoPlayer.time;
                 }
-                runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>().videoPlayer.time = videoPlayer.time;
                 Debug.Log(runner.GetPlayerObject(runner.LocalPlayer) + ": " + videoPlayer.time);
             }
             StartCoroutine(SyncVideo());

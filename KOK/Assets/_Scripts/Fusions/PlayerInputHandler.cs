@@ -45,14 +45,17 @@ namespace KOK
             {
                 vertical += 1;
             }
+            else
             if (Input.GetKey(KeyCode.S))
             {
                 vertical -= 1;
             }
+            else
             if (Input.GetKey(KeyCode.A))
             {
                 horizontal -= 1;
             }
+            else
             if (Input.GetKey(KeyCode.D))
             {
                 horizontal += 1;

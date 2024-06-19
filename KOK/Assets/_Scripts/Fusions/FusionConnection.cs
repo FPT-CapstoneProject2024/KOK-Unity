@@ -35,6 +35,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] TextMeshProUGUI roomIdTMP;
     [SerializeField] TMP_Dropdown roomListDropdown;
     [SerializeField] TMP_Dropdown songListDropdown;
+    [SerializeField] Transform spawnPoint;
 
     [SerializeField] float spawnOffset = 0f;
     public string _playerName = "Anonymous";
@@ -211,12 +212,16 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     void INetworkRunnerCallbacks.OnConnectedToServer(NetworkRunner runner)
     {
         Debug.Log("OnConnectedToServer");
-        playerObject = runner.Spawn(playerPrefab, new Vector3(Random.Range(-spawnOffset, spawnOffset), 0, Random.Range(-spawnOffset, spawnOffset)));
+        //playerObject = runner.Spawn(playerPrefab, new Vector3(spawnPoint.position.x + Random.Range(-spawnOffset, spawnOffset), 0, spawnPoint.position.z + Random.Range(-spawnOffset, spawnOffset)));
+        playerObject = runner.Spawn(playerPrefab, Vector3.zero);
+        playerObject.transform.parent = spawnPoint;
+        playerObject.GetComponent<RectTransform>().position = Vector3.zero;
         playerObject.name = "Player: " + _playerName;
         playerObject.GetComponentInChildren<TextMeshPro>().text = _playerName;
         playerObject.GetComponent<SpriteRenderer>().color = _playerColor;
         playerObject.GetComponentInChildren<TextMeshPro>().color = _playerColor;
         runner.SetPlayerObject(runner.LocalPlayer, playerObject);
+
 
         lobbyCanvas.gameObject.SetActive(false);
         audioCanvas.gameObject.SetActive(true);
