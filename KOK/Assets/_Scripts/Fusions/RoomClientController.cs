@@ -44,7 +44,7 @@ public class RoomClientController : MonoBehaviour
     public static void TestRPC()
     {
 
-        RPCVideoPlayerDemo.Rpc_TestPlayerList(FindAnyObjectByType<NetworkRunner>(), 1);
+        RPCVideoPlayer.Rpc_TestPlayerList(FindAnyObjectByType<NetworkRunner>(), 1);
     }
 
     //public static void Rpc_PrepareVideo()

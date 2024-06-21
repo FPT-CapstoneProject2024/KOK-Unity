@@ -35,6 +35,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] TextMeshProUGUI roomIdTMP;
     [SerializeField] TMP_Dropdown roomListDropdown;
     [SerializeField] TMP_Dropdown songListDropdown;
+    [SerializeField] Transform spawnPoint;
 
     [SerializeField] float spawnOffset = 0f;
     public string _playerName = "Anonymous";
@@ -211,17 +212,23 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     void INetworkRunnerCallbacks.OnConnectedToServer(NetworkRunner runner)
     {
         Debug.Log("OnConnectedToServer");
-        playerObject = runner.Spawn(playerPrefab, new Vector3(Random.Range(-spawnOffset, spawnOffset), 0, Random.Range(-spawnOffset, spawnOffset)));
+        //playerObject = runner.Spawn(playerPrefab, new Vector3(spawnPoint.position.x + Random.Range(-spawnOffset, spawnOffset), 0, spawnPoint.position.z + Random.Range(-spawnOffset, spawnOffset)));
+        playerObject = runner.Spawn(playerPrefab, Vector3.zero);
+
+        //playerObject.transform.parent = spawnPoint;
         playerObject.name = "Player: " + _playerName;
         playerObject.GetComponentInChildren<TextMeshPro>().text = _playerName;
         playerObject.GetComponent<SpriteRenderer>().color = _playerColor;
         playerObject.GetComponentInChildren<TextMeshPro>().color = _playerColor;
         runner.SetPlayerObject(runner.LocalPlayer, playerObject);
 
+
         lobbyCanvas.gameObject.SetActive(false);
         audioCanvas.gameObject.SetActive(true);
         videoCanvas.gameObject.SetActive(true);
         clientCanvas.gameObject.SetActive(true);
+
+        playerObject.transform.localPosition = spawnPoint.localPosition;
     }
 
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
@@ -252,15 +259,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
         Debug.Log("OnInput");
-        //if (_localPlayerInputHandler == null && this.runner != null)
-        //{
-        //    _localPlayerInputHandler = playerObject.GetComponent<PlayerInputHandler>();
-        //}
-        //if (this.runner != null)
-        //{
-
-        //    input.Set(_localPlayerInputHandler.GetNetworkInputData());
-        //}
+        
     }
 
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
@@ -281,6 +280,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         Debug.Log("OnPlayerJoined");
+
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
@@ -362,7 +362,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayVideoButtonClick()
     {
-        if (RPCVideoPlayerDemo.videoPlayer.isPlaying)
+        if (RPCVideoPlayer.videoPlayer.isPlaying)
         {
             StopVideo();
         }
@@ -375,11 +375,16 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     private void PlayVideo()
     {
         string url = SongManager.songs[songListDropdown.value].songURL;
-        RPCVideoPlayerDemo.Rpc_OnPlayVideoButtonClick(runner, url);
+        RPCVideoPlayer.Rpc_OnPlayVideoButtonClick(runner, url, songListDropdown.value);
     }
 
     private void StopVideo()
     {
-        RPCVideoPlayerDemo.Rpc_Stop(runner);
+        RPCVideoPlayer.Rpc_Stop(runner);
+    }
+
+    public void TestDebug()
+    {
+        RPCVideoPlayer.Rpc_DebugLog(runner, _playerName);
     }
 }

@@ -32,8 +32,10 @@ Library: D:\Desktop\KOK-Unity\KOK\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib
 --assembly-defines=Unity.Mathematics;
 --assembly-defines=Unity.VisualScripting.State;
 --assembly-defines=Newtonsoft.Json;
+--assembly-defines=System.Text.Encodings.Web;
 --assembly-defines=Unity.Collections.LowLevel.ILSupport;
 --assembly-defines=Firebase.App;
+--assembly-defines=System.Text.Json;
 --assembly-defines=websocket-sharp;
 --assembly-defines=Fusion.Common;
 --assembly-defines=NanoSockets;
@@ -42,6 +44,7 @@ Library: D:\Desktop\KOK-Unity\KOK\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib
 --assembly-defines=Firebase.Auth;
 --assembly-defines=Fusion.Log;
 --assembly-defines=Fusion.Runtime;
+--assembly-defines=System.Runtime.CompilerServices.Unsafe;
 --assembly-defines=Unity.VisualScripting.Antlr3.Runtime;
 --assembly-defines=Photon3Unity3D;
 --assembly-defines=Unity.Burst.Unsafe;
@@ -49,7 +52,11 @@ Library: D:\Desktop\KOK-Unity\KOK\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib
 --assembly-defines=Firebase.Platform;
 --assembly-defines=Firebase.Storage;
 --assembly-defines=Google.MiniJson;
+--assembly-defines=Microsoft.Bcl.AsyncInterfaces;
+--assembly-defines=System.Buffers;
+--assembly-defines=System.Memory;
 --assembly-defines=System.Runtime;
+--assembly-defines=System.Threading.Tasks.Extensions;
 --assembly-defines=netstandard;
 --assembly-defines=Mono.Security;
 --assembly-defines=System.ComponentModel.Composition;
@@ -62,6 +69,7 @@ Library: D:\Desktop\KOK-Unity\KOK\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib
 --assembly-defines=System.IO.Compression.FileSystem;
 --assembly-defines=System.IO.Compression;
 --assembly-defines=System.Net.Http;
+--assembly-defines=System.Numerics.Vectors;
 --assembly-defines=System.Numerics;
 --assembly-defines=System.Runtime.Serialization;
 --assembly-defines=System.Security;

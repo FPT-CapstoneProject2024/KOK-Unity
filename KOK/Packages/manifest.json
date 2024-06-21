@@ -1,14 +1,16 @@
 {
-   "scopedRegistries": [
+  "scopedRegistries": [
     {
       "name": "iBicha",
       "url": "https://registry.npmjs.com",
-      "scopes": [ "com.ibicha" ]
+      "scopes": [
+        "com.ibicha"
+      ]
     }
   ],
   "dependencies": {
-	"com.ibicha.youtube-player": "3.3.1",
     "com.github-glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
+    "com.ibicha.youtube-player": "3.3.1",
     "com.unity.collab-proxy": "2.3.1",
     "com.unity.feature.2d": "2.0.0",
     "com.unity.ide.rider": "3.0.28",
