@@ -1,145 +1,188 @@
-using KOK.ApiHandler.Instance;
+using KOK.ApiHandler.Context;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
-using System.Text.Json.Serialization;
-using KOK.ApiHandler.Model;
 using Newtonsoft.Json;
-using Google.MiniJSON;
-using System.Text.Json;
-using System.Net;
+using KOK.ApiHandler.DTOModels;
+using KOK.ApiHandler.Utilities;
+using System.Threading.Tasks;
+using System.Collections.Specialized;
+using System.Web;
 
 namespace KOK.ApiHandler.Controller
 {
     public class AccountController : MonoBehaviour
     {
-        [SerializeField] private GameObject accountPanel;
+        private string accountResourceUrl = string.Empty;
 
-        public Account Account { get;  set; }
-
-        public List<Account> Accounts { get;  set; }
-
-        private string url = ApiInstance.url + "/accounts";
-
-        public void GetAccountButton()
+        private void Start()
         {
-            StartCoroutine(DemoCoroutine());
-            
-        }
-        public IEnumerator DemoCoroutine()
-        {
-            yield return StartCoroutine(GetAccountByIdRequest(Guid.Parse("94deb139-4c4b-4a2c-8087-bf47de2f67af")));
-
-            Account.accountName = "ffffffffffffffffffffffff";
-            Account.password = "2113r12r";
-            Debug.Log(Account);
-            yield return StartCoroutine(PostAccount(Account));
+            accountResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Accounts_Resource;
         }
 
-        IEnumerator GetAccountRequest()
+        private async void Update()
         {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+            #region Testing
+
+            //if (Input.GetKeyDown(KeyCode.A))
+            //{
+            //    //SendGetAccountRequest();
+            //    var account = await GetAccountByIdAsync(Guid.Parse("E04BF9EE-247B-47EC-92D1-B04C04F77724"));
+            //    if (account == null)
+            //    {
+            //        Debug.Log("Failed to get account detail by API request");
+            //    }
+            //    else
+            //    {
+            //        Debug.Log("YOB: " + account.Yob);
+            //    }
+
+            //}
+
+            //if (Input.GetKeyDown(KeyCode.S))
+            //{
+            //    CreateAccountRequest account = new CreateAccountRequest()
+            //    {
+            //        UserName = "Hoa",
+            //        Password = "111111",
+            //        Email = "hoa@gmail.com",
+            //    };
+            //    var result = await CreateAccountAsync(account);
+            //    if (result == null)
+            //    {
+            //        Debug.Log("Failed to create new member account by API request");
+            //    }
+            //    else
+            //    {
+            //        Debug.Log("YOB: " + result.Yob);
+            //    }
+            //}
+
+            //if (Input.GetKeyDown(KeyCode.D))
+            //{
+            //    var orderFilter = AccountOrderFilter.UserName;
+            //    var paging = new PagingRequest() { OrderType = SortOrder.Ascending };
+
+            //    var result = await GetAccountsFilterPagingAsync(new AccountFilter(), orderFilter, paging);
+            //    if (result == null)
+            //    {
+            //        Debug.Log("Failed to get accounts by API request");
+            //    }
+            //    else
+            //    {
+            //        Debug.Log("Total Count: " + result.Metadata.Total);
+            //    }
+            //}
+
+            #endregion
+        }
+
+        public void GetAccountByIdCoroutine(Guid accountId, Action<string> onSuccess, Action<string> onError)
+        {
+            // Validate account ID
+            if (accountId == null)
             {
-                // Request and wait for the desired page.
-                yield return webRequest.SendWebRequest();
-                Debug.Log(webRequest.url);
-                string[] pages = url.Split('/');
-                int page = pages.Length - 1;
-
-                switch (webRequest.result)
-                {
-                    case UnityWebRequest.Result.ConnectionError:
-                    case UnityWebRequest.Result.DataProcessingError:
-                        Debug.LogError(pages[page] + ": Error: " + webRequest.error);
-                        break;
-                    case UnityWebRequest.Result.ProtocolError:
-                        Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
-                        break;
-                    case UnityWebRequest.Result.Success:
-                        Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
-                        break;
-                }
+                Debug.Log("Failed to get account by ID. Account ID is null!");
+                return;
             }
+
+            // Prepare and send api request
+            var url = accountResourceUrl + "/" + accountId.ToString();
+            ApiHelper.Instance.GetCoroutine(url, onSuccess, onError);
         }
-        
-        IEnumerator GetAccountByIdRequest(Guid accountId)
+
+        public async Task<Account?> GetAccountByIdAsync(Guid accountId)
         {
-            url += $"/{accountId}";
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
-            {
-                // Request and wait for the desired page.
-                yield return webRequest.SendWebRequest();
-                Debug.Log(webRequest.url);
-                string[] pages = url.Split('/');
-                int page = pages.Length - 1;
+            var url = accountResourceUrl + "/" + accountId.ToString();
+            var jsonResult = await ApiHelper.Instance.GetAsync(url);
 
-                switch (webRequest.result)
-                {
-                    case UnityWebRequest.Result.ConnectionError:
-                    case UnityWebRequest.Result.DataProcessingError:
-                        Debug.LogError(pages[page] + ": Error: " + webRequest.error);
-                        break;
-                    case UnityWebRequest.Result.ProtocolError:
-                        Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
-                        break;
-                    case UnityWebRequest.Result.Success:
-                        Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
-                        ResponseObject<Account> response = JsonConvert.DeserializeObject<ResponseObject<Account>>(webRequest.downloadHandler.text);
-                        Debug.LogError(response.Message);
-                        Account = response.Value;
-                        break;
-                }
+            if (string.IsNullOrEmpty(jsonResult))
+            {
+                return null;
             }
+
+            ResponseResult<Account> result = JsonConvert.DeserializeObject<ResponseResult<Account>>(jsonResult);
+
+            return result.Value;
         }
 
-        IEnumerator PostAccount(Account account)
+        /// <summary>
+        /// Async method to create new member account.
+        /// </summary>
+        /// <param name="newAccount">Object contains data for new account. Required property: Username, Password, Email.</param>
+        /// <returns>Detail of newly created account.</returns>
+        public async Task<Account?> CreateAccountAsync(CreateAccountRequest newAccount)
         {
-            using (UnityWebRequest www = UnityWebRequest.Post(url, account.ToString(), "application/json"))
-            {
-                yield return www.SendWebRequest();
+            var jsonData = JsonConvert.SerializeObject(newAccount);
+            var url = accountResourceUrl;
+            var jsonResult = await ApiHelper.Instance.PostAsync(url, jsonData);
 
-                if (www.result != UnityWebRequest.Result.Success)
-                {
-                    ResponseObject<string> response = JsonConvert.DeserializeObject<ResponseObject<string>>(www.downloadHandler.text);
-                    Debug.LogError(www.error + response.Message);
-                }
-                else
-                {
-                    Debug.Log("Posts complete!");
-                }
+            if (string.IsNullOrEmpty(jsonResult))
+            {
+                return null;
             }
+
+            Debug.Log(jsonResult);
+
+            ResponseResult<Account> result = JsonConvert.DeserializeObject<ResponseResult<Account>>(jsonResult);
+
+            return result.Value;
         }
 
-        IEnumerator PutAccount(Account account)
+        public async Task<DynamicResponseResult<Account>?> GetAccountsFilterPagingAsync(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging)
         {
-            byte[] myData = System.Text.Encoding.UTF8.GetBytes("This is some test data");
-            using (UnityWebRequest www = UnityWebRequest.Put("https://www.my-server.com/upload", myData))
-            {
-                yield return www.SendWebRequest();
+            var queryParams = GenerateAccountQueryParams(filter, orderFilter, paging);
+            var url = BuildUrl(accountResourceUrl, queryParams);
 
-                if (www.result != UnityWebRequest.Result.Success)
-                {
-                    Debug.Log(www.error);
-                }
-                else
-                {
-                    Debug.Log("Upload complete!");
-                }
+            Debug.Log(url);
+
+            var jsonResult = await ApiHelper.Instance.GetAsync(url);
+            if (string.IsNullOrEmpty(jsonResult))
+            {
+                return null;
             }
+
+            DynamicResponseResult<Account> result = JsonConvert.DeserializeObject<DynamicResponseResult<Account>>(jsonResult);
+            return result;
         }
 
+        private string BuildUrl(string baseUrl, NameValueCollection queryParams)
+        {
+            var builder = new UriBuilder(baseUrl);
+            var query = HttpUtility.ParseQueryString(builder.Query);
 
+            foreach (string key in queryParams)
+            {
+                query[key] = queryParams[key];
+            }
 
+            builder.Query = query.ToString();
+            return builder.ToString();
+        }
 
+        private NameValueCollection GenerateAccountQueryParams(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging) 
+        {
+            var queryParams = new NameValueCollection();
+            if (filter.UserName != null)
+            {
+                queryParams.Add(nameof(filter.UserName), filter.UserName);
+            }
+
+            if (filter.Email != null)
+            {
+                queryParams.Add(nameof(filter.Email), filter.Email);
+            }
+
+            if (filter.PhoneNumber != null)
+            {
+                queryParams.Add(nameof(filter.PhoneNumber), filter.PhoneNumber);
+            }
+
+            queryParams.Add(nameof(paging.page), paging.page.ToString());
+            queryParams.Add(nameof(paging.pageSize), paging.pageSize.ToString());
+            queryParams.Add(nameof(paging.OrderType), paging.OrderType.ToString());
+            queryParams.Add(nameof(orderFilter), orderFilter.ToString());
+
+            return queryParams;
+        }
     }
-
-  
-
-
 }
