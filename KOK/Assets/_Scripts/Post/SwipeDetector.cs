@@ -12,7 +12,7 @@ public class SwipeDetector : MonoBehaviour
     public UnityEvent OnSwipeUp;
     public UnityEvent OnSwipeDown;
 
-    public RectTransform swipePanel; // Add this reference
+    public RectTransform swipePanel;
 
     void Update()
     {

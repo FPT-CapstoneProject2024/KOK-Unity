@@ -1,28 +1,25 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using TMPro;
-using System.Collections.Generic;
+using SU24SE069_PLATFORM_KAROKE_DataAccess.Models;
 
 namespace KOK
 {
     public class PostLoader : MonoBehaviour
     {
-        [SerializeField] private List<Post> postList = new List<Post>();
         private string postBaseUrl = "https://localhost:7017/api/posts";
         public GameObject displayPanel;
-        public GameObject postPrefab;
+        public GameObject captionDisplayPanel;
+        public GameObject displayPrefab;
+        public PostTransition postTransition;
         private int currentPostIndex = 0;
-
-        private SwipeDetector swipeDetector;
+        private List<Post> loadedPosts = new List<Post>(); // Store loaded posts
 
         void Start()
         {
-            swipeDetector = GetComponent<SwipeDetector>();
-            swipeDetector.OnSwipeUp.AddListener(OnSwipeUp);
-            swipeDetector.OnSwipeDown.AddListener(OnSwipeDown);
-
             StartCoroutine(GetPosts(postBaseUrl));
         }
 
@@ -35,58 +32,165 @@ namespace KOK
             if (request.result == UnityWebRequest.Result.Success)
             {
                 string response = request.downloadHandler.text;
-                var posts = JsonConvert.DeserializeObject<List<Post>>(response);
-                postList.AddRange(posts);
+                var responseObject = JsonConvert.DeserializeObject<PostResponseObject>(response);
+                var posts = responseObject.Results;
 
-                // Load the initial set of posts
-                LoadPosts();
+                if (postTransition != null)
+                {
+                    GeneratePosts(posts); // Pass loaded posts to the method
+                }
+
+                Debug.Log(response);
             }
             else
             {
-                Debug.LogError("Failed to fetch posts: " + request.error);
+                Debug.LogError(request.error);
             }
         }
 
-        void LoadPosts()
+        /*IEnumerator GetMemberInfo(Post post)
         {
-            // Clear the display panel
+            string url = $"https://localhost:7017/api/accounts/{post.MemberId}";
+
+            UnityWebRequest request = UnityWebRequest.Get(url);
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string response = request.downloadHandler.text;
+                var member = JsonConvert.DeserializeObject<Account>(response);
+                post.Member = member;
+            }
+            else
+            {
+                Debug.LogError($"Failed to fetch member info for post {post.PostId}: {request.error}");
+            }
+        }*/
+
+        void GeneratePosts(List<Post> posts)
+        {
+            if (postTransition != null)
+            {
+                postTransition.SetInitialPosts(posts); // Call method in PostTransition to set posts
+            }
+        }
+
+        // Method to get current post ID based on currentPostIndex
+        public string GetCurrentPostId()
+        {
+            if (currentPostIndex >= 0 && currentPostIndex < loadedPosts.Count)
+            {
+                return loadedPosts[currentPostIndex].PostId.ToString();
+            }
+            return string.Empty; // Return empty string if index is out of bounds
+        }
+    }
+
+    public class PostResponseObject
+    {
+        public string Code { get; set; }
+        public string Message { get; set; }
+        public Metadata Metadata { get; set; }
+        public List<Post> Results { get; set; }
+    }
+
+    public class Metadata
+    {
+        public int Page { get; set; }
+        public int Size { get; set; }
+        public int Total { get; set; }
+    }
+}
+
+
+
+
+/*using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking;
+using Newtonsoft.Json;
+using TMPro;
+using SU24SE069_PLATFORM_KAROKE_DataAccess.Models;
+
+namespace KOK
+{
+    public class PostLoader : MonoBehaviour
+    {
+        private string postBaseUrl = "https://localhost:7017/api/posts";
+        public GameObject displayPanel;
+        public GameObject displayPrefab;
+        private PostTransition postTransition;
+
+        void Start()
+        {
+            postTransition = GetComponent<PostTransition>();
+            StartCoroutine(GetPosts(postBaseUrl));
+        }
+
+        IEnumerator GetPosts(string url)
+        {
+            UnityWebRequest request = UnityWebRequest.Get(url);
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string response = request.downloadHandler.text;
+                var responseObject = JsonConvert.DeserializeObject<PostResponseObject>(response);
+                var posts = responseObject.Results;
+
+                GeneratePosts(posts);
+                Debug.Log(response);
+            }
+            else
+            {
+                Debug.LogError(request.error);
+            }
+        }
+
+        void GeneratePosts(List<Post> posts)
+        {
+            List<GameObject> instantiatedPosts = new List<GameObject>();
+
             foreach (Transform child in displayPanel.transform)
             {
                 Destroy(child.gameObject);
             }
 
-            // Instantiate and display posts
-            for (int i = 0; i < postList.Count; i++)
+            foreach (Post post in posts)
             {
-                GameObject postObj = Instantiate(postPrefab, displayPanel.transform);
-                postObj.GetComponentInChildren<TMP_Text>().text = postList[i].Title; // Example: Display post title
-                postObj.SetActive(i == currentPostIndex); // Show only the current post
-            }
-        }
+                GameObject gameObj = Instantiate(displayPrefab, displayPanel.transform);
+                gameObj.transform.GetChild(1).GetComponent<TMP_Text>().text = post.MemberId.ToString();
+                // gameObj.transform.GetChild(2).GetComponent<TMP_Text>().text = post.Comment;
 
-        void OnSwipeUp()
-        {
-            if (currentPostIndex < postList.Count - 1)
-            {
-                currentPostIndex++;
-                LoadPosts();
-            }
-        }
+                gameObj.SetActive(false); // Initially deactivate all posts
 
-        void OnSwipeDown()
-        {
-            if (currentPostIndex > 0)
-            {
-                currentPostIndex--;
-                LoadPosts();
-            }
-        }
+                // Center the post in the parent panel
+                RectTransform postRectTransform = gameObj.GetComponent<RectTransform>();
+                postRectTransform.anchoredPosition = Vector2.zero;
 
-        [System.Serializable]
-        public class Post
-        {
-            public string Title { get; set; }
-            // Add more properties as needed based on your API response
+                instantiatedPosts.Add(gameObj); // Add the instantiated post to the list
+            }
+
+            //postTransition.SetPosts(instantiatedPosts);
         }
     }
+
+    public class PostResponseObject
+    {
+        public string Code { get; set; }
+        public string Message { get; set; }
+        public Metadata Metadata { get; set; }
+        public List<Post> Results { get; set; }
+    }
+
+    public class Metadata
+    {
+        public int Page { get; set; }
+        public int Size { get; set; }
+        public int Total { get; set; }
+    }
 }
+*/
