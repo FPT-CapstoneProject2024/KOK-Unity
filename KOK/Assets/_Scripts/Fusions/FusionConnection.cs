@@ -214,8 +214,8 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
         Debug.Log("OnConnectedToServer");
         //playerObject = runner.Spawn(playerPrefab, new Vector3(spawnPoint.position.x + Random.Range(-spawnOffset, spawnOffset), 0, spawnPoint.position.z + Random.Range(-spawnOffset, spawnOffset)));
         playerObject = runner.Spawn(playerPrefab, Vector3.zero);
-        playerObject.transform.parent = spawnPoint;
-        playerObject.GetComponent<RectTransform>().position = Vector3.zero;
+
+        //playerObject.transform.parent = spawnPoint;
         playerObject.name = "Player: " + _playerName;
         playerObject.GetComponentInChildren<TextMeshPro>().text = _playerName;
         playerObject.GetComponent<SpriteRenderer>().color = _playerColor;
@@ -227,6 +227,8 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
         audioCanvas.gameObject.SetActive(true);
         videoCanvas.gameObject.SetActive(true);
         clientCanvas.gameObject.SetActive(true);
+
+        playerObject.transform.localPosition = spawnPoint.localPosition;
     }
 
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
@@ -257,15 +259,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
         Debug.Log("OnInput");
-        //if (_localPlayerInputHandler == null && this.runner != null)
-        //{
-        //    _localPlayerInputHandler = playerObject.GetComponent<PlayerInputHandler>();
-        //}
-        //if (this.runner != null)
-        //{
-
-        //    input.Set(_localPlayerInputHandler.GetNetworkInputData());
-        //}
+        
     }
 
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
@@ -286,6 +280,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         Debug.Log("OnPlayerJoined");
+
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)

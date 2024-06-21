@@ -1,6 +1,8 @@
 using Fusion;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Video;
 
@@ -27,16 +29,29 @@ namespace KOK
         IEnumerator SyncVideo()
         {
             yield return new WaitForSeconds(3);
+            
             foreach (NetworkRunner runner in NetworkRunner.Instances)
             {
-                var delta = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>().videoPlayer.time - videoPlayer.time;
-                if (delta < -1 && delta > 1)
+                var delta = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>().videoPlayer.time - GetSortedList()[0].videoPlayer.time;
+
+                Debug.Log(runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>().PlayerName + ": " + runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>().videoPlayer.time);
+                Debug.Log(GetSortedList()[0].PlayerName + ": " + GetSortedList()[0].videoPlayer.time);
+
+                if (delta < -0.5 && delta > 0.5)
                 {
-                    runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>().videoPlayer.time = videoPlayer.time;
+                    videoPlayer.time = GetSortedList()[0].videoPlayer.time;
+                    Debug.Log("Delta: " + delta);
                 }
-                Debug.Log(runner.GetPlayerObject(runner.LocalPlayer) + ": " + videoPlayer.time);
             }
             StartCoroutine(SyncVideo());
+        }
+
+        private List<PlayerStats> GetSortedList()
+        {
+            List<PlayerStats> list = FindObjectsOfType<PlayerStats>().ToList();
+            list.Sort();
+            return list;
+
         }
     }
 }

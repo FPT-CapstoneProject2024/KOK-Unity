@@ -14,7 +14,7 @@ namespace KOK
         void Start()
         {
             deviceType = SystemInfo.deviceType.ToString();
-            Debug.Log(deviceType + "============================");
+            //Debug.Log(deviceType + "============================");
         }
         private void Update()
         {
@@ -24,7 +24,7 @@ namespace KOK
             }
             else
             {
-                direction = GetMobileAccelerometerValue();
+                //direction = GetMobileAccelerometerValue();
             }
 
 

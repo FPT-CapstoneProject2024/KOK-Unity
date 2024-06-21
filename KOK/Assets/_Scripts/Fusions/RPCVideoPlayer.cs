@@ -43,8 +43,9 @@ public class RPCVideoPlayer : NetworkBehaviour
         videoPlayer.url = url;
         videoPlayer.Stop();
         videoPlayer.Prepare();
+
         videoPlayer.Play();
-        videoPlayer.SetDirectAudioVolume(0, 0.3f);
+        videoPlayer.SetDirectAudioVolume(0, 0.4f);
         
 
     }
@@ -98,7 +99,9 @@ public class RPCVideoPlayer : NetworkBehaviour
     [Rpc]
     public static void Rpc_DebugLog(NetworkRunner runner, string content)
     {
-        Debug.Log(content);
+        List<PlayerStats> list = FindObjectsOfType<PlayerStats>().ToList();
+        
+        Debug.Log(content + " | " + list.Count);
     }
 
     [Rpc]

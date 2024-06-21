@@ -10,7 +10,7 @@
     },
     "EnqueueIncompleteSynchronousSpawns": false,
     "InvokeRenderInBatchMode": true,
-    "NetworkIdIsObjectName": false,
+    "NetworkIdIsObjectName": true,
     "HideNetworkObjectInactivityGuard": false,
     "Simulation": {
         "InputDataWordCount": 0,
