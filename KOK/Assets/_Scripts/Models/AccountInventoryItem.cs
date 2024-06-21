@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace SU24SE069_PLATFORM_KAROKE_DataAccess.Models
 {
-    [Serializable]
     public partial class AccountInventoryItem
     {
         public AccountInventoryItem()

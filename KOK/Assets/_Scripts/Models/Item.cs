@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace SU24SE069_PLATFORM_KAROKE_DataAccess.Models
 {
-    [Serializable]
     public partial class Item
     {
         public Item()
@@ -23,6 +22,7 @@ namespace SU24SE069_PLATFORM_KAROKE_DataAccess.Models
         public bool? CanStack { get; set; }
         public DateTime CreatedDate { get; set; }
         public Guid? CreatorId { get; set; }
+        public string? PrefabCode { get; set; }
 
         public virtual Account? Creator { get; set; }
         public virtual ICollection<AccountInventoryItem> AccountInventoryItems { get; set; }

@@ -7,9 +7,8 @@ namespace SU24SE069_PLATFORM_KAROKE_DataAccess.Models
     {
         public Post()
         {
-            PostComments = new HashSet<PostComment>();
             PostShares = new HashSet<PostShare>();
-            PostVotes = new HashSet<PostVote>();
+            PostRates = new HashSet<PostRate>();
             Reports = new HashSet<Report>();
         }
 
@@ -22,9 +21,8 @@ namespace SU24SE069_PLATFORM_KAROKE_DataAccess.Models
 
         public virtual Account Member { get; set; } = null!;
         public virtual Recording Recording { get; set; } = null!;
-        public virtual ICollection<PostComment> PostComments { get; set; }
         public virtual ICollection<PostShare> PostShares { get; set; }
-        public virtual ICollection<PostVote> PostVotes { get; set; }
+        public virtual ICollection<PostRate> PostRates { get; set; }
         public virtual ICollection<Report> Reports { get; set; }
     }
 }
