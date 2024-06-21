@@ -73,3 +73,6 @@ crashlytics-build.properties
 
 #Clone project
 *_clone_[0-9]*/
+
+#Build directory
+[Bb]uild/
