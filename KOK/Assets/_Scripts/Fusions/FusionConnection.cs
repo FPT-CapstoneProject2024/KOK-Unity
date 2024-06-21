@@ -26,6 +26,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] Canvas audioCanvas;
     [SerializeField] Canvas videoCanvas;
     [SerializeField] Canvas clientCanvas;
+    [SerializeField] GameObject gameManager;
     [SerializeField] TMP_InputField nameInput;
     [SerializeField] TMP_InputField roomNameInput;
     [SerializeField] Button createButton;
@@ -43,6 +44,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     public Color _playerColor;
     private List<SessionInfo> _roomList = new List<SessionInfo>();
     private PlayerInputHandler _localPlayerInputHandler;
+    public int playerRole = 0;
 
     NetworkObject playerObject;
 
@@ -61,10 +63,22 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
 
     private void Start()
     {
+        lobbyCanvas.gameObject.SetActive(false);
+        audioCanvas.gameObject.SetActive(false);
+        videoCanvas.gameObject.SetActive(false);
+        clientCanvas.gameObject.SetActive(false);
+        gameManager.gameObject.SetActive(false);
+
+        OnJoinLobby();
+    }
+
+    public void OnLoginSuccess()
+    {
         lobbyCanvas.gameObject.SetActive(true);
         audioCanvas.gameObject.SetActive(false);
         videoCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(false);
+        gameManager.gameObject.SetActive(false);
 
         roomListDropdown.ClearOptions();
         songListDropdown.ClearOptions();
@@ -72,12 +86,11 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
 
         OnRoomNameTMPValueChange();
         OnRoomListDropdownValueChange();
-
-        OnJoinLobby();
     }
 
     public void CreateRoom()
     {
+        playerRole = 0;
         _playerName = nameInput.text;
         if (_playerName.IsNullOrEmpty())
         {
@@ -93,6 +106,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
 
     public void JoinRoom()
     {
+        playerRole = 1;
         _playerName = nameInput.text;
         if (_playerName.IsNullOrEmpty())
         {
@@ -178,6 +192,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
         audioCanvas.gameObject.SetActive(false);
         videoCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(false);
+        gameManager.gameObject.SetActive(false);
         OnRoomListDropdownValueChange();
         _sessionName = "";
 
@@ -227,6 +242,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
         audioCanvas.gameObject.SetActive(true);
         videoCanvas.gameObject.SetActive(true);
         clientCanvas.gameObject.SetActive(true);
+        gameManager.gameObject.SetActive(true);
 
         playerObject.transform.localPosition = spawnPoint.localPosition;
     }

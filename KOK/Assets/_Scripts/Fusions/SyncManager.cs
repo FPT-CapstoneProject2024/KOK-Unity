@@ -13,13 +13,20 @@ namespace KOK
         private NetworkRunner runner;
         private VideoPlayer videoPlayer;
         private Coroutine coroutine;
+        private PlayerRef host;
         public NetworkRunner Runner { get => runner; set => runner = value; }
 
         public void StartSyncVideo()
         {
             runner = NetworkRunner.Instances[0];
-            videoPlayer = runner.GetPlayerObject(runner.LocalPlayer).gameObject.GetComponent<PlayerStats>().videoPlayer;
-            coroutine = StartCoroutine(SyncVideo());
+            foreach(PlayerRef player in runner.ActivePlayers)
+            {
+                if(runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerRole == 0)
+                {
+                    host = player; 
+                }
+            }
+            StartCoroutine(SyncVideo());
         }
 
         public void StopSyncVideo()
@@ -29,18 +36,22 @@ namespace KOK
         IEnumerator SyncVideo()
         {
             yield return new WaitForSeconds(3);
-            
-            foreach (NetworkRunner runner in NetworkRunner.Instances)
+            foreach (PlayerRef player in runner.ActivePlayers)
             {
-                var delta = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>().videoPlayer.time - GetSortedList()[0].videoPlayer.time;
+                var delta = runner.GetPlayerObject(player).GetComponent<PlayerStats>().videoTime - runner.GetPlayerObject(host).GetComponent<PlayerStats>().videoTime;
 
-                Debug.Log(runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>().PlayerName + ": " + runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>().videoPlayer.time);
-                Debug.Log(GetSortedList()[0].PlayerName + ": " + GetSortedList()[0].videoPlayer.time);
+                Debug.Log(runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerName + ": " 
+                    + runner.GetPlayerObject(player).GetComponent<PlayerStats>().videoTime + " - "
+                    + runner.GetPlayerObject(host).GetComponent<PlayerStats>().videoTime + " = "
+                    + delta + " ================================================");
+                //Debug.Log(GetSortedList()[0].PlayerName + ": " + GetSortedList()[0].videoTime);
 
-                if (delta < -0.5 && delta > 0.5)
+                if (delta < -0.5d || delta > 0.5d)
                 {
-                    videoPlayer.time = GetSortedList()[0].videoPlayer.time;
-                    Debug.Log("Delta: " + delta);
+                    Debug.LogError("Delta: " + delta);
+                    runner.GetPlayerObject(player).GetComponent<PlayerStats>().videoTime = runner.GetPlayerObject(host).GetComponent<PlayerStats>().videoTime;
+                    runner.GetPlayerObject(player).GetComponent<PlayerStats>().Rpc_SetVideoPlayerSyncTime();
+                    
                 }
             }
             StartCoroutine(SyncVideo());

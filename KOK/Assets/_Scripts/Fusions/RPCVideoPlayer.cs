@@ -1,4 +1,6 @@
-﻿using Fusion;
+﻿using ExitGames.Client.Photon;
+using ExitGames.Client.Photon.StructWrapping;
+using Fusion;
 using KOK;
 using KOK.UISprite;
 using System;
@@ -25,6 +27,8 @@ public class RPCVideoPlayer : NetworkBehaviour
 
     private static TMP_Dropdown songDropDown;
 
+    public static List<PlayerStats> playerNames = new();
+
     private void Awake()
     {
         videoPlayer = FindAnyObjectByType<VideoPlayer>();
@@ -46,8 +50,9 @@ public class RPCVideoPlayer : NetworkBehaviour
 
         videoPlayer.Play();
         videoPlayer.SetDirectAudioVolume(0, 0.4f);
-        
 
+
+        Rpc_StartSyncVideo(runner);
     }
 
     [Rpc]
@@ -63,7 +68,6 @@ public class RPCVideoPlayer : NetworkBehaviour
         else
         {
             Rpc_Play(runner, url);
-            Rpc_StartSyncVideo(runner);
         }
 
         playVideoButton.GetComponent<ButtonSwapSprite>().SwapSprite();
@@ -100,22 +104,65 @@ public class RPCVideoPlayer : NetworkBehaviour
     public static void Rpc_DebugLog(NetworkRunner runner, string content)
     {
         List<PlayerStats> list = FindObjectsOfType<PlayerStats>().ToList();
-        
-        Debug.Log(content + " | " + list.Count);
+        List<PlayerRef> playerRefs = runner.ActivePlayers.ToList();
+        string test = "";
+        foreach (PlayerRef playerRef in playerRefs)
+        {
+            test += playerRef.PlayerId;
+        }
+        Debug.Log(content + " | " + runner);
     }
 
     [Rpc]
     public static void Rpc_StartSyncVideo(NetworkRunner runner)
     {
-        SyncManager sync = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<SyncManager>() ?? runner.GetPlayerObject(runner.LocalPlayer).AddComponent<SyncManager>();
-        sync.StartSyncVideo() ;
+        PlayerRef host = runner.ActivePlayers.ToArray()[0];
+        runner = NetworkRunner.Instances[0];
+        foreach (PlayerRef player in runner.ActivePlayers)
+        {
+            if (runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerRole == 0)
+            {
+                host = player;
+            }
+        }
+        SyncManager sync = runner.GetPlayerObject(host).GetComponent<SyncManager>();
+        if (sync == null)
+        {
+            sync = runner.GetPlayerObject(host).AddComponent<SyncManager>();
+        }
+        sync.StartSyncVideo();
     }
     
     [Rpc]
     public static void Rpc_StopSyncVideo(NetworkRunner runner)
     {
-        SyncManager sync = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<SyncManager>() ?? runner.GetPlayerObject(runner.LocalPlayer).AddComponent<SyncManager>();
+        PlayerRef host = runner.ActivePlayers.ToArray()[0];
+        runner = NetworkRunner.Instances[0];
+        foreach (PlayerRef player in runner.ActivePlayers)
+        {
+            if (runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerRole == 0)
+            {
+                host = player;
+            }
+        }
+        SyncManager sync = runner.GetPlayerObject(host).GetComponent<SyncManager>();
+        if (sync == null)
+        {
+            sync = runner.GetPlayerObject(host).AddComponent<SyncManager>();
+        }
         sync.StopSyncVideo() ;
+    }
+
+    [Rpc] 
+    public static void Rpc_TestAddLocalObject(NetworkRunner runner, PlayerStats playerStats)
+    {
+        List<PlayerRef> playerRefs = runner.ActivePlayers.ToList();
+        string test = "";
+        foreach (PlayerRef playerRef in playerRefs)
+        {
+            test += playerRef.PlayerId + " | ";
+        }
+        //Debug.Log(playerStats.PlayerName + " | " + test + " ======================================");
     }
 }
 

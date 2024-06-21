@@ -17,11 +17,11 @@ public class PlayerStats : NetworkBehaviour, IComparable<PlayerStats>, IComparer
     [Networked] public Color PlayerColor { get; set; }
     [SerializeField] SpriteRenderer playerRenderer;
 
-    [SerializeField] int roleInRoom;
+    [Networked][SerializeField] public int PlayerRole { get; set; }
 
     [SerializeField] public VideoPlayer videoPlayer;
 
-    public double videoTime = 0;
+    [Networked] public double videoTime { get; set; }
 
     [Networked] PlayState playState { get; set; }
 
@@ -33,12 +33,17 @@ public class PlayerStats : NetworkBehaviour, IComparable<PlayerStats>, IComparer
         {
             PlayerName = FusionConnection.Instance._playerName;
             PlayerColor = FusionConnection.Instance._playerColor;
+            PlayerRole = FusionConnection.Instance.playerRole;
         }
         playerNameLabel.text = PlayerName.ToString();
         playerNameLabel.color = PlayerColor;
         playerRenderer.color = PlayerColor;
 
         videoPlayer = FindAnyObjectByType<VideoPlayer>();
+
+        RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
+
+        StartCoroutine(UpdateTime());
     }
 
     private void FixedUpdate()
@@ -57,11 +62,20 @@ public class PlayerStats : NetworkBehaviour, IComparable<PlayerStats>, IComparer
         return x.PlayerName.Compare(y.PlayerName);
     }
 
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void Rpc_SyncVideoTime()
+    {
+        videoTime = videoPlayer.time;
+    }
     IEnumerator UpdateTime()
     {
-        yield return new WaitForSeconds(3);
-        videoPlayer = FindAnyObjectByType<VideoPlayer>();
-        videoTime = videoPlayer.time;
+        yield return new WaitForSeconds(0.5f);
+        Rpc_SyncVideoTime();
         StartCoroutine(UpdateTime());
+    }
+
+    public void Rpc_SetVideoPlayerSyncTime()
+    {
+         videoPlayer.time = videoTime;
     }
 }
