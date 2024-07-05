@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/DemoCallApi.unity
     guid: f3b4372027b4c19459dc9f2a45fd3286
+  - enabled: 0
+    path: Assets/Scenes/DemoCallApi.unity
+    guid: f3b4372027b4c19459dc9f2a45fd3286
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 61ed0d596bf25db4f80291b5d9f5e798, type: 2}

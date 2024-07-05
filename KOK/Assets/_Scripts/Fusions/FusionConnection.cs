@@ -21,9 +21,9 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     public bool connectOnAwake = false;
     public NetworkRunner runner;
     [SerializeField] NetworkObject playerPrefab;
+    [SerializeField] GameObject runnerPrefab;
 
     [SerializeField] Canvas lobbyCanvas;
-    [SerializeField] Canvas audioCanvas;
     [SerializeField] Canvas videoCanvas;
     [SerializeField] Canvas clientCanvas;
     [SerializeField] GameObject gameManager;
@@ -64,18 +64,17 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     private void Start()
     {
         lobbyCanvas.gameObject.SetActive(false);
-        audioCanvas.gameObject.SetActive(false);
         videoCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(false);
         gameManager.gameObject.SetActive(false);
 
+        runner = FindAnyObjectByType<NetworkRunner>();
         OnJoinLobby();
     }
 
     public void OnLoginSuccess()
     {
         lobbyCanvas.gameObject.SetActive(true);
-        audioCanvas.gameObject.SetActive(false);
         videoCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(false);
         gameManager.gameObject.SetActive(false);
@@ -188,13 +187,16 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     {
         runner.Despawn(runner.GetPlayerObject(runner.LocalPlayer));
         await runner.Shutdown(true, ShutdownReason.Ok);
+        var newRunner = Instantiate(runnerPrefab);
+        newRunner.name = "NetworkRunner";
+        runner = newRunner.GetComponent<NetworkRunner>();
         lobbyCanvas.gameObject.SetActive(true);
-        audioCanvas.gameObject.SetActive(false);
         videoCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(false);
         gameManager.gameObject.SetActive(false);
         OnRoomListDropdownValueChange();
         _sessionName = "";
+        OnJoinLobby();
 
     }
 
@@ -224,9 +226,8 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
-    void INetworkRunnerCallbacks.OnConnectedToServer(NetworkRunner runner)
+    public void OnConnectedToServer(NetworkRunner runner)
     {
-        Debug.Log("OnConnectedToServer");
         //playerObject = runner.Spawn(playerPrefab, new Vector3(spawnPoint.position.x + Random.Range(-spawnOffset, spawnOffset), 0, spawnPoint.position.z + Random.Range(-spawnOffset, spawnOffset)));
         playerObject = runner.Spawn(playerPrefab, Vector3.zero);
 
@@ -239,7 +240,6 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
 
 
         lobbyCanvas.gameObject.SetActive(false);
-        audioCanvas.gameObject.SetActive(true);
         videoCanvas.gameObject.SetActive(true);
         clientCanvas.gameObject.SetActive(true);
         gameManager.gameObject.SetActive(true);
@@ -295,7 +295,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        Debug.Log("OnPlayerJoined");
+        ParticipantItemHandlerManager.Instance.UpdateParticipantList();
 
     }
 
@@ -364,7 +364,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     private async Task JoinLobby()
     {
         Debug.Log("JoinLobby stated");
-        string lobbyId = "DefalutLobbyId";
+        string lobbyId = "DefaultLobbyId";
         var result = await runner.JoinSessionLobby(SessionLobby.Custom, lobbyId);
         if (!result.Ok)
         {
@@ -375,6 +375,8 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
             Debug.Log("JoinLobby Ok");
         }
     }
+
+   
 
     public void OnPlayVideoButtonClick()
     {

@@ -4,6 +4,7 @@ using UnityEngine;
 using Photon.Voice.Unity;
 using UnityEngine.UI;
 using Fusion;
+using TMPro;
 
 public class RoomClientController : MonoBehaviour
 {
@@ -11,10 +12,15 @@ public class RoomClientController : MonoBehaviour
     [SerializeField] Toggle echoToggle;
     [SerializeField] Recorder recorder;
 
+
+    public TextMeshProUGUI textMeshProUGUI;
+
     void Start()
     {
         ToggleMic();
         ToggleEcho();
+
+        //StartCoroutine(DebugTest());
     }
 
     public void ToggleMic()
@@ -41,14 +47,11 @@ public class RoomClientController : MonoBehaviour
         }
     }
 
-    public static void TestRPC()
+
+    IEnumerator DebugTest()
     {
-
-        RPCVideoPlayer.Rpc_TestPlayerList(FindAnyObjectByType<NetworkRunner>(), 1);
+        yield return new WaitForSeconds(1);
+        textMeshProUGUI.text = "Recorder: " + recorder.TransmitEnabled + " | " + recorder.DebugEchoMode;
+        StartCoroutine(DebugTest());
     }
-
-    //public static void Rpc_PrepareVideo()
-    //{
-    //    RPCVideoPlayerDemo.Rpc_Prepare(FindAnyObjectByType<NetworkRunner>(), 1);
-    //}
 }

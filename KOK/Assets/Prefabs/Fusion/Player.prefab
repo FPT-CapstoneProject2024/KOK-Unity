@@ -377,8 +377,9 @@ MonoBehaviour:
   playerNameLabel: {fileID: 2833523328713812229}
   _PlayerColor: {r: 0, g: 0, b: 0, a: 0}
   playerRenderer: {fileID: 7915725224477234817}
-  roleInRoom: 0
+  _PlayerRole: 0
   videoPlayer: {fileID: 0}
+  _videoTime: 0
 --- !u!114 &8957473673770562268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -386,7 +387,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7306406453163891327}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9fed69b5b8c880447bf197c7765bed55, type: 3}
   m_Name: 

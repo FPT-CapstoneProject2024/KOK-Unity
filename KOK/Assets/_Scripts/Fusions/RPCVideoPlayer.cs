@@ -46,10 +46,10 @@ public class RPCVideoPlayer : NetworkBehaviour
     {
         videoPlayer.url = url;
         videoPlayer.Stop();
-        videoPlayer.Prepare();
 
-        videoPlayer.Play();
-        videoPlayer.SetDirectAudioVolume(0, 0.4f);
+        Rpc_StartVideoFollowHost(runner);
+
+        //videoPlayer.SetDirectAudioVolume(0, 0.4f);
 
 
         Rpc_StartSyncVideo(runner);
@@ -111,6 +111,26 @@ public class RPCVideoPlayer : NetworkBehaviour
             test += playerRef.PlayerId;
         }
         Debug.Log(content + " | " + runner);
+    }
+
+    [Rpc]
+    public static void Rpc_StartVideoFollowHost(NetworkRunner runner)
+    {
+        PlayerRef host = runner.ActivePlayers.ToArray()[0];
+        runner = NetworkRunner.Instances[0];
+        foreach (PlayerRef player in runner.ActivePlayers)
+        {
+            if (runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerRole == 0)
+            {
+                host = player;
+            }
+        }
+        SyncManager sync = runner.GetPlayerObject(host).GetComponent<SyncManager>();
+        if (sync == null)
+        {
+            sync = runner.GetPlayerObject(host).AddComponent<SyncManager>();
+        }
+        sync.StartVideoFollowHost();
     }
 
     [Rpc]

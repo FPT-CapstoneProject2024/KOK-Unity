@@ -25,7 +25,11 @@ public class PlayerStats : NetworkBehaviour, IComparable<PlayerStats>, IComparer
 
     [Networked] PlayState playState { get; set; }
 
-    
+    [Networked][SerializeField] public string CharacterCode { get; set; }
+
+    [Networked][SerializeField] public string AvatarCode { get; set; }
+
+
 
     private void Start()
     {
@@ -34,6 +38,8 @@ public class PlayerStats : NetworkBehaviour, IComparable<PlayerStats>, IComparer
             PlayerName = FusionConnection.Instance._playerName;
             PlayerColor = FusionConnection.Instance._playerColor;
             PlayerRole = FusionConnection.Instance.playerRole;
+            CharacterCode = "";
+            AvatarCode = "DemoAvatar";
         }
         playerNameLabel.text = PlayerName.ToString();
         playerNameLabel.color = PlayerColor;
@@ -76,6 +82,21 @@ public class PlayerStats : NetworkBehaviour, IComparable<PlayerStats>, IComparer
 
     public void Rpc_SetVideoPlayerSyncTime()
     {
-         videoPlayer.time = videoTime;
+        videoPlayer.time = videoTime;
+    }
+
+    public void Rpc_PrepareVideo()
+    {
+        videoPlayer.Prepare();
+    }
+
+    public void Rpc_PlayVideo()
+    {
+        videoPlayer.Play();
+    }
+
+    public void Rpc_StopVideo()
+    {
+        videoPlayer.Stop();
     }
 }
