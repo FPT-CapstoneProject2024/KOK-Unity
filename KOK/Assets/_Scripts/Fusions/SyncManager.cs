@@ -21,11 +21,11 @@ namespace KOK
             runner = NetworkRunner.Instances[0];
             foreach (PlayerRef player in runner.ActivePlayers)
             {
-                runner.GetPlayerObject(player).GetComponent<PlayerStats>().Rpc_PrepareVideo();
-                if (runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerRole == 0)
+                runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().Rpc_PrepareVideo();
+                if (runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole == 0)
                 {
                     host = player;
-                    runner.GetPlayerObject(player).GetComponent<PlayerStats>().Rpc_PlayVideo();
+                    runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().Rpc_PlayVideo();
                 }
             }
             StartCoroutine(WaitForHostPrepareVideo());
@@ -34,15 +34,15 @@ namespace KOK
         IEnumerator WaitForHostPrepareVideo()
         {
             yield return new WaitForSeconds(0.1f);
-            if (runner.GetPlayerObject(host).GetComponent<PlayerStats>().videoTime > 0)
+            if (runner.GetPlayerObject(host).GetComponent<PlayerNetworkBehavior>().videoTime > 0)
             {
                 foreach (PlayerRef player in runner.ActivePlayers)
                 {
-                    if (runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerRole != 0)
+                    if (runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole != 0)
                     {
-                        runner.GetPlayerObject(player).GetComponent<PlayerStats>().Rpc_PlayVideo();
+                        runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().Rpc_PlayVideo();
                     }
-                    //runner.GetPlayerObject(player).GetComponent<PlayerStats>().Rpc_PlayVideo();
+                    //runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().Rpc_PlayVideo();
                 }
             }
             else
@@ -55,7 +55,7 @@ namespace KOK
             runner = NetworkRunner.Instances[0];
             foreach (PlayerRef player in runner.ActivePlayers)
             {
-                if (runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerRole == 0)
+                if (runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole == 0)
                 {
                     host = player;
                 }
@@ -72,19 +72,19 @@ namespace KOK
             yield return new WaitForSeconds(3);
             foreach (PlayerRef player in runner.ActivePlayers)
             {
-                var delta = runner.GetPlayerObject(player).GetComponent<PlayerStats>().videoTime - runner.GetPlayerObject(host).GetComponent<PlayerStats>().videoTime;
+                var delta = runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().videoTime - runner.GetPlayerObject(host).GetComponent<PlayerNetworkBehavior>().videoTime;
 
-                Debug.Log(runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerName + ": "
-                    + runner.GetPlayerObject(player).GetComponent<PlayerStats>().videoTime + " - "
-                    + runner.GetPlayerObject(host).GetComponent<PlayerStats>().videoTime + " = "
+                Debug.Log(runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName + ": "
+                    + runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().videoTime + " - "
+                    + runner.GetPlayerObject(host).GetComponent<PlayerNetworkBehavior>().videoTime + " = "
                     + delta + " ================================================");
                 //Debug.Log(GetSortedList()[0].PlayerName + ": " + GetSortedList()[0].videoTime);
 
                 if (delta < -1d || delta > 1d)
                 {
                     Debug.LogError("Delta: " + delta);
-                    runner.GetPlayerObject(player).GetComponent<PlayerStats>().videoTime = runner.GetPlayerObject(host).GetComponent<PlayerStats>().videoTime;
-                    runner.GetPlayerObject(player).GetComponent<PlayerStats>().Rpc_SetVideoPlayerSyncTime();
+                    runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().videoTime = runner.GetPlayerObject(host).GetComponent<PlayerNetworkBehavior>().videoTime;
+                    runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().Rpc_SetVideoPlayerSyncTime();
 
                 }
             }

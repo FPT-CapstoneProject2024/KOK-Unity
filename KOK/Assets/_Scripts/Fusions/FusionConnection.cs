@@ -24,7 +24,6 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] GameObject runnerPrefab;
 
     [SerializeField] Canvas lobbyCanvas;
-    [SerializeField] Canvas videoCanvas;
     [SerializeField] Canvas clientCanvas;
     [SerializeField] GameObject gameManager;
     [SerializeField] TMP_InputField nameInput;
@@ -64,7 +63,6 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     private void Start()
     {
         lobbyCanvas.gameObject.SetActive(false);
-        videoCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(false);
         gameManager.gameObject.SetActive(false);
 
@@ -75,13 +73,12 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     public void OnLoginSuccess()
     {
         lobbyCanvas.gameObject.SetActive(true);
-        videoCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(false);
         gameManager.gameObject.SetActive(false);
 
         roomListDropdown.ClearOptions();
         songListDropdown.ClearOptions();
-        songListDropdown.AddOptions(SongManager.songs.Select(x => x.songName).ToList());
+        //songListDropdown.AddOptions(SongManager.songs.Select(x => x.songName).ToList());
 
         OnRoomNameTMPValueChange();
         OnRoomListDropdownValueChange();
@@ -191,7 +188,6 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
         newRunner.name = "NetworkRunner";
         runner = newRunner.GetComponent<NetworkRunner>();
         lobbyCanvas.gameObject.SetActive(true);
-        videoCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(false);
         gameManager.gameObject.SetActive(false);
         OnRoomListDropdownValueChange();
@@ -240,7 +236,6 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
 
 
         lobbyCanvas.gameObject.SetActive(false);
-        videoCanvas.gameObject.SetActive(true);
         clientCanvas.gameObject.SetActive(true);
         gameManager.gameObject.SetActive(true);
 
@@ -275,7 +270,7 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
         Debug.Log("OnInput");
-        
+
     }
 
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
@@ -376,8 +371,6 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
-   
-
     public void OnPlayVideoButtonClick()
     {
         if (RPCVideoPlayer.videoPlayer.isPlaying)
@@ -389,11 +382,24 @@ public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
             PlayVideo();
         }
     }
-
     private void PlayVideo()
     {
-        string url = SongManager.songs[songListDropdown.value].songURL;
-        RPCVideoPlayer.Rpc_OnPlayVideoButtonClick(runner, url, songListDropdown.value);
+        //string url = SongManager.songs[songListDropdown.value].songURL;
+        string url = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().GetSongURLToPlay();
+        RPCVideoPlayer.Rpc_OnPlayVideoButtonClick(runner, url);
+
+    }
+    public void OnJumpToNextVideoButtonClick()
+    {
+        if (RPCVideoPlayer.videoPlayer.isPlaying)
+        {
+            StopVideo();
+            PlayVideo();
+        }
+        else
+        {
+            PlayVideo();
+        }
     }
 
     private void StopVideo()

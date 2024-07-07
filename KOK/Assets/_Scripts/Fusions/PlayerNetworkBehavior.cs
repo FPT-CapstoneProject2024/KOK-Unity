@@ -1,16 +1,20 @@
 using Fusion;
+using KOK;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using WebSocketSharp;
 using YoutubePlayer.Components;
 
-public class PlayerStats : NetworkBehaviour, IComparable<PlayerStats>, IComparer<PlayerStats>
+public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetworkBehavior>, IComparer<PlayerNetworkBehavior> 
 {
     [Networked] public NetworkString<_32> PlayerName { get; set; }
     [SerializeField] TextMeshPro playerNameLabel;
@@ -28,6 +32,8 @@ public class PlayerStats : NetworkBehaviour, IComparable<PlayerStats>, IComparer
     [Networked][SerializeField] public string CharacterCode { get; set; }
 
     [Networked][SerializeField] public string AvatarCode { get; set; }
+
+    [Networked, Capacity(100)][SerializeField] public NetworkArray<NetworkString<_32>> QueueSongCodeList { get; } = MakeInitializer(new NetworkString<_32>[] { "S005", "S009", "S004", });
 
 
 
@@ -58,12 +64,12 @@ public class PlayerStats : NetworkBehaviour, IComparable<PlayerStats>, IComparer
 
     }
 
-    public int CompareTo(PlayerStats obj)
+    public int CompareTo(PlayerNetworkBehavior obj)
     {
         return PlayerName.Compare(obj.PlayerName);
     }
 
-    public int Compare(PlayerStats x, PlayerStats y)
+    public int Compare(PlayerNetworkBehavior x, PlayerNetworkBehavior y)
     {
         return x.PlayerName.Compare(y.PlayerName);
     }
@@ -98,5 +104,69 @@ public class PlayerStats : NetworkBehaviour, IComparable<PlayerStats>, IComparer
     public void Rpc_StopVideo()
     {
         videoPlayer.Stop();
+    }
+
+    public string GetSongURLToPlay()
+    {
+        //Get song url, play for all member and remove from queue
+        if (NetworkArray_IsEmpty(QueueSongCodeList))
+        {
+            Debug.Log("Queue is empty!");
+            return "";
+        }
+        NetworkString<_32> songCode = QueueSongCodeList[0];
+        DemoSong song = SongManager.GetSongBySongCode(songCode.ToString());
+
+        NetworkString<_32>[] tmp = QueueSongCodeList.Where((source, index) => index != 0).ToArray();
+        QueueSongCodeList.CopyFrom(tmp, 0, tmp.Count());
+        return song.songURL;
+    }
+    public void AddSongToQueue(string songCode)
+    {
+
+    }
+
+    public void RemoveSongFromQueue(int index)
+    {
+
+    }
+
+    public void ClearSongQueue()
+    {
+
+    }
+
+    public void MoveSongInQueueToIndex(int index)
+    {
+
+    }
+
+    public void StopSong()
+    {
+
+    }
+
+    //public string GetNextSongURLToPlay()
+    //{
+
+    //}
+
+    private bool NetworkArray_IsEmpty(NetworkArray<NetworkString<_32>> networkArray)
+    {
+        bool isEmpty = true;
+        foreach (var item in networkArray)
+        {
+            if (!item.ToString().IsNullOrEmpty())
+            {
+                return false;
+            }
+        }
+        return isEmpty;
+    }
+
+    private void NetworkArray_RemoveAt(ref NetworkArray<NetworkString<_32>> networkArray, int index)
+    {
+        NetworkString<_32>[] tmp = QueueSongCodeList.Where((source, index) => index != 0).ToArray();
+        networkArray.CopyFrom(tmp, 0, tmp.Count());
     }
 }

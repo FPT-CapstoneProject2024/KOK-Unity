@@ -27,7 +27,7 @@ public class RPCVideoPlayer : NetworkBehaviour
 
     private static TMP_Dropdown songDropDown;
 
-    public static List<PlayerStats> playerNames = new();
+    public static List<PlayerNetworkBehavior> playerNames = new();
 
     private void Awake()
     {
@@ -57,8 +57,7 @@ public class RPCVideoPlayer : NetworkBehaviour
 
     [Rpc]
     public static void Rpc_OnPlayVideoButtonClick(NetworkRunner runner, string url, int songIndex)
-    {
-        
+    {       
         
         if (videoPlayer.isPlaying)
         {
@@ -72,6 +71,24 @@ public class RPCVideoPlayer : NetworkBehaviour
 
         playVideoButton.GetComponent<ButtonSwapSprite>().SwapSprite();
         songDropDown.value = songIndex;
+
+    }
+    
+    [Rpc]
+    public static void Rpc_OnPlayVideoButtonClick(NetworkRunner runner, string url)
+    {       
+        
+        if (videoPlayer.isPlaying)
+        {
+            Rpc_Stop(runner);
+            Rpc_StopSyncVideo(runner);
+        }
+        else
+        {
+            Rpc_Play(runner, url);
+        }
+
+        playVideoButton.GetComponent<ButtonSwapSprite>().SwapSprite();
 
     }
 
@@ -91,9 +108,9 @@ public class RPCVideoPlayer : NetworkBehaviour
     [Rpc]
     public static void Rpc_TestPlayerList(NetworkRunner runner, int a)
     {
-        List<PlayerStats> playerStats = FindObjectsOfType<PlayerStats>().ToList();
+        List<PlayerNetworkBehavior> playerStats = FindObjectsOfType<PlayerNetworkBehavior>().ToList();
         string testString = "";
-        foreach (PlayerStats playerStat in playerStats)
+        foreach (PlayerNetworkBehavior playerStat in playerStats)
         {
             testString += playerStat.PlayerName + " | ";
         }
@@ -103,7 +120,7 @@ public class RPCVideoPlayer : NetworkBehaviour
     [Rpc]
     public static void Rpc_DebugLog(NetworkRunner runner, string content)
     {
-        List<PlayerStats> list = FindObjectsOfType<PlayerStats>().ToList();
+        List<PlayerNetworkBehavior> list = FindObjectsOfType<PlayerNetworkBehavior>().ToList();
         List<PlayerRef> playerRefs = runner.ActivePlayers.ToList();
         string test = "";
         foreach (PlayerRef playerRef in playerRefs)
@@ -120,7 +137,7 @@ public class RPCVideoPlayer : NetworkBehaviour
         runner = NetworkRunner.Instances[0];
         foreach (PlayerRef player in runner.ActivePlayers)
         {
-            if (runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerRole == 0)
+            if (runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole == 0)
             {
                 host = player;
             }
@@ -140,7 +157,7 @@ public class RPCVideoPlayer : NetworkBehaviour
         runner = NetworkRunner.Instances[0];
         foreach (PlayerRef player in runner.ActivePlayers)
         {
-            if (runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerRole == 0)
+            if (runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole == 0)
             {
                 host = player;
             }
@@ -160,7 +177,7 @@ public class RPCVideoPlayer : NetworkBehaviour
         runner = NetworkRunner.Instances[0];
         foreach (PlayerRef player in runner.ActivePlayers)
         {
-            if (runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerRole == 0)
+            if (runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole == 0)
             {
                 host = player;
             }
@@ -174,7 +191,7 @@ public class RPCVideoPlayer : NetworkBehaviour
     }
 
     [Rpc] 
-    public static void Rpc_TestAddLocalObject(NetworkRunner runner, PlayerStats playerStats)
+    public static void Rpc_TestAddLocalObject(NetworkRunner runner, PlayerNetworkBehavior playerStats)
     {
         List<PlayerRef> playerRefs = runner.ActivePlayers.ToList();
         string test = "";

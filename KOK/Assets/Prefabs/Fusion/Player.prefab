@@ -232,6 +232,7 @@ GameObject:
   - component: {fileID: 8957473673770562268}
   - component: {fileID: 6039388503566304320}
   - component: {fileID: 6164083626383124596}
+  - component: {fileID: -5308697949050147208}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -329,6 +330,7 @@ MonoBehaviour:
   - {fileID: 3830748508049322977}
   - {fileID: 3411878967609141609}
   - {fileID: 8957473673770562268}
+  - {fileID: -5308697949050147208}
   - {fileID: 8590535240297604861}
 --- !u!114 &3045452978420133902
 MonoBehaviour:
@@ -380,6 +382,8 @@ MonoBehaviour:
   _PlayerRole: 0
   videoPlayer: {fileID: 0}
   _videoTime: 0
+  _CharacterCode: 
+  _AvatarCode: 
 --- !u!114 &8957473673770562268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -465,3 +469,16 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.7235332, y: 0.6045713}
   m_EdgeRadius: 0
+--- !u!114 &-5308697949050147208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7306406453163891327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7741ba99987463449bfed5be85decde9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _QueueSongCodeList: []

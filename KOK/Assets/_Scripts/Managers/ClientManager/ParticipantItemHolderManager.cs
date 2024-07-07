@@ -38,9 +38,9 @@ namespace KOK
                 try
                 {
                     GameObject participant = Instantiate(_participantHolderPrefab, _viewportContent.transform);
-                    participant.name = _runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerName.ToString();
-                    participant.transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>(_runner.GetPlayerObject(player).GetComponent<PlayerStats>().AvatarCode);
-                    participant.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = _runner.GetPlayerObject(player).GetComponent<PlayerStats>().PlayerName.ToString();
+                    participant.name = _runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName.ToString();
+                    participant.transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>(_runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().AvatarCode);
+                    participant.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = _runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName.ToString();
                     participant.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = "Test";
                 }
                 catch { }
