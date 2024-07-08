@@ -477,9 +477,9 @@ RectTransform:
   m_Father: {fileID: 1246061095}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: -17}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &42165448
 MonoBehaviour:
@@ -1317,9 +1317,9 @@ RectTransform:
   m_Father: {fileID: 1246061095}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 20, y: -17}
+  m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &104846189
 MonoBehaviour:
@@ -1364,8 +1364,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 538762171}
   m_HandleRect: {fileID: 538762170}
   m_Direction: 2
-  m_Value: -0.00000027064172
-  m_Size: 0.81205815
+  m_Value: -0.0000043302675
+  m_Size: 0.81069803
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2495,6 +2495,7 @@ GameObject:
   - component: {fileID: 236616116}
   - component: {fileID: 236616117}
   - component: {fileID: 236616118}
+  - component: {fileID: 236616119}
   m_Layer: 5
   m_Name: SongToggle
   m_TagString: Untagged
@@ -2581,6 +2582,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 236616119}
+        m_TargetAssemblyTypeName: KOK.SongItemManager, Assembly-CSharp
+        m_MethodName: UpdateSongList
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 0
 --- !u!114 &236616118
 MonoBehaviour:
@@ -2596,6 +2609,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _panel: {fileID: 1708325621}
   _toggle: {fileID: 236616117}
+--- !u!114 &236616119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 236616115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 969e0496d308d674cb40902093a4a977, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _viewportContent: {fileID: 1289053058}
+  _songHolderPrefab: {fileID: 4590974471881372752, guid: ea0df91e35449c14eaa8e612964d853d, type: 3}
+  _searchSongInput: {fileID: 7783740100261060484}
 --- !u!1 &295540965
 GameObject:
   m_ObjectHideFlags: 0
@@ -3743,7 +3771,7 @@ RectTransform:
   m_Father: {fileID: 1501836934}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0.81205815}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -5001,8 +5029,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 843597048}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.00000011920929, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -6114,7 +6142,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000038146973, y: 56.38004}
+  m_AnchoredPosition: {x: 0.000038146973, y: 56.38026}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &865725860
@@ -7139,7 +7167,7 @@ RectTransform:
   m_Father: {fileID: 1396024079}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0.99212956}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -9206,8 +9234,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1001675558}
   m_HandleRect: {fileID: 1001675557}
   m_Direction: 2
-  m_Value: -0.000007905951
-  m_Size: 0.99212956
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -9312,6 +9340,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1253223125}
   - component: {fileID: 1253223126}
+  - component: {fileID: 1253223127}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -9365,6 +9394,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &1253223127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1253223124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &1260674104
 GameObject:
   m_ObjectHideFlags: 0
@@ -9697,6 +9740,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1289053059}
   - component: {fileID: 1289053060}
+  - component: {fileID: 1289053061}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -9721,8 +9765,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.0000076293945, y: 1.9300312}
-  m_SizeDelta: {x: 0, y: 245.55}
+  m_AnchoredPosition: {x: 0.0000076293945, y: -0.000009775162}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1289053060
 MonoBehaviour:
@@ -9750,6 +9794,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &1289053061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1289053058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &1300194604
 GameObject:
   m_ObjectHideFlags: 0
@@ -13775,7 +13833,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1708325622
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15269,7 +15327,7 @@ RectTransform:
   m_Father: {fileID: 852445241}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.99999994, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -15366,9 +15424,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 1289053059}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
+  m_MovementType: 2
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
@@ -15376,8 +15434,8 @@ MonoBehaviour:
   m_Viewport: {fileID: 85903209}
   m_HorizontalScrollbar: {fileID: 1285270629}
   m_VerticalScrollbar: {fileID: 1250515196}
-  m_HorizontalScrollbarVisibility: 2
-  m_VerticalScrollbarVisibility: 1
+  m_HorizontalScrollbarVisibility: 1
+  m_VerticalScrollbarVisibility: 0
   m_HorizontalScrollbarSpacing: -3
   m_VerticalScrollbarSpacing: -3
   m_OnValueChanged:
@@ -45881,7 +45939,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 9210522744052682308}
-        m_TargetAssemblyTypeName: FusionConnection, Assembly-CSharp
+        m_TargetAssemblyTypeName: FusionManager, Assembly-CSharp
         m_MethodName: OnPlayVideoButtonClick
         m_Mode: 1
         m_Arguments:
@@ -46286,7 +46344,19 @@ MonoBehaviour:
       m_Calls: []
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 236616119}
+        m_TargetAssemblyTypeName: KOK.SongItemManager, Assembly-CSharp
+        m_MethodName: UpdateSongList
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnTouchScreenKeyboardStatusChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -47853,7 +47923,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8679655723145563571}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a8f706a34d23354aa48a970aaa7666c, type: 3}
+  m_Script: {fileID: 11500000, guid: 7d8e9f1406c027f4e973622a9d028792, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   connectOnAwake: 0

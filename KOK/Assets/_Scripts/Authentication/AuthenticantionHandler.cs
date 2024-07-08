@@ -7,7 +7,7 @@ namespace KOK
     public class AuthenticantionHandler : MonoBehaviour
     {
 
-        [SerializeField] private FusionConnection fusionConnection;
+        [SerializeField] private FusionManager fusionConnection;
         // Start is called before the first frame update
         void Start()
         {

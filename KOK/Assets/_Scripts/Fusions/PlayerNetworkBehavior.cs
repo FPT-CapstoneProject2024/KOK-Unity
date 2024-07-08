@@ -41,9 +41,9 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     {
         if (this.HasStateAuthority)
         {
-            PlayerName = FusionConnection.Instance._playerName;
-            PlayerColor = FusionConnection.Instance._playerColor;
-            PlayerRole = FusionConnection.Instance.playerRole;
+            PlayerName = FusionManager.Instance._playerName;
+            PlayerColor = FusionManager.Instance._playerColor;
+            PlayerRole = FusionManager.Instance.playerRole;
             CharacterCode = "";
             AvatarCode = "DemoAvatar";
         }

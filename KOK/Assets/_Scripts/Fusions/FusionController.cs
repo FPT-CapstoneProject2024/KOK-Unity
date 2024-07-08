@@ -22,7 +22,7 @@ namespace KOK
 
         public void OnConnectedToServer(NetworkRunner runner)
         {
-            FusionConnection.Instance.OnConnectedToServer(runner);
+            FusionManager.Instance.OnConnectedToServer(runner);
         }
 
         public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
@@ -106,13 +106,13 @@ namespace KOK
         public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
         {
             Debug.Log("OnSessionListUpdated");
-            FusionConnection.Instance.OnSessionListUpdated(runner, sessionList);
+            FusionManager.Instance.OnSessionListUpdated(runner, sessionList);
         }
 
         public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
         {
             Debug.Log("OnShutdown");
-            FusionConnection.Instance?.OnShutdown(runner, shutdownReason);
+            FusionManager.Instance?.OnShutdown(runner, shutdownReason);
         }
 
         public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message)

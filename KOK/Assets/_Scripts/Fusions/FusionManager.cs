@@ -15,9 +15,9 @@ using WebSocketSharp;
 using static Fusion.NetworkRunnerCallbackArgs;
 using Random = UnityEngine.Random;
 
-public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
+public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 {
-    public static FusionConnection Instance;
+    public static FusionManager Instance;
     public bool connectOnAwake = false;
     public NetworkRunner runner;
     [SerializeField] NetworkObject playerPrefab;
