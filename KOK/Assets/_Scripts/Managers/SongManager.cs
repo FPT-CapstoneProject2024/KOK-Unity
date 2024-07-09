@@ -11,47 +11,10 @@ namespace KOK
     {
         private NetworkRunner networkRunner;
 
-        //private NetworkArray<NetworkString<_32>> searchSongCodeList;
-        //private NetworkArray<NetworkString<_32>> queueSongCodeList;
-        //public NetworkArray<NetworkString<_32>> SearchSongCodeList { get => searchSongCodeList; set => searchSongCodeList = value; }
-        //[Networked, Capacity(100)][SerializeField] public NetworkArray<string> QueueSongCodeList {  get;} =  MakeInitializer(new string[] {"S005", "S009", "S004",});
-
         private void Awake()
         {
-            //SearchSongCodeList = new NetworkArray<NetworkString<_32>>();
-            //queueSongCodeList = new NetworkArray<NetworkString<_32>>();
-            InitListTest();
         }
 
-        private void InitListTest()
-        {
-            List<NetworkString<_32>> searchSongCodeList = new() {
-                "S001",
-                "S002",
-                "S003",
-                "S004",
-                "S005",
-                "S006",
-                "S007",
-                "S008",
-                "S009",
-                "S010",
-                "S011",
-                "S012",
-                "S013",
-                "S014"
-            };
-            //SearchSongCodeList.CopyFrom(searchSongCodeList.ToArray(), 0, searchSongCodeList.Count);
-
-            List<NetworkString<_32>> queueSongCodeList = new()
-            {
-                "S005",
-                "S009",
-                "S004",
-            };
-            //queueSongCodeList.CopyFrom(queueSongCodeList.ToArray(), 0, queueSongCodeList.Count);
-            //Debug.LogError(QueueSongCodeList.ToCommaSeparatedString());
-        }
         private void OnEnable()
         {
             networkRunner = FindAnyObjectByType<NetworkRunner>();

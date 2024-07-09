@@ -56,3 +56,9 @@ TagManager:
   - name: UI
     uniqueID: 2619449185
     locked: 0
+  - name: ItemPanel
+    uniqueID: 3872143699
+    locked: 0
+  - name: Pop up
+    uniqueID: 306923279
+    locked: 0

@@ -53,8 +53,9 @@ namespace KOK
                 {
                     GameObject songHolder = Instantiate(_songHolderPrefab, _viewportContent.transform);
                     songHolder.name = song.songName;
-                    songHolder.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = song.songName;
-                    songHolder.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = song.songArtist;
+                    songHolder.transform.GetChild(0).name = song.songCode;
+                    songHolder.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = song.songName;
+                    songHolder.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = song.songArtist;
                     //Thêm các thông tin khác ở đây
                 }
                 catch { }

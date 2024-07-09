@@ -407,6 +407,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         RPCVideoPlayer.Rpc_Stop(runner);
     }
 
+   
+
     public void TestDebug()
     {
         RPCVideoPlayer.Rpc_DebugLog(runner, _playerName);

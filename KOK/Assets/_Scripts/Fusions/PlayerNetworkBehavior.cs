@@ -35,6 +35,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     [Networked, Capacity(100)][SerializeField] public NetworkArray<NetworkString<_32>> QueueSongCodeList { get; } = MakeInitializer(new NetworkString<_32>[] { "S005", "S009", "S004", });
 
+    [Networked] public int queueSongCount { get; set; }
 
 
     private void Start()
