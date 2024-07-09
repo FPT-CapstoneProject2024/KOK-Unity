@@ -41,3 +41,24 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Floor
+    uniqueID: 3651198685
+    locked: 0
+  - name: Under player
+    uniqueID: 1299284069
+    locked: 0
+  - name: Player
+    uniqueID: 975363761
+    locked: 0
+  - name: Upper player
+    uniqueID: 1463002421
+    locked: 0
+  - name: UI
+    uniqueID: 2619449185
+    locked: 0
+  - name: ItemPanel
+    uniqueID: 3872143699
+    locked: 0
+  - name: Pop up
+    uniqueID: 306923279
+    locked: 0

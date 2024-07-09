@@ -1,0 +1,57 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Photon.Voice.Unity;
+using UnityEngine.UI;
+using Fusion;
+using TMPro;
+
+public class RoomClientController : MonoBehaviour
+{
+    [SerializeField] Toggle muteToggle;
+    [SerializeField] Toggle echoToggle;
+    [SerializeField] Recorder recorder;
+
+
+    public TextMeshProUGUI textMeshProUGUI;
+
+    void Start()
+    {
+        ToggleMic();
+        ToggleEcho();
+
+        //StartCoroutine(DebugTest());
+    }
+
+    public void ToggleMic()
+    {
+        if (muteToggle.isOn == true)
+        {
+            recorder.TransmitEnabled = false;
+        }
+        else
+        {
+            recorder.TransmitEnabled = true;
+        }
+    }
+
+    public void ToggleEcho()
+    {
+        if (echoToggle.isOn == true)
+        {
+            recorder.DebugEchoMode = true;
+        }
+        else
+        {
+            recorder.DebugEchoMode = false;
+        }
+    }
+
+
+    IEnumerator DebugTest()
+    {
+        yield return new WaitForSeconds(1);
+        textMeshProUGUI.text = "Recorder: " + recorder.TransmitEnabled + " | " + recorder.DebugEchoMode;
+        StartCoroutine(DebugTest());
+    }
+}
