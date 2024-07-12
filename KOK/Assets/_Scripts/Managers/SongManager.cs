@@ -67,5 +67,9 @@ namespace KOK
             this.songArtist = songArtist;
         }
 
+        public override string ToString()
+        {
+            return JsonUtility.ToJson(this);
+        }
     }
 }

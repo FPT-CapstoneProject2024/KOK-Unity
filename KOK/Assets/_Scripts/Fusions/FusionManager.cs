@@ -1,3 +1,4 @@
+using ExitGames.Client.Photon.StructWrapping;
 using Fusion;
 using Fusion.Sockets;
 using KOK;
@@ -26,6 +27,11 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] Canvas lobbyCanvas;
     [SerializeField] Canvas clientCanvas;
     [SerializeField] GameObject gameManager;
+    [SerializeField] GameObject itemPanelCanvas;
+    [SerializeField] GameObject popUpCanvas;
+    [SerializeField] GameObject videoPlayer;
+
+
     [SerializeField] TMP_InputField nameInput;
     [SerializeField] TMP_InputField roomNameInput;
     [SerializeField] Button createButton;
@@ -65,6 +71,9 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         lobbyCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(false);
         gameManager.gameObject.SetActive(false);
+        popUpCanvas.gameObject.SetActive(false);
+        itemPanelCanvas.gameObject.SetActive(false);
+        videoPlayer.gameObject.SetActive(false);
 
         runner = FindAnyObjectByType<NetworkRunner>();
         OnJoinLobby();
@@ -75,6 +84,9 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         lobbyCanvas.gameObject.SetActive(true);
         clientCanvas.gameObject.SetActive(false);
         gameManager.gameObject.SetActive(false);
+        popUpCanvas.gameObject.SetActive(false);
+        itemPanelCanvas.gameObject.SetActive(false);
+        videoPlayer.gameObject.SetActive(false);
 
         roomListDropdown.ClearOptions();
         songListDropdown.ClearOptions();
@@ -190,6 +202,9 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         lobbyCanvas.gameObject.SetActive(true);
         clientCanvas.gameObject.SetActive(false);
         gameManager.gameObject.SetActive(false);
+        popUpCanvas.gameObject.SetActive(false);
+        itemPanelCanvas.gameObject.SetActive(false);
+        videoPlayer.gameObject.SetActive(false);
         OnRoomListDropdownValueChange();
         _sessionName = "";
         OnJoinLobby();
@@ -224,6 +239,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
+
         //playerObject = runner.Spawn(playerPrefab, new Vector3(spawnPoint.position.x + Random.Range(-spawnOffset, spawnOffset), 0, spawnPoint.position.z + Random.Range(-spawnOffset, spawnOffset)));
         playerObject = runner.Spawn(playerPrefab, Vector3.zero);
 
@@ -232,12 +248,22 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         playerObject.GetComponentInChildren<TextMeshPro>().text = _playerName;
         playerObject.GetComponent<SpriteRenderer>().color = _playerColor;
         playerObject.GetComponentInChildren<TextMeshPro>().color = _playerColor;
+        if (runner.ActivePlayers.Count() > 1)
+        {
+            playerRole = 1;
+        }
+        else
+        {
+            playerRole = 0;
+        }
         runner.SetPlayerObject(runner.LocalPlayer, playerObject);
-
 
         lobbyCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(true);
         gameManager.gameObject.SetActive(true);
+        popUpCanvas.gameObject.SetActive(true);
+        itemPanelCanvas.gameObject.SetActive(true);
+        videoPlayer.gameObject.SetActive(true);
 
         playerObject.transform.localPosition = spawnPoint.localPosition;
     }
@@ -296,7 +322,10 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
-        Debug.Log("OnPlayerLeft");
+        if (runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole == 0)
+        {
+            AssignHostRoleRandom(runner);
+        }
     }
 
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress)
@@ -351,6 +380,24 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
+    private void AssignHostRoleRandom(NetworkRunner runner)
+    {
+        int random = Random.Range(0, runner.ActivePlayers.Count() - 1);
+        int i = 0;
+        foreach (var player in runner.ActivePlayers)
+        {
+            if (random == i)
+            {
+                runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole = 0;
+            }
+            else
+            {
+                runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole = 1;
+            }
+            i++;
+        }
+    }
+
     public void OnJoinLobby()
     {
         var clientTask = JoinLobby();
@@ -369,11 +416,13 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         {
             Debug.Log("JoinLobby Ok");
         }
+
     }
 
     public void OnPlayVideoButtonClick()
     {
-        if (RPCVideoPlayer.videoPlayer.isPlaying)
+        RPCSongManager.Rpc_SetSingerAuto(runner);
+        if (RPCVideoPlayer.isPlaying())
         {
             StopVideo();
         }
@@ -384,14 +433,20 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     }
     private void PlayVideo()
     {
-        //string url = SongManager.songs[songListDropdown.value].songURL;
         string url = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().GetSongURLToPlay();
         RPCVideoPlayer.Rpc_OnPlayVideoButtonClick(runner, url);
+        RPCSongManager.Rpc_RemoveSong(runner, 0);
+        foreach (var item in FindObjectsByType<SongItemManager>(FindObjectsSortMode.None))
+        {
+            item.UpdateQueueSongList();
+            item.UpdateSongList();
+        };
 
     }
     public void OnJumpToNextVideoButtonClick()
     {
-        if (RPCVideoPlayer.videoPlayer.isPlaying)
+        RPCSongManager.Rpc_SetSingerAuto(runner);
+        if (RPCVideoPlayer.isPlaying())
         {
             StopVideo();
             PlayVideo();
@@ -405,9 +460,25 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     private void StopVideo()
     {
         RPCVideoPlayer.Rpc_Stop(runner);
+
+        RPCSongManager.Rpc_StopRecording(runner);
     }
 
-   
+    public void AddSongToQueue(string songCode, string singer1Name, string singer2Name)
+    {
+        RPCSongManager.Rpc_AddSong(runner, songCode, singer1Name, singer2Name);
+    }
+
+    public void PrioritizeSongToQueue(string songCode, string singer1Name, string singer2Name)
+    {
+        RPCSongManager.Rpc_PrioritizeSong(runner, songCode, singer1Name, singer2Name);
+    }
+
+    public void RemoveSongFromQueue(int index)
+    {
+        RPCSongManager.Rpc_RemoveSong(runner, index);
+    }
+
 
     public void TestDebug()
     {

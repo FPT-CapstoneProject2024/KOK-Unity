@@ -10,7 +10,7 @@ namespace KOK
         public string cloudFileName1 = string.Empty;
         public string cloudFileName2 = string.Empty;
         private string recordingsTempLocation = string.Empty;
-        private AudioSource[] audioSources;
+        private AudioSource audioSource;
 
         private void Start()
         {
@@ -33,16 +33,13 @@ namespace KOK
 
         private void InitializeAudioSources()
         {
-            audioSources = GetComponents<AudioSource>();
-            if (audioSources.Length <= 0)
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
             {
                 Debug.LogError("No audio sources attached to recording manager!");
                 return;
             }
-            foreach (AudioSource audioSource in audioSources)
-            {
-                audioSource.playOnAwake = false;
-            }
+            audioSource.playOnAwake = false;
         }
 
         public void LoadRecording()
@@ -58,7 +55,7 @@ namespace KOK
                 Debug.LogError("Failed to load voice recording to audio source. Cannot download and load wav file to audio clip!");
                 return;
             }
-            audioSources[audioSourceIndex].clip = clip;
+            audioSource.clip = clip;
             Debug.Log("Voice recording successfully loaded to audio source!");
         }
 
@@ -125,114 +122,114 @@ namespace KOK
 
         public void PlayAllAudioSources()
         {
-            if (audioSources.Length <= 0)
-            {
-                Debug.LogError("No audio sources attached to recording manager!");
-                return;
-            }
+            //if (audioSources.Length <= 0)
+            //{
+            //    Debug.LogError("No audio sources attached to recording manager!");
+            //    return;
+            //}
 
-            // Check if all audio sources contains audio clip
-            if (audioSources[0].clip == null || audioSources[1].clip == null)
-            {
-                Debug.LogError("One or multiple audio sources does not contains any audio clip!");
-                return;
-            }
+            //// Check if all audio sources contains audio clip
+            //if (audioSources[0].clip == null || audioSources[1].clip == null)
+            //{
+            //    Debug.LogError("One or multiple audio sources does not contains any audio clip!");
+            //    return;
+            //}
 
-            for (int i = 0; i < audioSources.Length; i++)
-            {
-                audioSources[i].Play();
-            }
+            //for (int i = 0; i < audioSources.Length; i++)
+            //{
+            //    audioSources[i].Play();
+            //}
         }
 
         public void StopAllAudioSources()
         {
-            if (audioSources.Length <= 0)
-            {
-                Debug.LogError("No audio sources attached to recording manager!");
-                return;
-            }
+            //if (audioSources.Length <= 0)
+            //{
+            //    Debug.LogError("No audio sources attached to recording manager!");
+            //    return;
+            //}
 
-            foreach (AudioSource audioSource in audioSources)
-            {
-                audioSource.Stop();
-            }
+            //foreach (AudioSource audioSource in audioSources)
+            //{
+            //    audioSource.Stop();
+            //}
         }
 
         public void PauseAllAudioSources()
         {
-            if (audioSources.Length <= 0)
-            {
-                Debug.LogError("No audio sources attached to recording manager!");
-                return;
-            }
-            foreach (AudioSource audioSource in audioSources)
-            {
-                audioSource.Pause();
-            }
+            //if (audioSources.Length <= 0)
+            //{
+            //    Debug.LogError("No audio sources attached to recording manager!");
+            //    return;
+            //}
+            //foreach (AudioSource audioSource in audioSources)
+            //{
+            //    audioSource.Pause();
+            //}
         }
 
         public void UnPauseAllAudioSources()
         {
-            if (audioSources.Length <= 0)
-            {
-                Debug.LogError("No audio sources attached to recording manager!");
-                return;
-            }
-            foreach (AudioSource audioSource in audioSources)
-            {
-                audioSource.UnPause();
-            }
+            //if (audioSources.Length <= 0)
+            //{
+            //    Debug.LogError("No audio sources attached to recording manager!");
+            //    return;
+            //}
+            //foreach (AudioSource audioSource in audioSources)
+            //{
+            //    audioSource.UnPause();
+            //}
         }
 
         public void PlayAudioSource(int audioSourceIndex)
         {
-            if (audioSources[audioSourceIndex] == null)
-            {
-                Debug.LogError("No audio sources attached to recording manager!");
-                return;
-            }
+            //if (audioSources[audioSourceIndex] == null)
+            //{
+            //    Debug.LogError("No audio sources attached to recording manager!");
+            //    return;
+            //}
 
-            // Check if audio source contains any audio clip
-            if (audioSources[audioSourceIndex].clip == null)
-            {
-                Debug.LogError($"Audio source at position {audioSourceIndex} does not contains any audio clip!");
-                return;
-            }
+            //// Check if audio source contains any audio clip
+            //if (audioSources[audioSourceIndex].clip == null)
+            //{
+            //    Debug.LogError($"Audio source at position {audioSourceIndex} does not contains any audio clip!");
+            //    return;
+            //}
 
-            audioSources[audioSourceIndex].Play();
+            //audioSources[audioSourceIndex].Play();
         }
 
         public void StopAudioSource(int audioSourceIndex)
         {
-            if (audioSources[audioSourceIndex] == null)
-            {
-                Debug.LogError("No audio sources attached to recording manager!");
-                return;
-            }
+            //if (audioSources[audioSourceIndex] == null)
+            //{
+            //    Debug.LogError("No audio sources attached to recording manager!");
+            //    return;
+            //}
 
-            audioSources[audioSourceIndex].Stop();
+            //audioSources[audioSourceIndex].Stop();
         }
 
         public void PauseAudioSource(int audioSourceIndex)
         {
-            if (audioSources[audioSourceIndex] == null)
-            {
-                Debug.LogError("No audio sources attached to recording manager!");
-                return;
-            }
+            //if (audioSources[audioSourceIndex] == null)
+            //{
+            //    Debug.LogError("No audio sources attached to recording manager!");
+            //    return;
+            //}
 
-            audioSources[audioSourceIndex].Pause();
+            //audioSources[audioSourceIndex].Pause();
         }
 
         public void UnPauseAudioSource(int audioSourceIndex)
         {
-            if (audioSources[audioSourceIndex] == null)
-            {
-                Debug.LogError("No audio sources attached to recording manager!");
-                return;
-            }
+            //if (audioSources[audioSourceIndex] == null)
+            //{
+            //    Debug.LogError("No audio sources attached to recording manager!");
+            //    return;
+            //}
 
-            audioSources[audioSourceIndex].UnPause();
+            //audioSources[audioSourceIndex].UnPause();
         }
 
         #endregion

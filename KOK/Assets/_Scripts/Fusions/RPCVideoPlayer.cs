@@ -13,8 +13,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
-using YoutubePlayer.Components;
-using static Unity.Collections.Unicode;
 
 public class RPCVideoPlayer : NetworkBehaviour
 {
@@ -41,6 +39,12 @@ public class RPCVideoPlayer : NetworkBehaviour
         songDropDown = GameObject.Find("SongDropdown").GetComponent<TMP_Dropdown>();
     }
 
+    public static bool isPlaying()
+    {
+        videoPlayer = FindAnyObjectByType<VideoPlayer>();
+        return videoPlayer.isPlaying;
+    }
+
     [Rpc]
     public static void Rpc_Play(NetworkRunner runner, string url)
     {
@@ -57,8 +61,8 @@ public class RPCVideoPlayer : NetworkBehaviour
 
     [Rpc]
     public static void Rpc_OnPlayVideoButtonClick(NetworkRunner runner, string url, int songIndex)
-    {       
-        
+    {
+        videoPlayer = FindAnyObjectByType<VideoPlayer>();
         if (videoPlayer.isPlaying)
         {
             Rpc_Stop(runner);
@@ -69,15 +73,14 @@ public class RPCVideoPlayer : NetworkBehaviour
             Rpc_Play(runner, url);
         }
 
-        playVideoButton.GetComponent<ButtonSwapSprite>().SwapSprite();
         songDropDown.value = songIndex;
 
     }
     
     [Rpc]
     public static void Rpc_OnPlayVideoButtonClick(NetworkRunner runner, string url)
-    {       
-        
+    {
+        videoPlayer = FindAnyObjectByType<VideoPlayer>();
         if (videoPlayer.isPlaying)
         {
             Rpc_Stop(runner);
@@ -88,7 +91,6 @@ public class RPCVideoPlayer : NetworkBehaviour
             Rpc_Play(runner, url);
         }
 
-        playVideoButton.GetComponent<ButtonSwapSprite>().SwapSprite();
 
     }
 
@@ -98,9 +100,8 @@ public class RPCVideoPlayer : NetworkBehaviour
     [Rpc]
     public static void Rpc_Stop(NetworkRunner runner)
     {
-
+        videoPlayer = FindAnyObjectByType<VideoPlayer>();
         videoPlayer.Stop();
-        playVideoButton.GetComponent<ButtonSwapSprite>().SwapSprite();
     }
 
 
@@ -127,7 +128,7 @@ public class RPCVideoPlayer : NetworkBehaviour
         {
             test += playerRef.PlayerId;
         }
-        Debug.Log(content + " | " + runner);
+        Debug.Log(content + " | " + test);
     }
 
     [Rpc]

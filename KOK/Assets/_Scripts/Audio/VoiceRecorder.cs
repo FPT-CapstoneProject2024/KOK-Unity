@@ -46,17 +46,17 @@ namespace KOK.Audio
 
         private void Update()
         {
-            #region Testing
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                StartRecording();
-            }
+            //#region Testing
+            //if (Input.GetKeyDown(KeyCode.Q))
+            //{
+            //    StartRecording();
+            //}
 
-            if (Input.GetKeyDown(KeyCode.W))
-            {
-                StopRecording();
-            }
-            #endregion
+            //if (Input.GetKeyDown(KeyCode.W))
+            //{
+            //    StopRecording();
+            //}
+            //#endregion
 
             AutomaticallyStopRecording();
         }
@@ -167,7 +167,8 @@ namespace KOK.Audio
             bool uploadSuccessful = false;
             StorageMetadata fileMetadata = null;
             AggregateException uploadException = null;
-
+            Debug.Log(compressedFilePath);
+            Debug.Log(FirebaseStorageManager.Instance);
             FirebaseStorageManager.Instance.UploadVoiceRecordingByLocalFile(compressedFilePath,
                 (metadata) =>
                 {

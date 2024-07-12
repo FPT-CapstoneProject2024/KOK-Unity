@@ -1,4 +1,5 @@
 using Fusion;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -41,10 +42,16 @@ namespace KOK
                     participant.name = _runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName.ToString();
                     participant.transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>(_runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().AvatarCode);
                     participant.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = _runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName.ToString();
-                    participant.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = "Test";
+                    participant.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = ((RoomRole)(Enum.GetValues(typeof(RoomRole))).GetValue(_runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole)).ToString();
                 }
                 catch { }
             }
         }
+    }
+
+    public enum RoomRole
+    {
+        Host = 0,
+        Participant = 1,
     }
 }

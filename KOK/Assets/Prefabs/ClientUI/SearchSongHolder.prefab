@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 84311282259374040}
   - component: {fileID: 6746493331166418326}
   m_Layer: 5
-  m_Name: SongNameLabel
+  m_Name: SongName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -281,6 +281,7 @@ GameObject:
   - component: {fileID: 9009814357847103124}
   - component: {fileID: 6598608992661808222}
   - component: {fileID: 4990686146407315986}
+  - component: {fileID: 1142305134725260703}
   m_Layer: 5
   m_Name: SearchSongHolder
   m_TagString: Untagged
@@ -421,6 +422,22 @@ MonoBehaviour:
   _popUpPrefab: {fileID: 6140844574200421352, guid: b2bbcb52fe4d5df40ad17f819469c9cf, type: 3}
   _parent: {fileID: 7501318771815278822, guid: b2bbcb52fe4d5df40ad17f819469c9cf, type: 3}
   _originalItem: {fileID: 4590974471881372752}
+--- !u!114 &1142305134725260703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4590974471881372752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1f19e3a10a30a944a48f7da27f9573d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TMP_SongName: {fileID: 0}
+  TMP_SongArtist: {fileID: 0}
+  TMP_SongGenre: {fileID: 0}
+  TMP_SongSinger: {fileID: 0}
 --- !u!1 &4707384923573620131
 GameObject:
   m_ObjectHideFlags: 0
