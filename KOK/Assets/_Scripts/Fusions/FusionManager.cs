@@ -68,7 +68,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     private void Start()
     {
-        lobbyCanvas.gameObject.SetActive(false);
+        lobbyCanvas.gameObject.SetActive(true);
         clientCanvas.gameObject.SetActive(false);
         gameManager.gameObject.SetActive(false);
         popUpCanvas.gameObject.SetActive(false);
@@ -89,7 +89,6 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         videoPlayer.gameObject.SetActive(false);
 
         roomListDropdown.ClearOptions();
-        songListDropdown.ClearOptions();
         //songListDropdown.AddOptions(SongManager.songs.Select(x => x.songName).ToList());
 
         OnRoomNameTMPValueChange();
@@ -243,7 +242,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         //playerObject = runner.Spawn(playerPrefab, new Vector3(spawnPoint.position.x + Random.Range(-spawnOffset, spawnOffset), 0, spawnPoint.position.z + Random.Range(-spawnOffset, spawnOffset)));
         playerObject = runner.Spawn(playerPrefab, Vector3.zero);
 
-        //playerObject.transform.parent = spawnPoint;
+        playerObject.transform.parent = spawnPoint;
+
         playerObject.name = "Player: " + _playerName;
         playerObject.GetComponentInChildren<TextMeshPro>().text = _playerName;
         playerObject.GetComponent<SpriteRenderer>().color = _playerColor;
@@ -266,6 +266,13 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         videoPlayer.gameObject.SetActive(true);
 
         playerObject.transform.localPosition = spawnPoint.localPosition;
+        StartCoroutine(WaitToSetPosition());
+    }
+    
+    IEnumerator WaitToSetPosition()
+    {
+        yield return new WaitForSeconds(0.5f);
+        playerObject.transform.position = Vector3.zero;
     }
 
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
@@ -322,10 +329,11 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
-        if (runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole == 0)
-        {
-            AssignHostRoleRandom(runner);
-        }
+        
+        string test = runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0].ToString();
+        Debug.LogError("OnPlayerLeft | " + test);
+        runner.GetPlayerObject(runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0]).GetComponent<PlayerNetworkBehavior>().PlayerRole = 0;   
+        ParticipantItemHandlerManager.Instance.UpdateParticipantList();
     }
 
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress)
@@ -355,11 +363,11 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         roomListDropdown.ClearOptions();
         roomListDropdown.AddOptions(_roomList.Select(x => x.Name).ToList());
         OnRoomListDropdownValueChange();
+        
     }
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
-        Debug.Log("OnShutdown");
         _sessionName = runner.SessionInfo.Name;
 
     }
@@ -383,9 +391,11 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     private void AssignHostRoleRandom(NetworkRunner runner)
     {
         int random = Random.Range(0, runner.ActivePlayers.Count() - 1);
+        Debug.LogError(runner.ActivePlayers.Count() +"=========================");
         int i = 0;
         foreach (var player in runner.ActivePlayers)
         {
+            RPCVideoPlayer.Rpc_DebugLog(runner, runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName.ToString());
             if (random == i)
             {
                 runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole = 0;

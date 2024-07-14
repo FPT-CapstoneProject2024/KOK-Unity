@@ -60,5 +60,7 @@ namespace KOK
         {
             FindAnyObjectByType<VoiceRecorder>().StopRecording();
         }
+
+        
     }
 }

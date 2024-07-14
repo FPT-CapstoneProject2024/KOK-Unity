@@ -23,8 +23,6 @@ public class RPCVideoPlayer : NetworkBehaviour
 
     private static Button playVideoButton;
 
-    private static TMP_Dropdown songDropDown;
-
     public static List<PlayerNetworkBehavior> playerNames = new();
 
     private void Awake()
@@ -36,7 +34,6 @@ public class RPCVideoPlayer : NetworkBehaviour
     {
 
         playVideoButton = GameObject.Find("PlayVideoButton").GetComponent<Button>();
-        songDropDown = GameObject.Find("SongDropdown").GetComponent<TMP_Dropdown>();
     }
 
     public static bool isPlaying()
@@ -73,7 +70,6 @@ public class RPCVideoPlayer : NetworkBehaviour
             Rpc_Play(runner, url);
         }
 
-        songDropDown.value = songIndex;
 
     }
     
@@ -121,14 +117,14 @@ public class RPCVideoPlayer : NetworkBehaviour
     [Rpc]
     public static void Rpc_DebugLog(NetworkRunner runner, string content)
     {
-        List<PlayerNetworkBehavior> list = FindObjectsOfType<PlayerNetworkBehavior>().ToList();
-        List<PlayerRef> playerRefs = runner.ActivePlayers.ToList();
-        string test = "";
-        foreach (PlayerRef playerRef in playerRefs)
-        {
-            test += playerRef.PlayerId;
-        }
-        Debug.Log(content + " | " + test);
+        //List<PlayerNetworkBehavior> list = FindObjectsOfType<PlayerNetworkBehavior>().ToList();
+        //List<PlayerRef> playerRefs = runner.ActivePlayers.ToList();
+        //string test = "";
+        //foreach (PlayerRef playerRef in playerRefs)
+        //{
+        //    test += playerRef.PlayerId;
+        //}
+        Debug.Log(content);
     }
 
     [Rpc]

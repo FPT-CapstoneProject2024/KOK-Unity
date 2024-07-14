@@ -384,6 +384,15 @@ MonoBehaviour:
   _videoTime: 0
   _CharacterCode: 
   _AvatarCode: 
+  _queueSongCount: 0
+  _singer1Count: 0
+  _singer2Count: 0
+  _isAutoNextSong: 0
+  _nextSongCountDown: 0
+  _isSinger: 0
+  _QueueSongCodeList: []
+  _QueueSinger1List: []
+  _QueueSinger2List: []
 --- !u!114 &8957473673770562268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -391,7 +400,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7306406453163891327}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9fed69b5b8c880447bf197c7765bed55, type: 3}
   m_Name: 
@@ -481,4 +490,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7741ba99987463449bfed5be85decde9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _QueueSongCodeList: []

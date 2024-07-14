@@ -2,7 +2,9 @@ using Fusion;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static Unity.Collections.Unicode;
@@ -28,6 +30,11 @@ namespace KOK
 
         public void UpdateParticipantList()
         {
+            var runner = FindAnyObjectByType<NetworkRunner>();
+            //Debug.LogError(runner.ActivePlayers.ToCommaSeparatedString());
+            string test = runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList().ToSeparatedString(",");
+            Debug.LogError(test);
+
             if (_viewportContent == null) { return; }
             if (_runner == null) { _runner = NetworkRunner.Instances[0]; }
             foreach (Transform child in _viewportContent.transform)
