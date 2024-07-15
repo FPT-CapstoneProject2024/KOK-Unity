@@ -27,97 +27,94 @@ namespace KOK
 
         public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
         {
-            Debug.Log("OnConnectFailed");
+            FusionManager.Instance?.OnConnectFailed(runner, remoteAddress, reason);
         }
 
         public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
         {
-            Debug.Log("OnConnectRequest");
+            FusionManager.Instance?.OnConnectRequest(runner, request, token);
         }
 
         public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data)
         {
-            Debug.Log("OnCustomAuthenticationResponse");
+            FusionManager.Instance?.OnCustomAuthenticationResponse(runner, data);
         }
 
         public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
         {
-            Debug.Log("OnDisconnectedFromServer");
+            FusionManager.Instance?.OnDisconnectedFromServer(runner, reason);
         }
 
         public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken)
         {
-            Debug.Log("OnHostMigration");
+            FusionManager.Instance?.OnHostMigration(runner, hostMigrationToken);
         }
 
         public void OnInput(NetworkRunner runner, NetworkInput input)
         {
-            Debug.Log("OnInput");
+            FusionManager.Instance?.OnInput(runner, input);
 
         }
 
         public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
         {
-            Debug.Log("OnInputMissing");
+            FusionManager.Instance?.OnInputMissing(runner, player, input);
         }
 
         public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
         {
-            Debug.Log("OnObjectEnterAOI");
+            FusionManager.Instance?.OnObjectEnterAOI(runner, obj, player);
         }
 
         public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
         {
-            Debug.Log("OnObjectExitAOI");
+            FusionManager.Instance?.OnObjectExitAOI(runner, obj, player);
         }
 
         public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
         {
-            Debug.Log("OnPlayerJoined");
-            ParticipantItemHandlerManager.Instance.UpdateParticipantList();
+            FusionManager.Instance?.OnPlayerJoined(runner, player);
 
         }
 
         public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
         {
-            Debug.Log("OnPlayerLeft");
+            FusionManager.Instance?.OnPlayerLeft(runner, player);
         }
 
         public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress)
         {
-            Debug.Log("OnReliableDataProgress");
+            FusionManager.Instance?.OnReliableDataProgress(runner, player, key, progress);
         }
 
         public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data)
         {
-            Debug.Log("OnReliableDataReceived");
+            FusionManager.Instance?.OnReliableDataReceived(runner, player, key, data);  
         }
 
         public void OnSceneLoadDone(NetworkRunner runner)
         {
-            Debug.Log("OnSceneLoadDone");
+            FusionManager.Instance?.OnSceneLoadDone(runner);
         }
 
         public void OnSceneLoadStart(NetworkRunner runner)
         {
-            Debug.Log("OnSceneLoadStart");
+            FusionManager.Instance?.OnSceneLoadStart(runner);
         }
 
         public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
         {
-            Debug.Log("OnSessionListUpdated");
-            FusionManager.Instance.OnSessionListUpdated(runner, sessionList);
+            FusionManager.Instance?.OnSessionListUpdated(runner, sessionList);
         }
 
         public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
         {
-            Debug.Log("OnShutdown");
             FusionManager.Instance?.OnShutdown(runner, shutdownReason);
         }
 
         public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message)
         {
-            Debug.Log("OnUserSimulationMessage");
+            FusionManager.Instance?.OnUserSimulationMessage(runner, message);
         }
 
 

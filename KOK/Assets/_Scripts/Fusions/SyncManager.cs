@@ -42,8 +42,8 @@ namespace KOK
                     {
                         runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().Rpc_PlayVideo();
                     }
-                    //runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().Rpc_PlayVideo();
                 }
+                RPCSongManager.Rpc_StartRecording(runner);
             }
             else
             {
@@ -77,7 +77,7 @@ namespace KOK
                 Debug.Log(runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName + ": "
                     + runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().videoTime + " - "
                     + runner.GetPlayerObject(host).GetComponent<PlayerNetworkBehavior>().videoTime + " = "
-                    + delta + " ================================================");
+                    + delta);
                 //Debug.Log(GetSortedList()[0].PlayerName + ": " + GetSortedList()[0].videoTime);
 
                 if (delta < -1d || delta > 1d)

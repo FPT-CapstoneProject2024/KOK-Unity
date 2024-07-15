@@ -25,7 +25,7 @@ namespace KOK
             if (_recorder == null)
             {
                 _recorder = FindAnyObjectByType<Recorder>();
-                Debug.Log(_recorder.gameObject.name);
+                //Debug.Log(_recorder.gameObject.name);
             }
             _recorder.VoiceDetectionThreshold = _voiceDetectSlider.value/100;
         }

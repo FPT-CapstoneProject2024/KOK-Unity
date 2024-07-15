@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,28 +10,38 @@ namespace KOK
     {
         [SerializeField] private GameObject _panel;
         [SerializeField] private Toggle _toggle;
-        [SerializeField] private Transform _parent;
+        [SerializeField] private List<TogglePanel> _groupTogglePanel;
 
         void Start()
         {
             ToggleOnOffPanel();
-            _parent = GameObject.Find("ItemPanelCanvas").transform;
         }
 
         public void ToggleOnOffPanel()
         {
+            foreach (var togglePanel in _groupTogglePanel)
+            {
+                if (togglePanel != this) { togglePanel.ToggleOffPanel(); }
+
+            }
             if (_toggle.isOn)
             {
-                foreach(Transform panel in _parent.transform)
-                {
-                    panel.gameObject.SetActive(false);
-                }
                 _panel.SetActive(true);
             }
             else if (!_toggle.isOn)
             {
                 _panel.SetActive(false);
             }
+        }
+
+        public void ToggleOffPanel()
+        {
+            try
+            {
+                _toggle.isOn = false;
+                _panel.SetActive(false);
+            }
+            catch (Exception) { }
         }
     }
 }

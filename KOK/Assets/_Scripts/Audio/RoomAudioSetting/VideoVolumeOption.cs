@@ -11,9 +11,9 @@ namespace KOK
     {
         [SerializeField] Slider _videoVolumeSlider;
         [SerializeField] int _defaultValue = 50;
-        private VideoPlayer _videoPlayer;
+        [SerializeField] private VideoPlayer _videoPlayer;
 
-        void Start()
+        void OnEnable()
         {
             _videoPlayer = FindFirstObjectByType<VideoPlayer>();
             _videoVolumeSlider.value = _defaultValue;

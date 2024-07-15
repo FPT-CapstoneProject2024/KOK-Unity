@@ -1,5 +1,6 @@
 using Fusion;
 using KOK;
+using Photon.Realtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,8 +14,9 @@ using UnityEngine.UI;
 using UnityEngine.Video;
 using WebSocketSharp;
 using YoutubePlayer.Components;
+using static Unity.Collections.Unicode;
 
-public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetworkBehavior>, IComparer<PlayerNetworkBehavior> 
+public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetworkBehavior>, IComparer<PlayerNetworkBehavior>
 {
     [Networked] public NetworkString<_32> PlayerName { get; set; }
     [SerializeField] TextMeshPro playerNameLabel;
@@ -33,18 +35,37 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     [Networked][SerializeField] public string AvatarCode { get; set; }
 
-    [Networked, Capacity(100)][SerializeField] public NetworkArray<NetworkString<_32>> QueueSongCodeList { get; } = MakeInitializer(new NetworkString<_32>[] { "S005", "S009", "S004", });
-
     [Networked] public int queueSongCount { get; set; }
+    [Networked] public int singer1Count { get; set; }
+    [Networked] public int singer2Count { get; set; }
+    [Networked] public bool isAutoNextSong { get; set; }
+    [Networked] public int nextSongCountDown { get; set; }
+
+    [Networked] public bool isSinger { get; set; }
+
+    [Networked, Capacity(50)][SerializeField] public NetworkArray<NetworkString<_32>> QueueSongCodeList { get; }
+    [Networked, Capacity(50)][SerializeField] public NetworkArray<NetworkString<_32>> QueueSinger1List { get; }
+    [Networked, Capacity(50)][SerializeField] public NetworkArray<NetworkString<_32>> QueueSinger2List { get; }
 
 
     private void Start()
     {
+        ClearSongQueue();
+        NetworkRunner runner = NetworkRunner.Instances[0];
         if (this.HasStateAuthority)
         {
             PlayerName = FusionManager.Instance._playerName;
             PlayerColor = FusionManager.Instance._playerColor;
-            PlayerRole = FusionManager.Instance.playerRole;
+            if (runner.ActivePlayers.Count() > 1)
+            {
+                PlayerRole = 1;
+                StartCoroutine(SyncSongQueueWithHost());
+            }
+            else
+            {
+                PlayerRole = 0;
+            }
+
             CharacterCode = "";
             AvatarCode = "DemoAvatar";
         }
@@ -54,7 +75,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
         videoPlayer = FindAnyObjectByType<VideoPlayer>();
 
-        RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
+        RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);     
 
         StartCoroutine(UpdateTime());
     }
@@ -118,39 +139,145 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         NetworkString<_32> songCode = QueueSongCodeList[0];
         DemoSong song = SongManager.GetSongBySongCode(songCode.ToString());
 
-        NetworkString<_32>[] tmp = QueueSongCodeList.Where((source, index) => index != 0).ToArray();
-        QueueSongCodeList.CopyFrom(tmp, 0, tmp.Count());
         return song.songURL;
     }
-    public void AddSongToQueue(string songCode)
+
+    public void AddSongToQueue(string songCode, string singer1Name, string singer2Name)
     {
 
+        CountQueue();
+        if (PlayerRole == 0)
+        {
+            QueueSongCodeList.Set(queueSongCount, songCode);
+            QueueSinger1List.Set(singer1Count, singer1Name);
+            QueueSinger2List.Set(singer2Count, singer2Name);
+            StartCoroutine(UpdateSongUI());
+        }
+        else
+        {
+            StartCoroutine(SyncSongQueueWithHost());
+        }
+        CountQueue();
     }
 
+    public void PrioritizeSongToQueue(string songCode, string singer1Name, string singer2Name)
+    {
+        var runner = FindAnyObjectByType<NetworkRunner>();
+        if (PlayerRole == 0)
+        {
+            CountQueue();
+            for (int i = queueSongCount; i > 0; i--)
+            {
+                QueueSongCodeList.Set(i, QueueSongCodeList[i - 1]);
+                QueueSinger1List.Set(i, QueueSinger1List[i - 1]);
+                QueueSinger2List.Set(i, QueueSinger2List[i - 1]);
+            }
+            QueueSongCodeList.Set(0, songCode);
+            QueueSinger1List.Set(0, singer1Name);
+            QueueSinger2List.Set(0, singer2Name);
+            CountQueue();
+            StartCoroutine(UpdateSongUI());
+        }
+        else
+        {
+            StartCoroutine(SyncSongQueueWithHost());
+            CountQueue();
+        }
+    }
     public void RemoveSongFromQueue(int index)
     {
+        if (PlayerRole == 0)
+        {
+            NetworkString<_32> songCode = QueueSongCodeList[0];
+            DemoSong song = SongManager.GetSongBySongCode(songCode.ToString());
 
+            NetworkString<_32>[] tmp = QueueSongCodeList.Where((source, i) => i != index).ToArray();
+            QueueSongCodeList.Clear();
+            QueueSongCodeList.CopyFrom(tmp, 0, tmp.Count());
+
+            tmp = QueueSinger1List.Where((source, i) => i != index).ToArray();
+            QueueSinger1List.Clear();
+            QueueSinger1List.CopyFrom(tmp, 0, tmp.Count());
+
+            tmp = QueueSinger2List.Where((source, i) => i != index).ToArray();
+            QueueSinger2List.Clear();
+            QueueSinger2List.CopyFrom(tmp, 0, tmp.Count());
+            StartCoroutine(UpdateSongUI());
+        }
+        else
+        {
+            StartCoroutine(SyncSongQueueWithHost());
+        }
+        CountQueue();
     }
 
     public void ClearSongQueue()
     {
-
+        if (PlayerRole == 0)
+        {
+            QueueSongCodeList.Clear();
+            QueueSinger1List.Clear();
+            QueueSinger2List.Clear();
+            StartCoroutine(UpdateSongUI());
+        }
+        else
+        {
+            StartCoroutine(SyncSongQueueWithHost());
+        }
     }
 
-    public void MoveSongInQueueToIndex(int index)
+    public void MoveSongInQueueToIndex(int moveIndex, int targetIndex)
     {
 
     }
 
-    public void StopSong()
+    public void CountDownToNextSong()
     {
 
     }
 
-    //public string GetNextSongURLToPlay()
-    //{
-
-    //}
+    private void CountQueue()
+    {
+        queueSongCount = 0;
+        singer1Count = 0;
+        singer2Count = 0;
+        foreach (var song in QueueSongCodeList)
+        {
+            if (song.ToString().Trim() == "")
+            {
+                break;
+            }
+            else
+            {
+                queueSongCount++;
+            }
+        }
+        foreach (var singer in QueueSinger1List)
+        {
+            if (singer.ToString().Trim() == "")
+            {
+                break;
+            }
+            else
+            {
+                singer1Count++;
+            }
+        }
+        foreach (var singer in QueueSinger2List)
+        {
+            if (singer.ToString().Trim() == "")
+            {
+                break;
+            }
+            else
+            {
+                singer2Count++;
+            }
+        }
+        //Debug.LogError(QueueSongCodeList.ToCommaSeparatedString()
+        //             + QueueSinger1List.ToCommaSeparatedString()
+        //             + QueueSinger2List.ToCommaSeparatedString());
+    }
 
     private bool NetworkArray_IsEmpty(NetworkArray<NetworkString<_32>> networkArray)
     {
@@ -170,4 +297,70 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         NetworkString<_32>[] tmp = QueueSongCodeList.Where((source, index) => index != 0).ToArray();
         networkArray.CopyFrom(tmp, 0, tmp.Count());
     }
+
+    IEnumerator SyncSongQueueWithHost()
+    {
+        yield return new WaitForSeconds(1f);
+        try
+        {            
+            var runner = NetworkRunner.Instances[0];
+
+            foreach (var player in runner.ActivePlayers)
+            {
+                if (runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole == 0)
+                {
+                    QueueSongCodeList.Clear();
+                    for (int i = 0; i < QueueSongCodeList.Length; i++)
+                    {
+                        QueueSongCodeList.Set(i, runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().QueueSongCodeList[i]);
+                    }
+                    QueueSinger1List.Clear();
+                    for (int i = 0; i < QueueSinger1List.Length; i++)
+                    {
+                        QueueSinger1List.Set(i, runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().QueueSinger1List[i]);
+                    }
+                    QueueSinger2List.Clear();
+                    for (int i = 0; i < QueueSinger2List.Length; i++)
+                    {
+                        QueueSinger2List.Set(i, runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().QueueSinger2List[i]);
+                    }
+                    break;
+                }
+            }
+            GameObject.Find("QueueToggle").GetComponent<SongItemManager>().UpdateQueueSongList();
+        }
+        catch (Exception) { };
+
+
+    }
+
+    IEnumerator UpdateSongUI()
+    {
+        yield return new WaitForSeconds(1f);
+        GameObject.Find("QueueToggle").GetComponent<SongItemManager>().UpdateQueueSongList();
+
+    }
+    public void SetSinger()
+    {
+        if (QueueSinger1List[0].ToString() == PlayerName || QueueSinger2List[0].ToString() == PlayerName)
+        {
+            isSinger = true;
+        }
+        else { isSinger = false; }
+        //Debug.LogError(QueueSinger1List[0].ToString() + " | " + PlayerName + " | " + isSinger);
+        var muteToggle = GameObject.Find("MuteToggle").GetComponent<Toggle>();
+        if (isSinger)
+        {
+            muteToggle.interactable = true;
+        }
+        else
+        {
+            muteToggle.isOn = false;
+            muteToggle.interactable = false;
+        }
+    }
+
+
 }
+
+
