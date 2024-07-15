@@ -31,9 +31,9 @@ namespace KOK
         public void UpdateParticipantList()
         {
             var runner = FindAnyObjectByType<NetworkRunner>();
-            //Debug.LogError(runner.ActivePlayers.ToCommaSeparatedString());
+
             string test = runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList().ToSeparatedString(",");
-            Debug.LogError(test);
+            Debug.Log(test);
 
             if (_viewportContent == null) { return; }
             if (_runner == null) { _runner = NetworkRunner.Instances[0]; }
