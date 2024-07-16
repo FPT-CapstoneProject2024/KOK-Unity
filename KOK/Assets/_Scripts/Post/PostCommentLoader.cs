@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using TMPro;
 using SU24SE069_PLATFORM_KAROKE_DataAccess.Models;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post;
 
 namespace KOK
 {

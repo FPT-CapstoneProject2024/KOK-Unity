@@ -1,18 +1,25 @@
-/*using KOK.Assets._Scripts;
+using KOK.ApiHandler.Context;
+using KOK.ApiHandler.DTOModels;
+using KOK.ApiHandler.Utilities;
+using KOK.Assets._Scripts;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Item;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item;
 using Newtonsoft.Json;
-using SU24SE069_PLATFORM_KAROKE_DataAccess.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
+using System.Web;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace KOK
-{     
+{
     public class ShopItemController : MonoBehaviour
     {
         public TMP_InputField itemIdInput;
@@ -27,9 +34,112 @@ namespace KOK
         public TMP_Text notificationText;
         public float notificationFadeDuration;
 
-        public string baseUrl = "https://localhost:7017/api/items";
+        private string itemResourceUrl = string.Empty;
 
-        public void OnCreateSubmit()
+        private void Start()
+        {
+            itemResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Items_Resource;
+        }
+
+        public void GetItemByIdCoroutine(Guid itemId, Action<string> onSuccess, Action<string> onError)
+        {
+            if (itemId == null)
+            {
+                Debug.Log("Failed to get item by ID. Item ID is null!");
+                return;
+            }
+
+            // Prepare and send api request
+            var url = itemResourceUrl + "/" + itemId.ToString();
+            ApiHelper.Instance.GetCoroutine(url, onSuccess, onError);
+        }
+
+        public async Task<Item?> GetItemByIdAsync(Guid itemId)
+        {
+            var url = itemResourceUrl + "/" + itemId.ToString();
+            var jsonResult = await ApiHelper.Instance.GetAsync(url);
+
+            if (string.IsNullOrEmpty(jsonResult))
+            {
+                return null;
+            }
+
+            ResponseResult<Item> result = JsonConvert.DeserializeObject<ResponseResult<Item>>(jsonResult);
+
+            return result.Value;
+        }
+
+        public async Task<Item?> CreateItemAsync(CreateItemRequest createItem)
+        {
+            var jsonData = JsonConvert.SerializeObject(createItem);
+            var url = itemResourceUrl;
+            var jsonResult = await ApiHelper.Instance.PostAsync(url, jsonData);
+
+            if (string.IsNullOrEmpty(jsonResult))
+            {
+                return null;
+            }
+
+            Debug.Log(jsonResult);
+
+            ResponseResult<Item> result = JsonConvert.DeserializeObject<ResponseResult<Item>>(jsonResult);
+
+            return result.Value;
+        }
+
+        public async Task<DynamicResponseResult<Item>?> GetItemsFilterPagingAsync(ItemFilter filter, ItemOrderFilter orderFilter, PagingRequest paging)
+        {
+            var queryParams = GenerateItemQueryParams(filter, orderFilter, paging);
+            var url = BuildUrl(itemResourceUrl, queryParams);
+
+            Debug.Log(url);
+
+            var jsonResult = await ApiHelper.Instance.GetAsync(url);
+            if (string.IsNullOrEmpty(jsonResult))
+            {
+                return null;
+            }
+
+            DynamicResponseResult<Item> result = JsonConvert.DeserializeObject<DynamicResponseResult<Item>>(jsonResult);
+            return result;
+        }
+
+        public string BuildUrl(string baseUrl, NameValueCollection queryParams)
+        {
+            var builder = new UriBuilder(baseUrl);
+            var query = HttpUtility.ParseQueryString(builder.Query);
+
+            foreach (string key in queryParams)
+            {
+                query[key] = queryParams[key];
+            }
+
+            builder.Query = query.ToString();
+            return builder.ToString();
+        }
+
+        public NameValueCollection GenerateItemQueryParams(ItemFilter filter, ItemOrderFilter orderFilter, PagingRequest paging)
+        {
+            var queryParams = new NameValueCollection();
+            if (filter.ItemCode != null)
+            {
+                queryParams.Add(nameof(filter.ItemCode), filter.ItemCode);
+            }
+
+            if (filter.ItemName != null)
+            {
+                queryParams.Add(nameof(filter.ItemName), filter.ItemName);
+            }
+
+            queryParams.Add(nameof(paging.page), paging.page.ToString());
+            queryParams.Add(nameof(paging.pageSize), paging.pageSize.ToString());
+            queryParams.Add(nameof(paging.OrderType), paging.OrderType.ToString());
+            queryParams.Add(nameof(orderFilter), orderFilter.ToString());
+
+            return queryParams;
+        }
+
+        /*public void OnCreateSubmit()
         {
             Item newItem = new Item
             {
@@ -51,7 +161,7 @@ namespace KOK
             Guid itemId = Guid.Parse(itemIdInput.text);
 
             Item updateItem = new Item
-            {               
+            {
                 ItemCode = itemCodeInput.text,
                 ItemName = itemNameInput.text,
                 ItemDescription = itemDescriptionInput.text,
@@ -63,13 +173,13 @@ namespace KOK
                 //CreatorId = ,  // login
             };
 
-            StartCoroutine(PutItemToApi(itemId, updateItem));           
+            StartCoroutine(PutItemToApi(itemId, updateItem));
         }
 
         public void OnDeleteSubmit()
         {
             Guid itemId = Guid.Parse(itemIdInput.text);
-         
+
             StartCoroutine(DeleteItemFromApi(itemId));
         }
 
@@ -92,7 +202,7 @@ namespace KOK
                 notificationText.text = "Item successfully sent to the API.";
                 yield return helper.FadeTextToFullAlpha(notificationFadeDuration, notificationText);
                 yield return new WaitForSeconds(2); // Wait for 2 seconds before starting to fade out
-                yield return helper.FadeTextToZeroAlpha(notificationFadeDuration, notificationText);               
+                yield return helper.FadeTextToZeroAlpha(notificationFadeDuration, notificationText);
             }
             else
             {
@@ -101,7 +211,7 @@ namespace KOK
                 notificationText.text = "Error sending item to the API: " + request.error;
                 yield return helper.FadeTextToFullAlpha(notificationFadeDuration, notificationText);
                 yield return new WaitForSeconds(2); // Wait for 2 seconds before starting to fade out
-                yield return helper.FadeTextToZeroAlpha(notificationFadeDuration, notificationText);               
+                yield return helper.FadeTextToZeroAlpha(notificationFadeDuration, notificationText);
             }
         }
 
@@ -146,6 +256,6 @@ namespace KOK
             {
                 Debug.LogError("Error deleting item: " + request.error);
             }
-        }
+        }*/
     }
-}  */
+}

@@ -1,97 +1,96 @@
-/*using Newtonsoft.Json;
-using SU24SE069_PLATFORM_KAROKE_DataAccess.Models;
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using KOK.ApiHandler.DTOModels;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Item;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item;
+using KOK.ApiHandler.Context;
 
 namespace KOK
 {
     public class ShopLayout : MonoBehaviour
     {
         [SerializeField] private List<Item> itemList = new List<Item>();
+        [SerializeField] private ShopItemController shopItemController;
 
-        private string baseUrl = "https://localhost:7017/api/items";
-        private List<string> itemNames = new List<string>();
+        private List<string> itemCodes = new List<string>();
         public GameObject displayPanel;
         public GameObject displayButton;
+        private string itemResourceUrl = string.Empty;
 
-        void Start()
+        private void Start()
         {
-            StartCoroutine(GetData(baseUrl));
-            //RefreshClicked();
+            itemResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Items_Resource;
+            shopItemController = new ShopItemController();
+            StartCoroutine(GetItemsFilterPagingCoroutine(new ItemFilter(), new ItemOrderFilter(), new PagingRequest()));
         }
 
-        void LayoutGenerate()
+        private void LayoutGenerate()
         {
             for (int i = 0; i < itemList.Count; i++)
             {
-                //GameObject button = displayPanel.transform.GetChild(i).gameObject; 
                 GameObject gameObj = Instantiate(displayButton, displayPanel.transform);
-                gameObj.transform.GetChild(0).GetComponent<TMP_Text>().text = itemNames[i];
+                gameObj.transform.GetChild(0).GetComponent<TMP_Text>().text = itemCodes[i];
 
                 int index = i;
                 gameObj.GetComponent<Button>().onClick.AddListener(delegate ()
                 {
                     ItemClicked(index);
                 });
+
+                //gameObj.tag = "Item Display";
             }
-             
-            //Destroy(buttonDisplay);
         }
 
-        void ItemClicked(int itemIndex)
+        private void ItemClicked(int itemIndex)
         {
-            Debug.Log("item" + itemIndex);
+            Debug.Log("Item clicked: " + itemIndex);
         }
 
         public void RefreshClicked()
         {
             for (int i = 0; i < displayPanel.transform.childCount; i++)
             {
-                Destroy(displayPanel.transform.GetChild(i).gameObject);
+                GameObject child = displayPanel.transform.GetChild(i).gameObject;
+                Destroy(child);
+                ///*if (child.CompareTag("Item Display"))
+                //{
+
+                //}*/
             }
 
-            StartCoroutine(GetData(baseUrl));
+            StartCoroutine(GetItemsFilterPagingCoroutine(new ItemFilter(), new ItemOrderFilter(), new PagingRequest()));
         }
 
-        IEnumerator GetData(string url)
+        private IEnumerator GetItemsFilterPagingCoroutine(ItemFilter filter, ItemOrderFilter orderFilter, PagingRequest paging)
         {
-            UnityWebRequest request = UnityWebRequest.Get(url);
+            string url = shopItemController.BuildUrl(itemResourceUrl, shopItemController.GenerateItemQueryParams(filter, orderFilter, paging));
 
+            UnityWebRequest request = UnityWebRequest.Get(url);
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.Success)
             {
                 string response = request.downloadHandler.text;
+                var responseObject = JsonConvert.DeserializeObject<DynamicResponseResult<Item>>(response);
+                var items = responseObject.Results;
 
-                var responseObject = JsonConvert.DeserializeObject<ResponseObject>(response);
-                var items = responseObject.Results; 
-                 
-                if (itemNames == null)
-                {
-                    itemNames = new List<string>();
-                }
-                if (itemList == null)
-                {
-                    itemList = new List<Item>();
-                }
-
-                // clear before adding
-                itemNames.Clear();
-                itemList.Clear();  
+                itemCodes.Clear();
+                itemList.Clear();
 
                 foreach (Item item in items)
                 {
-                    itemNames.Add(item.ItemName);
-                    itemList.Add(item);  
+                    itemCodes.Add(item.ItemCode);
+                    itemList.Add(item);
                 }
 
-                LayoutGenerate(); 
-
+                LayoutGenerate();
                 Debug.Log(response);
             }
             else
@@ -99,21 +98,6 @@ namespace KOK
                 Debug.LogError(request.error);
             }
         }
-
-        public class ResponseObject
-        {
-            public string Code { get; set; }
-            public string Message { get; set; }
-            public Metadata Metadata { get; set; }
-            public List<Item> Results { get; set; }
-        }
-
-        public class Metadata
-        {
-            public int Page { get; set; }
-            public int Size { get; set; }
-            public int Total { get; set; }
-        }
     }
 }
-*/
+

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1311777943074025731}
   m_Layer: 5
   m_Name: ItemDisplayButton
-  m_TagString: Untagged
+  m_TagString: Item Display
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -68,7 +68,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 4fbc132f2f9796d49a4144b299da97cc, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine.Networking;
 using UnityEngine;
+using KOK.ApiHandler.DTOModels;
 
 namespace KOK.Assets._Scripts.Post
 {
@@ -42,7 +43,7 @@ namespace KOK.Assets._Scripts.Post
             if (request.result == UnityWebRequest.Result.Success)
             {
                 string response = request.downloadHandler.text;
-                var responseObject = JsonConvert.DeserializeObject<AccountResponseObject>(response);
+                var responseObject = JsonConvert.DeserializeObject<ResponseResult<Account>>(response);
                 var members = responseObject.Value;
 
                 memberList.Clear();

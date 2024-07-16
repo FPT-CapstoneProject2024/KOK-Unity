@@ -41,4 +41,27 @@ namespace KOK.ApiHandler.DTOModels
     }
 
     #endregion
+
+    #region Item
+
+    public enum ItemStatus
+    {
+        DISABLE = 0,
+        ENABLE = 1,
+        PENDING = 2,
+    }
+    public enum ItemType
+    {
+        CHARACTER,
+        ROOM,
+        DEFAULT,
+    }
+
+    public enum ItemOrderFilter
+    {
+        ItemCode = 1,
+        ItemName = 2,
+    }
+
+    #endregion
 }
