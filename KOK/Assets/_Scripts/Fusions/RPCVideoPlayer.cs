@@ -33,7 +33,7 @@ public class RPCVideoPlayer : NetworkBehaviour
     private void Start()
     {
 
-        playVideoButton = GameObject.Find("PlayVideoButton").GetComponent<Button>();
+        //playVideoButton = GameObject.Find("PlayVideoButton").GetComponent<Button>();
     }
 
     public static bool isPlaying()

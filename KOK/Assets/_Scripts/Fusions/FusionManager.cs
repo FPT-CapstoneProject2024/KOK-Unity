@@ -273,6 +273,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         yield return new WaitForSeconds(0.5f);
         playerObject.transform.position = Vector3.zero;
+        yield return new WaitForSeconds(0.5f);
+        playerObject.transform.position = Vector3.zero;
     }
 
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
