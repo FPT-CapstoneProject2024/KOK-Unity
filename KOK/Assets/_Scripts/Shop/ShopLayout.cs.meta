@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b3d70d9167fe28c46bdd83e63d416794
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - shopItemController: {instanceID: 0}
+  - displayPanel: {instanceID: 0}
+  - displayButton: {fileID: 2386554737127971277, guid: 637d775afd143a84bbee5834cddea8d9, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
