@@ -131,9 +131,7 @@ namespace KOK.ApiHandler.Controller
         public async Task<DynamicResponseResult<Account>?> GetAccountsFilterPagingAsync(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = GenerateAccountQueryParams(filter, orderFilter, paging);
-            var url = BuildUrl(accountResourceUrl, queryParams);
-
-            Debug.Log(url);
+            var url = QueryHelper.BuildUrl(accountResourceUrl, queryParams);
 
             var jsonResult = await ApiHelper.Instance.GetAsync(url);
             if (string.IsNullOrEmpty(jsonResult))
@@ -145,21 +143,7 @@ namespace KOK.ApiHandler.Controller
             return result;
         }
 
-        private string BuildUrl(string baseUrl, NameValueCollection queryParams)
-        {
-            var builder = new UriBuilder(baseUrl);
-            var query = HttpUtility.ParseQueryString(builder.Query);
-
-            foreach (string key in queryParams)
-            {
-                query[key] = queryParams[key];
-            }
-
-            builder.Query = query.ToString();
-            return builder.ToString();
-        }
-
-        private NameValueCollection GenerateAccountQueryParams(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging) 
+        private NameValueCollection GenerateAccountQueryParams(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
             if (filter.UserName != null)
