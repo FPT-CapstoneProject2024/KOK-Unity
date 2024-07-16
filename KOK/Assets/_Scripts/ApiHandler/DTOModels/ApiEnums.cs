@@ -15,6 +15,13 @@ namespace KOK.ApiHandler.DTOModels
         PhoneNumber = 13,
     }
 
+    public enum SongOrderFilter
+    {
+        SongId = 0,
+        SongName = 1,
+        SongCode = 7,
+    }
+
     #endregion
 
     #region Account
@@ -38,6 +45,16 @@ namespace KOK.ApiHandler.DTOModels
         NOT_VERIFY = 0,
         ACTIVE = 1,
         INACTIVE = 2,
+    }
+
+    #endregion
+
+    #region Song
+
+    public enum SongStatus
+    {
+        DISABLE = 0,
+        ENABLE = 1,
     }
 
     #endregion
