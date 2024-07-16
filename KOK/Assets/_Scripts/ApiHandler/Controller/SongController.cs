@@ -3,6 +3,7 @@ using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -28,6 +29,10 @@ namespace KOK.ApiHandler.Controller
                 PagingRequest paging = new PagingRequest();
                 GetSongsFilterPagingCoroutine(filter, SongOrderFilter.SongName, paging, (value) => { Debug.Log(value); }, (value) => { Debug.Log(value); });
             }
+            else if (Input.GetKeyDown(KeyCode.W))
+            {
+                GetSongByIdCoroutine(Guid.Parse("8aafae2f-414b-4d78-bf9e-ee8e8ed25424"), (value) => { }, (value) => { });
+            }
 
             #endregion
         }
@@ -47,11 +52,21 @@ namespace KOK.ApiHandler.Controller
             return result;
         }
 
-        public void GetSongsFilterPagingCoroutine(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging, Action<string> onSuccess, Action<string> onError)
+        public void GetSongsFilterPagingCoroutine(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging, Action<List<SongDetail>> onSuccess, Action<string> onError)
         {
             var queryParams = GenerateSongQueryParams(filter, orderFilter, paging);
             var url = QueryHelper.BuildUrl(songsResourceUrl, queryParams);
-            ApiHelper.Instance.GetCoroutine(url, onSuccess, onError);
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<SongDetail>>(successValue);
+                    onSuccess?.Invoke(result.Results);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to retrieve songs list: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
         }
 
         private NameValueCollection GenerateSongQueryParams(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
@@ -73,6 +88,22 @@ namespace KOK.ApiHandler.Controller
             queryParams.Add(nameof(orderFilter), orderFilter.ToString());
 
             return queryParams;
+        }
+
+        public void GetSongByIdCoroutine(Guid songId, Action<SongDetail> onSuccess, Action<string> onError)
+        {
+            var url = songsResourceUrl + $"/{songId.ToString()}";
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<SongDetail>>(successValue);
+                    onSuccess?.Invoke(result.Value);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to retrieve song detail with song ID [{songId.ToString()}]: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
         }
     }
 }

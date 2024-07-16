@@ -16,9 +16,9 @@ namespace KOK.ApiHandler.DTOModels
         public DateTime? PublicDate { get; set; }
         public Guid? CreatorId { get; set; }
         public decimal Price { get; set; }
-        public string Genre { get; set; }
-        public string Singer { get; set; }
-        public string Artist { get; set; }
+        public List<string> Genre { get; set; }
+        public List<string> Singer { get; set; }
+        public List<string> Artist { get; set; }
 
         public List<SongArtist> SongArtists { get; set; }
         public List<SongGenre> SongGenres { get; set; }
