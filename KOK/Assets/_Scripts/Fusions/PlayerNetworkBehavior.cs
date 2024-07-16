@@ -75,7 +75,9 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
         videoPlayer = FindAnyObjectByType<VideoPlayer>();
 
-        RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);     
+        RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
+
+        SetSinger();
 
         StartCoroutine(UpdateTime());
     }
@@ -348,16 +350,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         }
         else { isSinger = false; }
         //Debug.LogError(QueueSinger1List[0].ToString() + " | " + PlayerName + " | " + isSinger);
-        var muteToggle = GameObject.Find("MuteToggle").GetComponent<Toggle>();
-        if (isSinger)
-        {
-            muteToggle.interactable = true;
-        }
-        else
-        {
-            muteToggle.isOn = false;
-            muteToggle.interactable = false;
-        }
+        FindAnyObjectByType<RoomClientController>().CheckSinger(isSinger);
+
     }
 
 
