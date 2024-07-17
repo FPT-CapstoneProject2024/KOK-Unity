@@ -38,7 +38,7 @@ namespace KOK
             return result;
         }
 
-        public void LoginCoroutine(LoginRequest loginRequest, Action<LoginResponse> onSuccess, Action<string> onError)
+        public void LoginCoroutine(LoginRequest loginRequest, Action<LoginResponse> onSuccess, Action<LoginResponse> onError)
         {
             var jsonData = JsonConvert.SerializeObject(loginRequest);
             var url = authenticationResourceUrl + "/login";
@@ -51,8 +51,8 @@ namespace KOK
                 },
                 (errorValue) =>
                 {
-                    Debug.LogError($"Error when trying to login: {errorValue}");
-                    onError?.Invoke(errorValue);
+                    var result = JsonConvert.DeserializeObject<LoginResponse>(errorValue);
+                    onError?.Invoke(result);
                 });
         }
     }
