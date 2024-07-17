@@ -64,4 +64,33 @@ namespace KOK.ApiHandler.DTOModels
     }
 
     #endregion
+
+    #region Song
+
+    public enum SongStatus
+    {
+        DISABLE = 0,
+        ENABLE = 1,
+    }
+
+    public enum SongType
+    {
+        INTERNAL = 1,
+        EXTERNAL = 2,
+    }
+    public enum SongCategory
+    {
+        VPOP = 0,
+        POP = 1,
+        KPOP = 2,
+        ROCK = 3,
+    }
+
+    public enum SongOrderFilter
+    {
+        SongName = 1,
+        SongCode = 7,       
+    }
+
+    #endregion
 }

@@ -11,13 +11,15 @@ using KOK.ApiHandler.DTOModels;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Item;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item;
 using KOK.ApiHandler.Context;
+using KOK.Assets._Scripts.Shop;
 
 namespace KOK
 {
-    public class ShopLayout : MonoBehaviour
+    public class ShopItemLayout : MonoBehaviour
     {
         [SerializeField] private List<Item> itemList = new List<Item>();
-        [SerializeField] private ShopItemController shopItemController;
+        private ShopItemController shopItemController;
+        public ItemPreviewDisplay itemPreview;
 
         private List<string> itemCodes = new List<string>();
         public GameObject displayPanel;
@@ -39,18 +41,23 @@ namespace KOK
                 gameObj.transform.GetChild(0).GetComponent<TMP_Text>().text = itemCodes[i];
 
                 int index = i;
+                Debug.Log(itemList[i].ItemId);
+                var item = itemList[i];
                 gameObj.GetComponent<Button>().onClick.AddListener(delegate ()
                 {
-                    ItemClicked(index);
+                    ItemClicked(item);
+                    //ItemClicked(itemList[i].ItemId);
                 });
 
                 //gameObj.tag = "Item Display";
             }
         }
 
-        private void ItemClicked(int itemIndex)
+        private void ItemClicked(Item item)
         {
-            Debug.Log("Item clicked: " + itemIndex);
+            itemPreview.ShowPopup(item);
+            //itemPreview.Display(item);
+            Debug.Log("Item clicked: " + item.ItemId);
         }
 
         public void RefreshClicked()
@@ -59,10 +66,6 @@ namespace KOK
             {
                 GameObject child = displayPanel.transform.GetChild(i).gameObject;
                 Destroy(child);
-                ///*if (child.CompareTag("Item Display"))
-                //{
-
-                //}*/
             }
 
             StartCoroutine(GetItemsFilterPagingCoroutine(new ItemFilter(), new ItemOrderFilter(), new PagingRequest()));
