@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace KOK
 {
-    public class SongManager : NetworkBehaviour
+    public class DemoSongManager : NetworkBehaviour
     {
         private NetworkRunner networkRunner;
 

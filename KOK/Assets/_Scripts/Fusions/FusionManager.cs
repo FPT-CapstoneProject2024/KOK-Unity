@@ -77,6 +77,10 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
         runner = FindAnyObjectByType<NetworkRunner>();
         OnJoinLobby();
+        OnRoomNameTMPValueChange();
+        createButton.interactable = false;
+        roomNameInput.interactable = false;
+        randomJoinButton.interactable = false;
     }
 
     public void OnLoginSuccess()
@@ -91,8 +95,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         roomListDropdown.ClearOptions();
         //songListDropdown.AddOptions(SongManager.songs.Select(x => x.songName).ToList());
 
-        OnRoomNameTMPValueChange();
-        OnRoomListDropdownValueChange();
+        //OnRoomListDropdownValueChange();
     }
 
     public void CreateRoom()
@@ -126,6 +129,31 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
         ConnectToRunner(_playerName, roomName);
     }
+    
+    public void JoinRoom(string roomName)
+    {
+        playerRole = 1;
+        _playerName = nameInput.text;
+        if (_playerName.IsNullOrEmpty())
+        {
+            _playerName = "Anonymous";
+        }
+        if (roomName.IsNullOrEmpty())
+        {
+            roomName = "Nameless Room";
+        }
+        ConnectToRunner(_playerName, roomName);
+    }
+
+    public void JoinRoomRandom()
+    {
+        if (_roomList != null && _roomList.Count > 0)
+        {
+            int rd = Random.Range(0, _roomList.Count);
+            _playerName = nameInput.text;
+            ConnectToRunner(_playerName, _roomList[rd].Name);
+        }
+    }
 
     public void ConnectToServer()
     {
@@ -144,8 +172,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
             ConnectToRunner(_playerName, _sessionName);
         }
 
-        joinButton.GetComponentInChildren<TextMeshProUGUI>().text = "Loading...";
-        joinButton.interactable = false;
+        //joinButton.GetComponentInChildren<TextMeshProUGUI>().text = "Loading...";
+        //joinButton.interactable = false;
 
 
     }
@@ -204,7 +232,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         popUpCanvas.gameObject.SetActive(false);
         itemPanelCanvas.gameObject.SetActive(false);
         videoPlayer.gameObject.SetActive(false);
-        OnRoomListDropdownValueChange();
+        //OnRoomListDropdownValueChange();
         _sessionName = "";
         OnJoinLobby();
 
@@ -235,6 +263,13 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
             randomJoinButton.interactable = true;
         }
     }
+
+    public void UpdateRoomList(List<SessionInfo> sessionList)
+    {
+        FindAnyObjectByType<RoomListUpdate>().UpdateRoomList(sessionList);
+    }
+    
+   
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
@@ -364,8 +399,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         _roomList = sessionList;
         roomListDropdown.ClearOptions();
         roomListDropdown.AddOptions(_roomList.Select(x => x.Name).ToList());
-        OnRoomListDropdownValueChange();
-        
+        //OnRoomListDropdownValueChange();
+        UpdateRoomList(sessionList);
     }
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
@@ -427,6 +462,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         else
         {
             Debug.Log("JoinLobby Ok");
+            roomNameInput.interactable = true;
+            randomJoinButton.interactable = true;
         }
 
     }

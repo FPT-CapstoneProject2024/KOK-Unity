@@ -45,7 +45,7 @@ public class RoomClientController : MonoBehaviour
         else
         {
             muteToggle.enabled = true;
-            recorder.TransmitEnabled = true;
+            recorder.TransmitEnabled = !muteToggle.isOn;
         }
     }
 

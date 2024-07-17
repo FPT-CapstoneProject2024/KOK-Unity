@@ -223,7 +223,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         if (PlayerRole == 0)
         {
             NetworkString<_32> songCode = QueueSongCodeList[0];
-            DemoSong song = SongManager.GetSongBySongCode(songCode.ToString());
+            DemoSong song = DemoSongManager.GetSongBySongCode(songCode.ToString());
 
             NetworkString<_32>[] tmp = QueueSongCodeList.Where((source, i) => i != index).ToArray();
             QueueSongCodeList.Clear();
