@@ -22,7 +22,7 @@ namespace KOK
 {
     public class ShopItemController : MonoBehaviour
     {
-        public TMP_InputField itemIdInput;
+        /*public TMP_InputField itemIdInput;
         public TMP_InputField itemCodeInput;
         public TMP_InputField itemNameInput;
         public TMP_InputField itemDescriptionInput;
@@ -32,7 +32,7 @@ namespace KOK
         public Toggle canExpireToggle;
         public Toggle canStackToggle;
         public TMP_Text notificationText;
-        public float notificationFadeDuration;
+        public float notificationFadeDuration;*/
 
         private string itemResourceUrl = string.Empty;
 
