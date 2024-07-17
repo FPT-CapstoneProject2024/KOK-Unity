@@ -31,7 +31,7 @@ namespace KOK
 
         IEnumerator CheckHost()
         {
-            Debug.LogError(role + " | " + isUIEnable);
+            //Debug.LogError(role + " | " + isUIEnable);
             yield return new WaitForSeconds(2f);
             role = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole;
             if (role == 0)

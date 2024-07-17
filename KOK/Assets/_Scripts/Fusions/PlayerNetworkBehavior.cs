@@ -1,5 +1,8 @@
 using Fusion;
 using KOK;
+using KOK.ApiHandler.Controller;
+using KOK.ApiHandler.DTOModels;
+using KOK.ApiHandler.Utilities;
 using Photon.Realtime;
 using System;
 using System.Collections;
@@ -47,9 +50,14 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     [Networked, Capacity(50)][SerializeField] public NetworkArray<NetworkString<_32>> QueueSinger1List { get; }
     [Networked, Capacity(50)][SerializeField] public NetworkArray<NetworkString<_32>> QueueSinger2List { get; }
 
+    public List<SongDetail> SongList { get; private set; }
+    public List<SongDetail> PurchasedSongList { get; private set; }
+    public List<SongDetail> FavoriteSongList { get; private set; }
+
 
     private void Start()
     {
+        LoadSongList();
         ClearSongQueue();
         NetworkRunner runner = NetworkRunner.Instances[0];
         if (this.HasStateAuthority)
@@ -98,6 +106,30 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         return x.PlayerName.Compare(y.PlayerName);
     }
 
+    private void LoadSongList()
+    {
+        SongList = new();
+        PurchasedSongList = new();
+        FavoriteSongList = new();
+        FindAnyObjectByType<ApiHelper>().gameObject
+                    .GetComponent<SongController>()
+                    .GetSongsFilterPagingCoroutine(new SongFilter(),
+                                                    SongOrderFilter.SongName,
+                                                    new PagingRequest(),
+                                                    (list) => { SongList = list;},
+                                                    (ex) => Debug.LogError(ex));
+        //Load favorite and purchased song list here
+
+        UpdateSongUI();
+
+    }
+
+
+    public SongDetail GetSongBySongCode(string songCode)
+    {
+        return SongList.FirstOrDefault(x => x.SongCode.Equals(songCode.ToString()));
+    }
+
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     private void Rpc_SyncVideoTime()
     {
@@ -139,9 +171,9 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             return "";
         }
         NetworkString<_32> songCode = QueueSongCodeList[0];
-        DemoSong song = SongManager.GetSongBySongCode(songCode.ToString());
+        SongDetail song = GetSongBySongCode(songCode.ToString());
 
-        return song.songURL;
+        return song.SongUrl;
     }
 
     public void AddSongToQueue(string songCode, string singer1Name, string singer2Name)
@@ -339,7 +371,13 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     IEnumerator UpdateSongUI()
     {
         yield return new WaitForSeconds(1f);
-        GameObject.Find("QueueToggle").GetComponent<SongItemManager>().UpdateQueueSongList();
+        if(SongList.Count == 0)
+        {
+            StartCoroutine(UpdateSongUI());
+        } else
+        {
+            GameObject.Find("QueueToggle").GetComponent<SongItemManager>().UpdateQueueSongList();
+        }
 
     }
     public void SetSinger()

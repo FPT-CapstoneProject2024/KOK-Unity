@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace KOK.ApiHandler.Controller
@@ -17,6 +18,7 @@ namespace KOK.ApiHandler.Controller
         private void Start()
         {
             songsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
+
         }
 
         void Update()
@@ -37,7 +39,7 @@ namespace KOK.ApiHandler.Controller
             #endregion
         }
 
-        public async Task<DynamicResponseResult<SongDetail>?> GetSongsFilterPagingAsync(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
+        private async Task<DynamicResponseResult<SongDetail>?> GetSongsFilterPagingAsync(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = GenerateSongQueryParams(filter, orderFilter, paging);
             var url = QueryHelper.BuildUrl(songsResourceUrl, queryParams);
@@ -105,5 +107,7 @@ namespace KOK.ApiHandler.Controller
                     onError?.Invoke(errorValue);
                 });
         }
+        
+        
     }
 }

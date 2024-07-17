@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace KOK.ApiHandler.DTOModels
@@ -23,5 +24,10 @@ namespace KOK.ApiHandler.DTOModels
         public List<SongArtist> SongArtists { get; set; }
         public List<SongGenre> SongGenres { get; set; }
         public List<SongSinger> SongSingers { get; set; }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

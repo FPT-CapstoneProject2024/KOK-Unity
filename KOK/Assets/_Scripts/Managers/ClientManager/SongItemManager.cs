@@ -1,5 +1,9 @@
 ﻿using Fusion;
+using KOK.ApiHandler.Controller;
+using KOK.ApiHandler.DTOModels;
+using KOK.ApiHandler.Utilities;
 using Photon.Realtime;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,14 +35,23 @@ namespace KOK
                     Destroy(child.gameObject);
                 }
                 //Call get all song api here
-                List<DemoSong> songList = SongManager.songs;
+                //List<SongDetail> songList = SongManager.songs;
+                List<SongDetail> songList = _runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().SongList;
+                //FindAnyObjectByType<ApiHelper>().gameObject
+                //    .GetComponent<SongController>()
+                //    .GetSongsFilterPagingCoroutine(new SongFilter(),
+                //                                    SongOrderFilter.SongName,
+                //                                    new PagingRequest(),
+                //                                    (list) => { songList = list; Debug.LogError(songList.ToCommaSeparatedString()); },
+                //                                    (ex) => Debug.LogError(ex));
+                
 
                 //Search có thể thay bằng gọi api
                 string searchKeyword = _searchSongInput.text;
                 if (!searchKeyword.IsNullOrEmpty())
                 {
-                    songList = songList.Where(s => s.songName.ContainsInsensitive(searchKeyword)
-                                                || s.songArtist.ContainsInsensitive(searchKeyword)).ToList();
+                    songList = songList.Where(s => s.SongName.ContainsInsensitive(searchKeyword)
+                                                || s.Artist.ToCommaSeparatedString().ContainsInsensitive(searchKeyword)).ToList();
                 }
 
                 foreach (var song in songList)
@@ -46,7 +59,7 @@ namespace KOK
                     try
                     {
                         GameObject songHolder = Instantiate(_songHolderPrefab, _viewportContent.transform);
-                        songHolder.name = song.songName;
+                        songHolder.name = song.SongName;
                         songHolder.GetComponentInChildren<SongBinding>().BindingData(song);
                     }
                     catch { }
@@ -68,10 +81,10 @@ namespace KOK
 
                 NetworkRunner runner = NetworkRunner.Instances[0];
                 List<NetworkString<_32>> queueSongCodeList = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().QueueSongCodeList.ToList().Where(songCode => !string.IsNullOrEmpty(songCode.ToString())).ToList();
-                List<DemoSong> queueSongList = new();
+                List<SongDetail> queueSongList = new();
                 foreach (var item in queueSongCodeList)
                 {
-                    queueSongList.Add(SongManager.GetSongBySongCode(item.ToString()));
+                    queueSongList.Add(_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().GetSongBySongCode(item.ToString()));
                 }
                 List<NetworkString<_32>> singer1NameList = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().QueueSinger1List.ToList();
                 List<NetworkString<_32>> singer2NameList = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().QueueSinger2List.ToList();
@@ -82,7 +95,7 @@ namespace KOK
                     try
                     {
                         GameObject songHolder = Instantiate(_songHolderPrefab, _viewportContent.transform);
-                        songHolder.name = queueSongList[i].songName;
+                        songHolder.name = queueSongList[i].SongName;
                         songHolder.GetComponentInChildren<SongBinding>().BindingData(queueSongList[i]);
 
                         TMP_Dropdown _singer1Dropdown = songHolder.transform.Find("Singer1Dropdown").GetComponent<TMP_Dropdown>();
