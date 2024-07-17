@@ -2,6 +2,7 @@ using KOK.ApiHandler.Context;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using Newtonsoft.Json;
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -35,6 +36,24 @@ namespace KOK
             var result = JsonConvert.DeserializeObject<LoginResponse>(jsonResult);
 
             return result;
+        }
+
+        public void LoginCoroutine(LoginRequest loginRequest, Action<LoginResponse> onSuccess, Action<LoginResponse> onError)
+        {
+            var jsonData = JsonConvert.SerializeObject(loginRequest);
+            var url = authenticationResourceUrl + "/login";
+
+            ApiHelper.Instance.PostCoroutine(url, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<LoginResponse>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<LoginResponse>(errorValue);
+                    onError?.Invoke(result);
+                });
         }
     }
 }

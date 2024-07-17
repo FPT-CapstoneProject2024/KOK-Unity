@@ -25,16 +25,16 @@ namespace KOK.ApiHandler.Controller
         {
             #region Testing
 
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                SongFilter filter = new SongFilter();
-                PagingRequest paging = new PagingRequest();
-                GetSongsFilterPagingCoroutine(filter, SongOrderFilter.SongName, paging, (value) => { Debug.Log(value); }, (value) => { Debug.Log(value); });
-            }
-            else if (Input.GetKeyDown(KeyCode.W))
-            {
-                GetSongByIdCoroutine(Guid.Parse("8aafae2f-414b-4d78-bf9e-ee8e8ed25424"), (value) => { }, (value) => { });
-            }
+            //if (Input.GetKeyDown(KeyCode.Q))
+            //{
+            //    SongFilter filter = new SongFilter();
+            //    PagingRequest paging = new PagingRequest();
+            //    GetSongsFilterPagingCoroutine(filter, SongOrderFilter.SongName, paging, (value) => { Debug.Log(value); }, (value) => { Debug.Log(value); });
+            //}
+            //else if (Input.GetKeyDown(KeyCode.W))
+            //{
+            //    GetSongByIdCoroutine(Guid.Parse("8aafae2f-414b-4d78-bf9e-ee8e8ed25424"), (value) => { }, (value) => { });
+            //}
 
             #endregion
         }
