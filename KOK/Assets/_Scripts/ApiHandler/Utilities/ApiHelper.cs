@@ -5,6 +5,7 @@ using System.Collections;
 using System.Net.Http;
 using System.Threading.Tasks;
 using UnityEngine;
+using KOK.ApiHandler.DTOModels;
 
 namespace KOK.ApiHandler.Utilities
 {
@@ -15,6 +16,13 @@ namespace KOK.ApiHandler.Utilities
     {
         private static readonly HttpClient httpClient = new HttpClient();
         private string jwtToken = string.Empty;
+        //public LoginResponse loginData = null;
+
+        private void Start()
+        {
+            jwtToken = string.Empty;
+            //loginData = null;
+        }
 
         /// <summary>
         /// Sets the JWT token to be used for API requests.
@@ -121,7 +129,8 @@ namespace KOK.ApiHandler.Utilities
 
                 if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
-                    onError?.Invoke(webRequest.error);
+                    Debug.Log($"{url} - POST - {webRequest.error}");
+                    onError?.Invoke(webRequest.downloadHandler.text);
                 }
                 else
                 {
