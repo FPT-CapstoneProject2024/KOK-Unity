@@ -14,6 +14,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using WebSocketSharp;
 using static Fusion.NetworkRunnerCallbackArgs;
+using static Unity.Collections.Unicode;
 using Random = UnityEngine.Random;
 
 public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
@@ -273,11 +274,9 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
-
         //playerObject = runner.Spawn(playerPrefab, new Vector3(spawnPoint.position.x + Random.Range(-spawnOffset, spawnOffset), 0, spawnPoint.position.z + Random.Range(-spawnOffset, spawnOffset)));
-        playerObject = runner.Spawn(playerPrefab, Vector3.zero);
 
-        playerObject.transform.parent = spawnPoint;
+        playerObject = runner.Spawn(playerPrefab, Vector3.zero, Quaternion.identity);
 
         playerObject.name = "Player: " + _playerName;
         playerObject.GetComponentInChildren<TextMeshPro>().text = _playerName;
@@ -295,10 +294,10 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
         lobbyCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(true);
-        gameManager.gameObject.SetActive(true);
         popUpCanvas.gameObject.SetActive(true);
         itemPanelCanvas.gameObject.SetActive(true);
         videoPlayer.gameObject.SetActive(true);
+        gameManager.gameObject.SetActive(true);
 
         playerObject.transform.localPosition = spawnPoint.localPosition;
         StartCoroutine(WaitToSetPosition());
@@ -360,8 +359,11 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        ParticipantItemHandlerManager.Instance.UpdateParticipantList();
-
+        try
+        {
+            ParticipantItemHandlerManager.Instance.UpdateParticipantList();
+        }
+        catch { }
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)

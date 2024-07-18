@@ -15,7 +15,7 @@ namespace KOK
 
         void OnEnable()
         {
-            runner = FindAnyObjectByType<NetworkRunner>();
+            
             HostUIList.Clear();
             List<HostUIMask> tmp = FindObjectsOfType<HostUIMask>().ToList();
             foreach(var t in tmp)
@@ -32,7 +32,8 @@ namespace KOK
         IEnumerator CheckHost()
         {
             //Debug.LogError(role + " | " + isUIEnable);
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(5f);
+            runner = FindAnyObjectByType<NetworkRunner>();
             role = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole;
             if (role == 0)
             {

@@ -14,7 +14,7 @@ namespace KOK
 
         private void OnMouseDown()
         {
-            Debug.LogError("Click");
+            //Debug.LogError("Click");
             _camera1.enabled = !_camera1.enabled;
             _camera2.enabled = !_camera2.enabled;
         }

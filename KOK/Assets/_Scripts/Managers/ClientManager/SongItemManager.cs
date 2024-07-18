@@ -34,7 +34,7 @@ namespace KOK
                 {
                     Destroy(child.gameObject);
                 }
-                //Call get all song api here
+
                 //List<SongDetail> songList = SongManager.songs;
                 List<SongDetail> songList = _runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().SongList;
                 //FindAnyObjectByType<ApiHelper>().gameObject
@@ -46,7 +46,6 @@ namespace KOK
                 //                                    (ex) => Debug.LogError(ex));
                 
 
-                //Search có thể thay bằng gọi api
                 string searchKeyword = _searchSongInput.text;
                 if (!searchKeyword.IsNullOrEmpty())
                 {

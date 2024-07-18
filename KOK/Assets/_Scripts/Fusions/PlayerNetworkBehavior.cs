@@ -88,6 +88,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         SetSinger();
 
         StartCoroutine(UpdateTime());
+        StartCoroutine(UpdateSearchSongUI());
     }
 
     private void FixedUpdate()
@@ -116,11 +117,11 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                     .GetSongsFilterPagingCoroutine(new SongFilter(),
                                                     SongOrderFilter.SongName,
                                                     new PagingRequest(),
-                                                    (list) => { SongList = list;},
+                                                    (list) => { SongList = list; },
                                                     (ex) => Debug.LogError(ex));
         //Load favorite and purchased song list here
 
-        UpdateSongUI();
+        UpdateQueueSongUI();
 
     }
 
@@ -185,7 +186,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             QueueSongCodeList.Set(queueSongCount, songCode);
             QueueSinger1List.Set(singer1Count, singer1Name);
             QueueSinger2List.Set(singer2Count, singer2Name);
-            StartCoroutine(UpdateSongUI());
+            StartCoroutine(UpdateQueueSongUI());
         }
         else
         {
@@ -210,7 +211,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             QueueSinger1List.Set(0, singer1Name);
             QueueSinger2List.Set(0, singer2Name);
             CountQueue();
-            StartCoroutine(UpdateSongUI());
+            StartCoroutine(UpdateQueueSongUI());
         }
         else
         {
@@ -236,7 +237,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             tmp = QueueSinger2List.Where((source, i) => i != index).ToArray();
             QueueSinger2List.Clear();
             QueueSinger2List.CopyFrom(tmp, 0, tmp.Count());
-            StartCoroutine(UpdateSongUI());
+            StartCoroutine(UpdateQueueSongUI());
         }
         else
         {
@@ -252,7 +253,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             QueueSongCodeList.Clear();
             QueueSinger1List.Clear();
             QueueSinger2List.Clear();
-            StartCoroutine(UpdateSongUI());
+            StartCoroutine(UpdateQueueSongUI());
         }
         else
         {
@@ -336,7 +337,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     {
         yield return new WaitForSeconds(1f);
         try
-        {            
+        {
             var runner = NetworkRunner.Instances[0];
 
             foreach (var player in runner.ActivePlayers)
@@ -368,17 +369,22 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     }
 
-    IEnumerator UpdateSongUI()
+    IEnumerator UpdateQueueSongUI()
     {
         yield return new WaitForSeconds(1f);
-        if(SongList.Count == 0)
+        FindAnyObjectByType<SongItemManager>().UpdateQueueSongList();
+    }
+
+    IEnumerator UpdateSearchSongUI()
+    {
+        yield return new WaitForSeconds(1f);
+        if (SongList == null || SongList.Count == 0)
         {
-            StartCoroutine(UpdateSongUI());
+            StartCoroutine(UpdateSearchSongUI());
         } else
         {
-            GameObject.Find("QueueToggle").GetComponent<SongItemManager>().UpdateQueueSongList();
+            FindAnyObjectByType<SongItemManager>().UpdateSongList();
         }
-
     }
     public void SetSinger()
     {
@@ -391,6 +397,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         FindAnyObjectByType<RoomClientController>().CheckSinger(isSinger);
 
     }
+
 
 
 }
