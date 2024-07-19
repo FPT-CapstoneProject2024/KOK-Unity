@@ -10,7 +10,7 @@ namespace KOK.ApiHandler.DTOModels
         public string Email { get; set; }
         public AccountGender? Gender { get; set; }
         public AccountRole? Role { get; set; }
-        public decimal? Star { get; set; }
+        public decimal? UpBalance { get; set; }
         public bool? IsOnline { get; set; }
         public string Fullname { get; set; }
         public int? Yob { get; set; }

@@ -7,6 +7,7 @@ using KOK.ApiHandler.Utilities;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
 using System.Web;
+using System.Collections.Generic;
 
 namespace KOK.ApiHandler.Controller
 {
@@ -76,7 +77,7 @@ namespace KOK.ApiHandler.Controller
             #endregion
         }
 
-        public void GetAccountByIdCoroutine(Guid accountId, Action<string> onSuccess, Action<string> onError)
+        public void GetAccountByIdCoroutine(Guid accountId, Action<Account> onSuccess, Action<string> onError)
         {
             // Validate account ID
             if (accountId == null)
@@ -87,7 +88,17 @@ namespace KOK.ApiHandler.Controller
 
             // Prepare and send api request
             var url = accountResourceUrl + "/" + accountId.ToString();
-            ApiHelper.Instance.GetCoroutine(url, onSuccess, onError);
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Account>>(successValue);
+                    onSuccess?.Invoke(result.Value);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to retrieve an account by ID [{accountId.ToString()}]: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
         }
 
         public async Task<Account?> GetAccountByIdAsync(Guid accountId)
@@ -131,9 +142,7 @@ namespace KOK.ApiHandler.Controller
         public async Task<DynamicResponseResult<Account>?> GetAccountsFilterPagingAsync(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = GenerateAccountQueryParams(filter, orderFilter, paging);
-            var url = BuildUrl(accountResourceUrl, queryParams);
-
-            Debug.Log(url);
+            var url = QueryHelper.BuildUrl(accountResourceUrl, queryParams);
 
             var jsonResult = await ApiHelper.Instance.GetAsync(url);
             if (string.IsNullOrEmpty(jsonResult))
@@ -145,21 +154,7 @@ namespace KOK.ApiHandler.Controller
             return result;
         }
 
-        private string BuildUrl(string baseUrl, NameValueCollection queryParams)
-        {
-            var builder = new UriBuilder(baseUrl);
-            var query = HttpUtility.ParseQueryString(builder.Query);
-
-            foreach (string key in queryParams)
-            {
-                query[key] = queryParams[key];
-            }
-
-            builder.Query = query.ToString();
-            return builder.ToString();
-        }
-
-        private NameValueCollection GenerateAccountQueryParams(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging) 
+        private NameValueCollection GenerateAccountQueryParams(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
             if (filter.UserName != null)
@@ -183,6 +178,42 @@ namespace KOK.ApiHandler.Controller
             queryParams.Add(nameof(orderFilter), orderFilter.ToString());
 
             return queryParams;
+        }
+
+        public void CreateAccountCoroutine(CreateAccountRequest newAccount, Action<Account> onSuccess, Action<string> onError)
+        {
+            var jsonData = JsonConvert.SerializeObject(newAccount);
+            var url = accountResourceUrl;
+
+            ApiHelper.Instance.PostCoroutine(url, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Account>>(successValue);
+                    onSuccess?.Invoke(result.Value);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to create new account: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
+        }
+
+        public void GetAccountsFilterPagingCoroutine(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging, Action<List<Account>> onSuccess, Action<string> onError)
+        {
+            var queryParams = GenerateAccountQueryParams(filter, orderFilter, paging);
+            var url = QueryHelper.BuildUrl(accountResourceUrl, queryParams);
+
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<Account>>(successValue);
+                    onSuccess?.Invoke(result.Results);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to retrieve account list: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
         }
     }
 }

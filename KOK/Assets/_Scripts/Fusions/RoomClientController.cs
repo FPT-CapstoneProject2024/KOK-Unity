@@ -20,7 +20,6 @@ public class RoomClientController : MonoBehaviour
         ToggleMic();
         ToggleEcho();
 
-        //StartCoroutine(DebugTest());
     }
 
     public void ToggleMic()
@@ -33,6 +32,32 @@ public class RoomClientController : MonoBehaviour
         {
             recorder.TransmitEnabled = true;
         }
+    }
+
+    public void CheckSinger(bool isSinger)
+    {
+        if (!isSinger)
+        {
+            TurnOffMic();
+            recorder.TransmitEnabled = false;
+            muteToggle.enabled = false;
+        }
+        else
+        {
+            muteToggle.enabled = true;
+            recorder.TransmitEnabled = !muteToggle.isOn;
+        }
+    }
+
+    public void TurnOffMic()
+    {
+        muteToggle.isOn = true;
+        recorder.TransmitEnabled = false;
+    }
+    public void TurnOnMic()
+    {
+        muteToggle.isOn = false;
+        recorder.TransmitEnabled = true;
     }
 
     public void ToggleEcho()

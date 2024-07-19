@@ -9,7 +9,7 @@ namespace KOK
     public class CreateSelectSongPopUp : MonoBehaviour
     {
         [SerializeField] private GameObject _popUpPrefab;
-        [SerializeField] private Transform _parent;
+        private Transform _parent;
         [SerializeField] private GameObject _originalItem;
         private GameObject _popUp;
 
@@ -29,10 +29,8 @@ namespace KOK
             _popUp = Instantiate(_popUpPrefab, _parent);
             //Song code
             _popUp.transform.GetChild(0).GetChild(0).name = _originalItem.transform.GetChild(0).name;
-            //Song name
-            _popUp.transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = _originalItem.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text;
-            //Song artist
-            _popUp.transform.GetChild(0).GetChild(2).GetComponent<TextMeshProUGUI>().text = _originalItem.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text;
+            var song = _originalItem.GetComponentInChildren<SongBinding>().Song;
+            _popUp.GetComponentInChildren<SongBinding>().BindingData(song);
             //Singer 1
             if (IsHostOwnedSong())
             {
@@ -53,6 +51,21 @@ namespace KOK
 
         }
 
+        public void SpawnPopupSingle()
+        {
+            if (transform.childCount > 0)
+            {
+                foreach (Transform child in _parent.transform)
+                {
+                    Destroy(child.gameObject);
+                }
+            }
+            _popUp = Instantiate(_popUpPrefab, _parent);
+            //Song code
+            _popUp.transform.GetChild(0).GetChild(0).name = _originalItem.transform.GetChild(0).name;
+            var song = _originalItem.GetComponentInChildren<SongBinding>().Song;
+            _popUp.GetComponentInChildren<SongBinding>().BindingData(song);
+        }
         private List<string> GetPlayerNameList()
         {
             NetworkRunner runner = FindAnyObjectByType<NetworkRunner>();
@@ -80,6 +93,7 @@ namespace KOK
 
         private bool IsHostOwnedSong()
         {
+            //Add check host owned song here
             return true;
         }
     }

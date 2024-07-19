@@ -4,10 +4,8 @@ using UnityEngine;
 
 namespace KOK
 {
-    public class AuthenticantionHandler : MonoBehaviour
+    public class PlayerSingleBehavior : MonoBehaviour
     {
-
-        [SerializeField] private FusionManager fusionConnection;
         // Start is called before the first frame update
         void Start()
         {
@@ -18,13 +16,6 @@ namespace KOK
         void Update()
         {
         
-        }
-
-        public void OnLoginButtonClick()
-        {
-            this.gameObject.SetActive(false);
-            fusionConnection.OnLoginSuccess();
-
         }
     }
 }

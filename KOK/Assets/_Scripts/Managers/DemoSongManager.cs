@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace KOK
 {
-    public class SongManager : NetworkBehaviour
+    public class DemoSongManager : NetworkBehaviour
     {
         private NetworkRunner networkRunner;
 
@@ -67,5 +67,9 @@ namespace KOK
             this.songArtist = songArtist;
         }
 
+        public override string ToString()
+        {
+            return JsonUtility.ToJson(this);
+        }
     }
 }

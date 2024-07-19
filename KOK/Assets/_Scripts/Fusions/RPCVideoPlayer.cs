@@ -13,8 +13,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
-using YoutubePlayer.Components;
-using static Unity.Collections.Unicode;
 
 public class RPCVideoPlayer : NetworkBehaviour
 {
@@ -24,8 +22,6 @@ public class RPCVideoPlayer : NetworkBehaviour
     public static bool isVideoPrepared = false;
 
     private static Button playVideoButton;
-
-    private static TMP_Dropdown songDropDown;
 
     public static List<PlayerNetworkBehavior> playerNames = new();
 
@@ -37,8 +33,13 @@ public class RPCVideoPlayer : NetworkBehaviour
     private void Start()
     {
 
-        playVideoButton = GameObject.Find("PlayVideoButton").GetComponent<Button>();
-        songDropDown = GameObject.Find("SongDropdown").GetComponent<TMP_Dropdown>();
+        //playVideoButton = GameObject.Find("PlayVideoButton").GetComponent<Button>();
+    }
+
+    public static bool isPlaying()
+    {
+        videoPlayer = FindAnyObjectByType<VideoPlayer>();
+        return videoPlayer.isPlaying;
     }
 
     [Rpc]
@@ -57,8 +58,8 @@ public class RPCVideoPlayer : NetworkBehaviour
 
     [Rpc]
     public static void Rpc_OnPlayVideoButtonClick(NetworkRunner runner, string url, int songIndex)
-    {       
-        
+    {
+        videoPlayer = FindAnyObjectByType<VideoPlayer>();
         if (videoPlayer.isPlaying)
         {
             Rpc_Stop(runner);
@@ -69,15 +70,13 @@ public class RPCVideoPlayer : NetworkBehaviour
             Rpc_Play(runner, url);
         }
 
-        playVideoButton.GetComponent<ButtonSwapSprite>().SwapSprite();
-        songDropDown.value = songIndex;
 
     }
     
     [Rpc]
     public static void Rpc_OnPlayVideoButtonClick(NetworkRunner runner, string url)
-    {       
-        
+    {
+        videoPlayer = FindAnyObjectByType<VideoPlayer>();
         if (videoPlayer.isPlaying)
         {
             Rpc_Stop(runner);
@@ -88,7 +87,6 @@ public class RPCVideoPlayer : NetworkBehaviour
             Rpc_Play(runner, url);
         }
 
-        playVideoButton.GetComponent<ButtonSwapSprite>().SwapSprite();
 
     }
 
@@ -98,9 +96,8 @@ public class RPCVideoPlayer : NetworkBehaviour
     [Rpc]
     public static void Rpc_Stop(NetworkRunner runner)
     {
-
+        videoPlayer = FindAnyObjectByType<VideoPlayer>();
         videoPlayer.Stop();
-        playVideoButton.GetComponent<ButtonSwapSprite>().SwapSprite();
     }
 
 
@@ -120,14 +117,14 @@ public class RPCVideoPlayer : NetworkBehaviour
     [Rpc]
     public static void Rpc_DebugLog(NetworkRunner runner, string content)
     {
-        List<PlayerNetworkBehavior> list = FindObjectsOfType<PlayerNetworkBehavior>().ToList();
-        List<PlayerRef> playerRefs = runner.ActivePlayers.ToList();
-        string test = "";
-        foreach (PlayerRef playerRef in playerRefs)
-        {
-            test += playerRef.PlayerId;
-        }
-        Debug.Log(content + " | " + runner);
+        //List<PlayerNetworkBehavior> list = FindObjectsOfType<PlayerNetworkBehavior>().ToList();
+        //List<PlayerRef> playerRefs = runner.ActivePlayers.ToList();
+        //string test = "";
+        //foreach (PlayerRef playerRef in playerRefs)
+        //{
+        //    test += playerRef.PlayerId;
+        //}
+        Debug.Log(content);
     }
 
     [Rpc]
