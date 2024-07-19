@@ -37,6 +37,11 @@ namespace KOK.ApiHandler.Utilities
             }
         }
 
+        public bool IsJwtTokenEmpty()
+        {
+            return string.IsNullOrEmpty(jwtToken);
+        }
+
         #region CallApiByCoroutine
 
         /// <summary>
