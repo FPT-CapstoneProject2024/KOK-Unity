@@ -25,6 +25,8 @@ namespace KOK.ApiHandler.DTOModels
         public List<SongGenre> SongGenres { get; set; }
         public List<SongSinger> SongSingers { get; set; }
 
+        public bool isFavourite = false;
+        public bool isPurchased = false;
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);

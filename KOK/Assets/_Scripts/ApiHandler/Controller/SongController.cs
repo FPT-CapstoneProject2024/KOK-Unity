@@ -14,10 +14,12 @@ namespace KOK.ApiHandler.Controller
     public class SongController : MonoBehaviour
     {
         private string songsResourceUrl = string.Empty;
+        private string favouriteSongsResourceUrl = string.Empty;
 
         private void Start()
         {
             songsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
+            favouriteSongsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.FavouriteSongs_Resource;
 
         }
 
@@ -94,7 +96,7 @@ namespace KOK.ApiHandler.Controller
 
         public void GetSongByIdCoroutine(Guid songId, Action<SongDetail> onSuccess, Action<string> onError)
         {
-            var url = songsResourceUrl + $"/{songId.ToString()}";
+            var url = songsResourceUrl + $"/{songId}";
             ApiHelper.Instance.GetCoroutine(url,
                 (successValue) =>
                 {
@@ -104,6 +106,27 @@ namespace KOK.ApiHandler.Controller
                 (errorValue) =>
                 {
                     Debug.LogError($"Error when trying to retrieve song detail with song ID [{songId.ToString()}]: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
+        }
+        
+        public void GetFavouriteSongOfAMemberCoroutine(Guid songId, Action<FavouriteSong> onSuccess, Action<string> onError)
+        {
+
+        }
+        public void AddSongToFavouriteCoroutine(FavouriteSongRequest favouriteSong, Action<FavouriteSong> onSuccess, Action<string> onError)
+        {
+            var jsonData = JsonConvert.SerializeObject(favouriteSong);
+            var url = favouriteSongsResourceUrl;
+            ApiHelper.Instance.PostCoroutine(url, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<FavouriteSong>>(successValue);
+                    onSuccess?.Invoke(result.Value);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to create new account: {errorValue}");
                     onError?.Invoke(errorValue);
                 });
         }

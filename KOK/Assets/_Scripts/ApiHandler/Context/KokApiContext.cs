@@ -6,6 +6,7 @@
         public static readonly string Accounts_Resource = "accounts";
         public static readonly string Authentication_Resource = "authentication";
         public static readonly string Songs_Resource = "songs";
+        public static readonly string FavouriteSongs_Resource = "favouriteSongs";
         public static readonly string Recordings_Resource = "recordings";
     }
 }
