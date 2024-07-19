@@ -23,27 +23,11 @@ namespace KOK.ApiHandler.Controller
 
         private void Start()
         {
-            //songsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
-            string test = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
-            Debug.Log("wtf" + test); 
+            songsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
         }
 
         void Update()
         {
-            #region Testing
-
-            //if (Input.GetKeyDown(KeyCode.Q))
-            //{
-            //    SongFilter filter = new SongFilter();
-            //    PagingRequest paging = new PagingRequest();
-            //    GetSongsFilterPagingCoroutine(filter, SongOrderFilter.SongName, paging, (value) => { Debug.Log(value); }, (value) => { Debug.Log(value); });
-            //}
-            //else if (Input.GetKeyDown(KeyCode.W))
-            //{
-            //    GetSongByIdCoroutine(Guid.Parse("8aafae2f-414b-4d78-bf9e-ee8e8ed25424"), (value) => { }, (value) => { });
-            //}
-
-            #endregion
         }
 
         private async Task<DynamicResponseResult<SongDetail>?> GetSongsFilterPagingAsync(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
@@ -99,22 +83,37 @@ namespace KOK.ApiHandler.Controller
             return queryParams;
         }
 
-        public void GetSongByIdCoroutine(Guid songId, Action<SongDetail> onSuccess, Action<string> onError)
+        public void GetSongByIdCoroutine(Guid songId, Action<ResponseResult<SongDetail>> onSuccess, Action<ResponseResult<SongDetail>> onError)
         {
             var url = songsResourceUrl + $"/{songId.ToString()}";
             ApiHelper.Instance.GetCoroutine(url,
                 (successValue) =>
                 {
                     var result = JsonConvert.DeserializeObject<ResponseResult<SongDetail>>(successValue);
-                    onSuccess?.Invoke(result.Value);
+                    onSuccess?.Invoke(result);
                 },
                 (errorValue) =>
                 {
-                    Debug.LogError($"Error when trying to retrieve song detail with song ID [{songId.ToString()}]: {errorValue}");
-                    onError?.Invoke(errorValue);
+                    var result = JsonConvert.DeserializeObject<ResponseResult<SongDetail>>(errorValue);
+                    onError?.Invoke(result);
                 });
         }
-        
-        
+
+        public void GetSongsFilterPagingCoroutine(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging, Action<DynamicResponseResult<SongDetail>> onSuccess, Action<DynamicResponseResult<SongDetail>> onError)
+        {
+            var queryParams = GenerateSongQueryParams(filter, orderFilter, paging);
+            var url = QueryHelper.BuildUrl(songsResourceUrl, queryParams);
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<SongDetail>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<SongDetail>>(errorValue);
+                    onError?.Invoke(result);
+                });
+        }
     }
 }
