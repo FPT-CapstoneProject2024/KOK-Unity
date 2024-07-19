@@ -22,6 +22,12 @@ namespace KOK.ApiHandler.DTOModels
         SongCode = 7,
     }
 
+    public enum ItemOrderFilter
+    {
+        ItemCode = 1,
+        ItemName = 2,
+    }
+
     #endregion
 
     #region Account
@@ -64,11 +70,7 @@ namespace KOK.ApiHandler.DTOModels
         DEFAULT,
     }
 
-    public enum ItemOrderFilter
-    {
-        ItemCode = 1,
-        ItemName = 2,
-    }
+
 
     #endregion
 
@@ -91,12 +93,6 @@ namespace KOK.ApiHandler.DTOModels
         POP = 1,
         KPOP = 2,
         ROCK = 3,
-    }
-
-    public enum SongOrderFilter
-    {
-        SongName = 1,
-        SongCode = 7,       
     }
 
     #endregion
