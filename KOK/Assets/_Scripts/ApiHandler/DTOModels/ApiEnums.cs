@@ -22,6 +22,12 @@ namespace KOK.ApiHandler.DTOModels
         SongCode = 7,
     }
 
+    public enum FavoriteSongOrderFilter
+    {
+        MemberId = 0,
+        SongId = 1
+    }
+
     #endregion
 
     #region Account
@@ -56,6 +62,12 @@ namespace KOK.ApiHandler.DTOModels
         DISABLE = 0,
         ENABLE = 1,
     }
+
+    #endregion
+
+    #region FavoriteSong
+
+
 
     #endregion
 }
