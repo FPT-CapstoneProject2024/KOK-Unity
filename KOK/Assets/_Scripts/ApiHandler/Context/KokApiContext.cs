@@ -14,5 +14,6 @@ namespace KOK.ApiHandler.Context
         public static readonly string Songs_Resource = "songs";
         public static readonly string FavouriteSongs_Resource = "favouriteSongs";
         public static readonly string Recordings_Resource = "recordings";
+        public static readonly string FavoriteSongs_Resource = "favourite-songs";
     }
 }
