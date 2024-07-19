@@ -93,4 +93,18 @@ namespace KOK.ApiHandler.DTOModels
     }
 
     #endregion
+
+    #region PostComment
+    public enum PostCommentType
+    {
+        PARENT,
+        CHILD,
+    }
+
+    public enum PostCommentStatus
+    {
+        DEACTIVE,
+        ACTIVE,
+    }
+    #endregion
 }

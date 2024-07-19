@@ -9,6 +9,8 @@ namespace KOK.ApiHandler.Context
         public static readonly string Authentication_Resource = "authentication";
         public static readonly string Items_Resource = "items";
         public static readonly string Posts_Resource = "posts";
+        public static readonly string PostComments_Resource = "postComments";
+        public static readonly string PostRatings_Resource = "postRatings";
         public static readonly string Songs_Resource = "songs";
     }
 }

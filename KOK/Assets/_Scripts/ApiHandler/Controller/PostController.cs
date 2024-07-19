@@ -53,25 +53,25 @@
 //            }
 //        }
 
-//     /*   IEnumerator GetMemberInfo(Post post)
-//        {
-//            string url = $"https://localhost:7017/api/accounts/{post.MemberId}";
+//        /*   IEnumerator GetMemberInfo(Post post)
+//           {
+//               string url = $"https://localhost:7017/api/accounts/{post.MemberId}";
 
-//            UnityWebRequest request = UnityWebRequest.Get(url);
+//               UnityWebRequest request = UnityWebRequest.Get(url);
 
-//            yield return request.SendWebRequest();
+//               yield return request.SendWebRequest();
 
-//            if (request.result == UnityWebRequest.Result.Success)
-//            {
-//                string response = request.downloadHandler.text;
-//                var member = JsonConvert.DeserializeObject<Account>(response);
-//                post.Member = member;
-//            }
-//            else
-//            {
-//                Debug.LogError($"Failed to fetch member info for post {post.PostId}: {request.error}");
-//            }
-//        }*/
+//               if (request.result == UnityWebRequest.Result.Success)
+//               {
+//                   string response = request.downloadHandler.text;
+//                   var member = JsonConvert.DeserializeObject<Account>(response);
+//                   post.Member = member;
+//               }
+//               else
+//               {
+//                   Debug.LogError($"Failed to fetch member info for post {post.PostId}: {request.error}");
+//               }
+//           }*/
 
 //        void GeneratePosts(List<Post> posts)
 //        {
