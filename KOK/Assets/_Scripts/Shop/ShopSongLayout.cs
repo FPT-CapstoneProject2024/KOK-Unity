@@ -8,17 +8,19 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using KOK.ApiHandler.DTOModels;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Song;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Song;
 using KOK.ApiHandler.Context;
 using KOK.Assets._Scripts.Shop;
+using KOK.ApiHandler.Controller;
+using KOK.ApiHandler.Utilities;
+using UnityEditor.PackageManager.Requests;
 
 namespace KOK
 {
     public class ShopSongLayout : MonoBehaviour
     {
-        [SerializeField] private List<Song> songList = new List<Song>();
-        private ShopSongController shopSongController;
+        [SerializeField] private List<SongDetail> songList = new List<SongDetail>();
+        private SongController shopSongController;
         public SongPreviewDisplay songPreview;
 
         private List<string> songCodes = new List<string>();
@@ -29,8 +31,21 @@ namespace KOK
         private void Start()
         {
             songResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
-            shopSongController = new ShopSongController();
-            StartCoroutine(GetSongsFilterPagingCoroutine(new SongFilter(), new SongOrderFilter(), new PagingRequest()));
+            
+            //StartCoroutine(shopSongController.GetSongsFilterPagingCoroutine(new SongFilter(), new SongOrderFilter(), new PagingRequest(), OnSuccessTest()));*/
+            GetSongsFilterPaging(new SongFilter(), new SongOrderFilter(), new PagingRequest());
+        }
+
+        public void GetSongsFilterPaging(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
+        {
+            shopSongController = new SongController();
+            shopSongController.GetSongsFilterPagingCoroutine(
+                filter,
+                orderFilter,
+                paging,
+                OnSuccessTest,
+                OnErrorTest
+            );
         }
 
         private void LayoutGenerate()
@@ -50,7 +65,7 @@ namespace KOK
             }
         }
 
-        private void SongClicked(Song song)
+        private void SongClicked(SongDetail song)
         {
             songPreview.ShowPopup(song);
             Debug.Log("Song clicked: " + song.SongId);
@@ -64,12 +79,13 @@ namespace KOK
                 Destroy(child);
             }
 
-            StartCoroutine(GetSongsFilterPagingCoroutine(new SongFilter(), new SongOrderFilter(), new PagingRequest()));
+            //StartCoroutine(GetSongsFilterPagingCoroutine(new SongFilter(), new SongOrderFilter(), new PagingRequest()));
+            GetSongsFilterPaging(new SongFilter(), new SongOrderFilter(), new PagingRequest());
         }
 
-        private IEnumerator GetSongsFilterPagingCoroutine(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
+        /*private IEnumerator GetSongsFilterPagingCoroutine(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
         {
-            string url = shopSongController.BuildUrl(songResourceUrl, shopSongController.GenerateSongQueryParams(filter, orderFilter, paging));
+            string url = QueryHelper.BuildUrl(songResourceUrl, shopSongController.GenerateSongQueryParams(filter, orderFilter, paging));
 
             UnityWebRequest request = UnityWebRequest.Get(url);
             yield return request.SendWebRequest();
@@ -96,6 +112,26 @@ namespace KOK
             {
                 Debug.LogError(request.error);
             }
+        }*/
+
+        private void OnSuccessTest(List<SongDetail> songDetails)
+        {
+            songCodes.Clear();
+            songList.Clear();
+
+            foreach (SongDetail song in songDetails)
+            {
+                songCodes.Add(song.SongCode);
+                songList.Add(song);
+            }
+
+            LayoutGenerate();
+            //Debug.Log(response);
+        }
+
+        private void OnErrorTest(string error)
+        {
+            Debug.LogError(error);
         }
     }
 }

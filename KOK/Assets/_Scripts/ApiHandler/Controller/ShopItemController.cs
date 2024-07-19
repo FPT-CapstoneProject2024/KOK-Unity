@@ -22,18 +22,6 @@ namespace KOK
 {
     public class ShopItemController : MonoBehaviour
     {
-        /*public TMP_InputField itemIdInput;
-        public TMP_InputField itemCodeInput;
-        public TMP_InputField itemNameInput;
-        public TMP_InputField itemDescriptionInput;
-        public TMP_InputField itemTypeInput;
-        public TMP_InputField itemPriceInput;
-        public TMP_InputField itemStatusInput;
-        public Toggle canExpireToggle;
-        public Toggle canStackToggle;
-        public TMP_Text notificationText;
-        public float notificationFadeDuration;*/
-
         private string itemResourceUrl = string.Empty;
 
         private void Start()
