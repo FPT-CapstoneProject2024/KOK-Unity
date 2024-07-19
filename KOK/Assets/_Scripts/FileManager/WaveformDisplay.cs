@@ -274,7 +274,10 @@ public class WaveformSlider : MonoBehaviour
 */
 
 
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -288,8 +291,10 @@ public class WaveformDisplay : MonoBehaviour
     public List<TMP_InputField> startTimeInputFields;
     private List<AudioSource> audioSources = new List<AudioSource>();
     private List<AudioClip> originalAudioClips = new List<AudioClip>(); // Store original audio clips
-    public List<AudioClip> audioClips;
+    private List<AudioClip> audioClips = new List<AudioClip>();
     private List<Texture2D> waveformTextures = new List<Texture2D>();
+    private List<string> audioFileNames = new List<string>();
+    private FFMPEG ffmpeg;
 
     public Button refreshButton;
 
@@ -301,6 +306,33 @@ public class WaveformDisplay : MonoBehaviour
 
     void Start()
     {
+        ffmpeg = new FFMPEG();
+        string audioFolderPath = Path.Combine(Application.persistentDataPath, "AudioProcess");
+        audioFileNames.Add("extractedAudio.wav");
+        audioFileNames.Add("extractedAudio.wav");
+
+        foreach (string fileName in audioFileNames)
+        {
+            string filePath = Path.Combine(audioFolderPath, fileName);
+            if (File.Exists(filePath))
+            {
+                AudioClip audioClip = ffmpeg.LoadAudioClip(filePath);
+                if (audioClip != null)
+                {
+                    audioClips.Add(audioClip);
+                    Debug.Log("Loaded audio clip: " + filePath);
+                }
+                else
+                {
+                    Debug.LogError("Failed to load audio clip from: " + filePath);
+                }
+            }
+            else
+            {
+                Debug.LogWarning("File not found: " + filePath);
+            }
+        }
+
         for (int i = 0; i < audioClips.Count; i++)
         {
             originalAudioClips.Add(audioClips[i]); // Store the original clip
@@ -309,6 +341,17 @@ public class WaveformDisplay : MonoBehaviour
 
         refreshButton.onClick.AddListener(RefreshTracks);
     }
+
+    /*void Start()
+    {
+        for (int i = 0; i < audioClips.Count; i++)
+        {
+            originalAudioClips.Add(audioClips[i]); // Store the original clip
+            CreateWaveformAndAudioSource(i);
+        }
+
+        refreshButton.onClick.AddListener(RefreshTracks);
+    }*/
 
     void Update()
     {
@@ -341,14 +384,22 @@ public class WaveformDisplay : MonoBehaviour
     {
         AudioSource audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.clip = audioClips[index];
-        audioSource.loop = false; // Ensure the audio doesn't loop by itself
+        audioSource.loop = false;
         audioSources.Add(audioSource);
 
         int waveformWidth = Mathf.CeilToInt(audioClips[index].length * 100); // 100 pixels per second
-        int extraWidth = Mathf.CeilToInt(scrollRects[index].viewport.rect.width); // Extra viewport width at the end for bug fixing
+        int extraWidth = Mathf.CeilToInt(scrollRects[index].viewport.rect.width);
+
+        Debug.Log($"Waveform width: {waveformWidth}, Extra width: {extraWidth}");
 
         float[] samples = new float[audioClips[index].samples];
         audioClips[index].GetData(samples, 0);
+
+        if (samples.Length == 0)
+        {
+            Debug.LogError("Samples array is empty.");
+            return;
+        }
 
         Texture2D waveformTexture = CreateWaveformTexture(samples, waveformWidth, extraWidth, height);
         waveformTextures.Add(waveformTexture);
@@ -362,27 +413,44 @@ public class WaveformDisplay : MonoBehaviour
         audioSource.Play();
     }
 
+
+
     Texture2D CreateWaveformTexture(float[] samples, int waveformWidth, int extraWidth, int height)
     {
-        Texture2D texture = new Texture2D(waveformWidth + extraWidth, height);
-        Color[] colors = new Color[(waveformWidth + extraWidth) * height];
+        Debug.Log($"Creating texture with width: {waveformWidth + extraWidth}, height: {height}");
+
+        int maxTextureSize = SystemInfo.maxTextureSize;
+        int textureWidth = Mathf.Clamp(waveformWidth + extraWidth, 1, maxTextureSize);
+        int textureHeight = Mathf.Clamp(height, 1, maxTextureSize);
+
+        Debug.Log($"Adjusted texture width: {textureWidth}, height: {textureHeight}");
+
+        Texture2D texture = new Texture2D(textureWidth, textureHeight);
+        Color[] colors = new Color[textureWidth * textureHeight];
 
         for (int i = 0; i < colors.Length; i++)
         {
             colors[i] = backgroundColor;
         }
 
-        int stepSize = samples.Length / waveformWidth;
+        int stepSize = Mathf.Max(1, samples.Length / waveformWidth); // Ensuring step size is at least 1
+        Debug.Log($"Step size: {stepSize}");
 
-        for (int x = 0; x < waveformWidth; x++)
+        for (int x = 0; x < textureWidth; x++)
         {
-            float sampleValue = samples[x * stepSize] * height / 2;
-            int yStart = (int)((height / 2) - sampleValue);
-            int yEnd = (int)((height / 2) + sampleValue);
+            int sampleIndex = x * stepSize;
+            if (sampleIndex >= samples.Length)
+            {
+                sampleIndex = samples.Length - 1;
+            }
+
+            float sampleValue = samples[sampleIndex] * (textureHeight / 2);
+            int yStart = Mathf.Clamp((int)((textureHeight / 2) - sampleValue), 0, textureHeight - 1);
+            int yEnd = Mathf.Clamp((int)((textureHeight / 2) + sampleValue), 0, textureHeight - 1);
 
             for (int y = yStart; y <= yEnd; y++)
             {
-                colors[y * (waveformWidth + extraWidth) + x] = waveformColor;
+                colors[y * textureWidth + x] = waveformColor;
             }
         }
 
@@ -391,6 +459,8 @@ public class WaveformDisplay : MonoBehaviour
 
         return texture;
     }
+
+
 
     void OnSliderValueChanged(int index, float value)
     {
@@ -441,8 +511,8 @@ public class WaveformDisplay : MonoBehaviour
             float startTimeInSeconds;
             if (!float.TryParse(startTimeInputFields[i].text, out startTimeInSeconds))
             {
-                Debug.LogWarning("Invalid input for startTimeInSeconds");
-                continue;
+                // Handle case where input field is empty or invalid
+                startTimeInSeconds = 0f; // Default to 0 seconds
             }
 
             if (startTimeInSeconds >= 0)
@@ -504,6 +574,7 @@ public class WaveformDisplay : MonoBehaviour
         }
     }
 
+
     AudioClip TrimAudioClip(AudioClip clip, float startTime, float endTime)
     {
         if (startTime < 0 || endTime > clip.length || startTime >= endTime)
@@ -554,6 +625,22 @@ public class WaveformDisplay : MonoBehaviour
         extendedClip.SetData(data, 0);
 
         return extendedClip;
+    }
+
+    public void Download()
+    {
+        string audioFolderPath = Path.Combine(Application.persistentDataPath, "AudioProcess");
+
+        List<string> listFilePaths = new List<string>();
+        List<string> listFinalAudios = new List<string>();
+        for(int i = 0; i < audioFileNames.Count; i++)
+        {
+            listFilePaths.Add(Path.Combine(audioFolderPath, audioFileNames[i].ToString()));
+            listFinalAudios.Add(Path.Combine(Application.persistentDataPath, "AudioProcess", $"{i}temp_audio.wav"));
+            StartCoroutine(ffmpeg.AddSilenceAndTrimAudio(listFilePaths[i], float.Parse(startTimeInputFields[i].text), i));
+        }
+        
+        StartCoroutine(ffmpeg.CombineAudioAndAudio(listFinalAudios[0], listFinalAudios[1]));
     }
 }
 

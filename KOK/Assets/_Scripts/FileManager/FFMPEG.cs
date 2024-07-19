@@ -36,12 +36,15 @@ public class FFMPEG : MonoBehaviour
     IEnumerator DownloadAndProcess()
     {
         // Download audio and video files into the AudioProcess folder
-        //yield return StartCoroutine(DownloadFile(audioUrl, "audio.wav", "AudioProcess"));
-        //yield return StartCoroutine(DownloadFile(videoUrl, "video.mp4", "AudioProcess"));
+        yield return StartCoroutine(DownloadFile(audioUrl, "audio.wav", "AudioProcess"));
+        yield return StartCoroutine(DownloadFile(videoUrl, "video.mp4", "AudioProcess"));
+
+        // Extract Audio from Video file
+        yield return StartCoroutine(ExtractAudioFromVideo(Path.Combine(Application.persistentDataPath, "AudioProcess", "video.mp4")));
 
         // Process the downloaded files
         string audioPath = Path.Combine(Application.persistentDataPath, "AudioProcess", "audio.wav");
-        if (File.Exists(audioPath))
+        /*if (File.Exists(audioPath))
         {
             audioClip = LoadAudioClip(audioPath);
             audioSource.clip = audioClip;
@@ -50,7 +53,7 @@ public class FFMPEG : MonoBehaviour
         else
         {
             text3.text = "error";
-        }
+        }*/
         string videoPath = Path.Combine(Application.persistentDataPath, "AudioProcess", "video.mp4");
 
         yield return StartCoroutine(CombineAudioAndVideo(audioPath, videoPath));
@@ -90,7 +93,7 @@ public class FFMPEG : MonoBehaviour
         }
     }
 
-    AudioClip LoadAudioClip(string path)
+    public AudioClip LoadAudioClip(string path)
     {
         // Load the audio clip from the specified path synchronously
         UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.WAV); //file:// for mobile file path, don't ask
@@ -134,14 +137,56 @@ public class FFMPEG : MonoBehaviour
         yield return null;
     }
 
-    IEnumerator AddSilenceAndTrimAudio(string audioPath, float startTimeInSeconds)
+    public IEnumerator CombineAudioAndAudio(string audioPath1, string audioPath2)
+    {
+        string combinedFilePath = Path.Combine(Application.persistentDataPath, "AudioProcess", "combined_audio.wav");
+
+        // FFmpeg command
+        string arguments = $"-y -i \"{audioPath1}\" -i \"{audioPath2}\" -filter_complex \"[0:a][1:a]amix=inputs=2:duration=first:dropout_transition=2\" -c:a pcm_s16le \"{combinedFilePath}\"";
+
+        yield return RunFFmpeg(arguments);
+
+        if (File.Exists(combinedFilePath))
+        {
+            Debug.Log("Combined file created successfully: " + combinedFilePath);
+        }
+        else
+        {
+            Debug.LogError("Failed to create combined file.");
+        }
+
+        yield return null;
+    }
+
+    public IEnumerator ExtractAudioFromVideo(string videoPath)
+    {
+        string extractedAudioPath = Path.Combine(Application.persistentDataPath, "AudioProcess", "extractedAudio.wav");
+
+        // FFmpeg command
+        string arguments = $"-i \"{videoPath}\" -q:a 0 -map a \"{extractedAudioPath}\""; ;
+
+        yield return RunFFmpeg(arguments);
+
+        if (File.Exists(extractedAudioPath))
+        {
+            Debug.Log("Extracted file created successfully: " + extractedAudioPath);
+        }
+        else
+        {
+            Debug.LogError("Failed to create extracted file.");
+        }
+
+        yield return null;
+    }
+
+    public IEnumerator AddSilenceAndTrimAudio(string audioPath, float startTimeInSeconds, int index)
     {
         // Calculate the duration from StartTime and EndTime
         //float duration = testModel.EndTime - startTimeInSeconds;
 
         // Paths for temporary and final audio files
-        string tempAudioPath = Path.Combine(Application.persistentDataPath, "AudioProcess", "temp_audio.wav");
-        string finalAudioPath = Path.Combine(Application.persistentDataPath, "AudioProcess", "final_audio.wav");
+        string tempAudioPath = Path.Combine(Application.persistentDataPath, "AudioProcess", $"{index}temp_silence.wav");
+        string finalAudioPath = Path.Combine(Application.persistentDataPath, "AudioProcess", $"{index}temp_audio.wav");
 
         if (startTimeInSeconds < 0)
         {
