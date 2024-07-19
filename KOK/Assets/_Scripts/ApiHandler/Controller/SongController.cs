@@ -1,10 +1,16 @@
-using KOK.ApiHandler.Context;
+﻿using KOK.ApiHandler.Context;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
+using KOK.Assets._Scripts;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Item;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Song;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -13,14 +19,13 @@ namespace KOK.ApiHandler.Controller
 {
     public class SongController : MonoBehaviour
     {
-        private string songsResourceUrl = string.Empty;
-        private string favouriteSongsResourceUrl = string.Empty;
+        private string songsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
 
         private void Start()
         {
-            songsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
-            favouriteSongsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.FavouriteSongs_Resource;
-
+            //songsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
+            string test = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
+            Debug.Log("wtf" + test); 
         }
 
         void Update()
