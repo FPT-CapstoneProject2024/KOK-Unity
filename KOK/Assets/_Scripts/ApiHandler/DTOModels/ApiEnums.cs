@@ -22,6 +22,12 @@ namespace KOK.ApiHandler.DTOModels
         SongCode = 7,
     }
 
+    public enum ItemOrderFilter
+    {
+        ItemCode = 1,
+        ItemName = 2,
+    }
+
     #endregion
 
     #region Account
@@ -49,6 +55,25 @@ namespace KOK.ApiHandler.DTOModels
 
     #endregion
 
+    #region Item
+
+    public enum ItemStatus
+    {
+        DISABLE = 0,
+        ENABLE = 1,
+        PENDING = 2,
+    }
+    public enum ItemType
+    {
+        CHARACTER,
+        ROOM,
+        DEFAULT,
+    }
+
+
+
+    #endregion
+
     #region Song
 
     public enum SongStatus
@@ -57,5 +82,32 @@ namespace KOK.ApiHandler.DTOModels
         ENABLE = 1,
     }
 
+    public enum SongType
+    {
+        INTERNAL = 1,
+        EXTERNAL = 2,
+    }
+    public enum SongCategory
+    {
+        VPOP = 0,
+        POP = 1,
+        KPOP = 2,
+        ROCK = 3,
+    }
+
+    #endregion
+
+    #region PostComment
+    public enum PostCommentType
+    {
+        PARENT,
+        CHILD,
+    }
+
+    public enum PostCommentStatus
+    {
+        DEACTIVE,
+        ACTIVE,
+    }
     #endregion
 }
