@@ -65,15 +65,17 @@ namespace KOK.ApiHandler.Controller
         private NameValueCollection GenerateSongQueryParams(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
-            if (filter.SongName != null)
+            if (!string.IsNullOrEmpty(filter.SongName))
             {
                 queryParams.Add(nameof(filter.SongName), filter.SongName);
             }
 
-            if (filter.SongCode != null)
+            if (!string.IsNullOrEmpty(filter.SongCode))
             {
                 queryParams.Add(nameof(filter.SongCode), filter.SongCode);
             }
+
+            queryParams.Add(nameof(filter.SongStatus), filter.SongStatus.ToString());
 
             queryParams.Add(nameof(paging.page), paging.page.ToString());
             queryParams.Add(nameof(paging.pageSize), paging.pageSize.ToString());
