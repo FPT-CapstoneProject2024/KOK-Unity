@@ -278,10 +278,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
         playerObject = runner.Spawn(playerPrefab, Vector3.zero, Quaternion.identity);
 
-        playerObject.name = "Player: " + _playerName;
-        playerObject.GetComponentInChildren<TextMeshPro>().text = _playerName;
-        playerObject.GetComponent<SpriteRenderer>().color = _playerColor;
-        playerObject.GetComponentInChildren<TextMeshPro>().color = _playerColor;
+        
         if (runner.ActivePlayers.Count() > 1)
         {
             playerRole = 1;
