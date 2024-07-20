@@ -21,6 +21,7 @@ namespace KOK
         [SerializeField] GameObject _viewportContent;
         [SerializeField] GameObject _songHolderPrefab;
         [SerializeField] TMP_InputField _searchSongInput;
+        [SerializeField] Toggle _favToggle;
 
         private NetworkRunner _runner;
 

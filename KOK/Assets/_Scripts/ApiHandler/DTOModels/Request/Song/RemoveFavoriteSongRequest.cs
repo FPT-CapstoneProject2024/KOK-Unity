@@ -1,4 +1,6 @@
-﻿namespace KOK.ApiHandler.DTOModels
+﻿using System;
+
+namespace KOK.ApiHandler.DTOModels
 {
     public class RemoveFavoriteSongRequest : FavoriteSongRequest
     {
