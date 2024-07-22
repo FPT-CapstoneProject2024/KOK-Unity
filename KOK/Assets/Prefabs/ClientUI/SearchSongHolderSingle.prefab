@@ -97,6 +97,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 6691008976938468836}
+        m_TargetAssemblyTypeName: KOK.SingleFavouriteManager, Assembly-CSharp
+        m_MethodName: OnToggleValueChange
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 0
 --- !u!114 &5011857751627051183
 MonoBehaviour:
@@ -396,6 +408,7 @@ GameObject:
   - component: {fileID: 6598608992661808222}
   - component: {fileID: 4990686146407315986}
   - component: {fileID: 1142305134725260703}
+  - component: {fileID: 6691008976938468836}
   m_Layer: 5
   m_Name: SearchSongHolderSingle
   m_TagString: Untagged
@@ -552,6 +565,20 @@ MonoBehaviour:
   TMP_SongArtist: {fileID: 0}
   TMP_SongGenre: {fileID: 0}
   TMP_SongSinger: {fileID: 0}
+--- !u!114 &6691008976938468836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4590974471881372752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0c202d241889584e95bc00dd262886c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  favToggle: {fileID: 8544897682020970980}
+  songCode: {fileID: 4707384923573620131}
 --- !u!1 &4707384923573620131
 GameObject:
   m_ObjectHideFlags: 0

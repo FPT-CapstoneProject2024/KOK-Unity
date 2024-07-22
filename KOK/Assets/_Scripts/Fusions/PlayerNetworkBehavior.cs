@@ -52,7 +52,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     public List<SongDetail> SongList { get; private set; }
     public List<SongDetail> PurchasedSongList { get; private set; }
-    public List<SongDetail> FavoriteSongList { get; private set; }
+    public List<FavoriteSong> FavoriteSongList { get; private set; }
 
 
     private void Start()
@@ -62,8 +62,10 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         NetworkRunner runner = NetworkRunner.Instances[0];
         if (this.HasStateAuthority)
         {
-            PlayerName = FusionManager.Instance._playerName;
+            //PlayerName = FusionManager.Instance._playerName;
             PlayerColor = FusionManager.Instance._playerColor;
+
+            PlayerName = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
             if (runner.ActivePlayers.Count() > 1)
             {
                 PlayerRole = 1;
@@ -74,8 +76,11 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 PlayerRole = 0;
             }
 
-            CharacterCode = "";
-            AvatarCode = "DemoAvatar";
+            CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
+            AvatarCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
+
+            this.name = "Player: " + PlayerName;
+            //GetComponentInChildren<TextMeshPro>().text = PlayerName.ToString();
         }
         playerNameLabel.text = PlayerName.ToString();
         playerNameLabel.color = PlayerColor;
@@ -110,18 +115,25 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     private void LoadSongList()
     {
         SongList = new();
-        PurchasedSongList = new();
-        FavoriteSongList = new();
         FindAnyObjectByType<ApiHelper>().gameObject
                     .GetComponent<SongController>()
                     .GetSongsFilterPagingCoroutine(new SongFilter(),
                                                     SongOrderFilter.SongName,
                                                     new PagingRequest(),
-                                                    (list) => { SongList = list; },
+                                                    (list) => { SongList = list; StartCoroutine(UpdateSearchSongUI()); },
                                                     (ex) => Debug.LogError(ex));
         //Load favorite and purchased song list here
+        FavoriteSongList = new();
+        FindAnyObjectByType<ApiHelper>().gameObject
+                        .GetComponent<FavoriteSongController>()
+                        .GetMemberFavoriteSongCoroutine(new FavoriteSongFilter() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)) },
+                                                        FavoriteSongOrderFilter.SongId,
+                                                        new PagingRequest(),
+                                                        (list) => { FavoriteSongList = list.Results; StartCoroutine(UpdateSearchSongUI()); },
+                                                        (ex) => Debug.LogError(ex));
 
-        UpdateQueueSongUI();
+        PurchasedSongList = new();
+
 
     }
 
