@@ -78,7 +78,7 @@ namespace KOK
         public async Task<DynamicResponseResult<Item>?> GetItemsFilterPagingAsync(ItemFilter filter, ItemOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = GenerateItemQueryParams(filter, orderFilter, paging);
-            var url = BuildUrl(itemResourceUrl, queryParams);
+            var url = QueryHelper.BuildUrl(itemResourceUrl, queryParams);
 
             Debug.Log(url);
 
@@ -90,20 +90,6 @@ namespace KOK
 
             DynamicResponseResult<Item> result = JsonConvert.DeserializeObject<DynamicResponseResult<Item>>(jsonResult);
             return result;
-        }
-
-        public string BuildUrl(string baseUrl, NameValueCollection queryParams)
-        {
-            var builder = new UriBuilder(baseUrl);
-            var query = HttpUtility.ParseQueryString(builder.Query);
-
-            foreach (string key in queryParams)
-            {
-                query[key] = queryParams[key];
-            }
-
-            builder.Query = query.ToString();
-            return builder.ToString();
         }
 
         public NameValueCollection GenerateItemQueryParams(ItemFilter filter, ItemOrderFilter orderFilter, PagingRequest paging)

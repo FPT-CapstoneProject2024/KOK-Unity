@@ -12,6 +12,7 @@ using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Item;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item;
 using KOK.ApiHandler.Context;
 using KOK.Assets._Scripts.Shop;
+using KOK.ApiHandler.Utilities;
 
 namespace KOK
 {
@@ -73,7 +74,7 @@ namespace KOK
 
         private IEnumerator GetItemsFilterPagingCoroutine(ItemFilter filter, ItemOrderFilter orderFilter, PagingRequest paging)
         {
-            string url = shopItemController.BuildUrl(itemResourceUrl, shopItemController.GenerateItemQueryParams(filter, orderFilter, paging));
+            string url = QueryHelper.BuildUrl(itemResourceUrl, shopItemController.GenerateItemQueryParams(filter, orderFilter, paging));
 
             UnityWebRequest request = UnityWebRequest.Get(url);
             yield return request.SendWebRequest();

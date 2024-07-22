@@ -19,13 +19,11 @@ namespace KOK.ApiHandler.Controller
 {
     public class SongController : MonoBehaviour
     {
-        private string songsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
+        private string songsResourceUrl = string.Empty;
 
         private void Start()
         {
-            //songsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
-            string test = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
-            Debug.Log("wtf" + test); 
+            songsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource; 
         }
 
         void Update()

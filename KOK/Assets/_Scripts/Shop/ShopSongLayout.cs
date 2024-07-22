@@ -19,11 +19,10 @@ namespace KOK
 {
     public class ShopSongLayout : MonoBehaviour
     {
-        [SerializeField] private List<SongDetail> songList = new List<SongDetail>();
+        private List<SongDetail> songList = new List<SongDetail>();
         private SongController shopSongController;
         public SongPreviewDisplay songPreview;
 
-        private List<string> songCodes = new List<string>();
         public GameObject displayPanel;
         public GameObject displayButton;
         private string songResourceUrl = string.Empty;
@@ -33,27 +32,36 @@ namespace KOK
             songResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
             
             //StartCoroutine(shopSongController.GetSongsFilterPagingCoroutine(new SongFilter(), new SongOrderFilter(), new PagingRequest(), OnSuccessTest()));*/
-            GetSongsFilterPaging(new SongFilter(), new SongOrderFilter(), new PagingRequest());
+            GetSongsFilterPaging(/*new SongFilter(), new SongOrderFilter(), new PagingRequest()*/);
         }
 
-        public void GetSongsFilterPaging(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
+        public void GetSongsFilterPaging(/*SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging*/)
         {
-            shopSongController = new SongController();
+            songList = new();
+            FindAnyObjectByType<ApiHelper>().gameObject
+                .GetComponent<SongController>()
+                .GetSongsFilterPagingCoroutine( new SongFilter(),
+                                                new SongOrderFilter(),
+                                                new PagingRequest(),
+                                                LayoutGenerate,
+                                                OnError
+                );
+            /*shopSongController = new SongController();
             shopSongController.GetSongsFilterPagingCoroutine(
                 filter,
                 orderFilter,
                 paging,
                 OnSuccessTest,
                 OnErrorTest
-            );
+            );*/
         }
 
-        private void LayoutGenerate()
+        private void LayoutGenerate(List<SongDetail> songList)
         {
             for (int i = 0; i < songList.Count; i++)
             {
                 GameObject gameObj = Instantiate(displayButton, displayPanel.transform);
-                gameObj.transform.GetChild(0).GetComponent<TMP_Text>().text = songCodes[i];
+                gameObj.transform.GetChild(0).GetComponent<TMP_Text>().text = songList[i].SongCode;
 
                 int index = i;
                 Debug.Log(songList[i].SongId);
@@ -80,7 +88,7 @@ namespace KOK
             }
 
             //StartCoroutine(GetSongsFilterPagingCoroutine(new SongFilter(), new SongOrderFilter(), new PagingRequest()));
-            GetSongsFilterPaging(new SongFilter(), new SongOrderFilter(), new PagingRequest());
+            GetSongsFilterPaging(/*new SongFilter(), new SongOrderFilter(), new PagingRequest()*/);
         }
 
         /*private IEnumerator GetSongsFilterPagingCoroutine(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
@@ -114,7 +122,7 @@ namespace KOK
             }
         }*/
 
-        private void OnSuccessTest(List<SongDetail> songDetails)
+   /*     private void OnSuccessTest(List<SongDetail> songDetails)
         {
             songCodes.Clear();
             songList.Clear();
@@ -127,9 +135,9 @@ namespace KOK
 
             LayoutGenerate();
             //Debug.Log(response);
-        }
+        }*/
 
-        private void OnErrorTest(string error)
+        private void OnError(string error)
         {
             Debug.LogError(error);
         }
