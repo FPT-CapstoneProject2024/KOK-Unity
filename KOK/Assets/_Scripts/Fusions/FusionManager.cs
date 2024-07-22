@@ -2,6 +2,7 @@ using ExitGames.Client.Photon.StructWrapping;
 using Fusion;
 using Fusion.Sockets;
 using KOK;
+using KOK.Assets._Scripts;
 using Photon.Realtime;
 using System;
 using System.Collections;
@@ -370,6 +371,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         Debug.LogError("OnPlayerLeft | " + test);
         runner.GetPlayerObject(runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0]).GetComponent<PlayerNetworkBehavior>().PlayerRole = 0;   
         ParticipantItemHandlerManager.Instance.UpdateParticipantList();
+
+        ChatManager.Instance.SendMessageAll(playerObject.GetComponent<PlayerNetworkBehavior>().PlayerName + " has left");
     }
 
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress)
