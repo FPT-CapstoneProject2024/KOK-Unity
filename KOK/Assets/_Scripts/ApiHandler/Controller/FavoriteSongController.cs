@@ -74,6 +74,7 @@ namespace KOK.ApiHandler.Controller
         public void RemoveFavoriteSongCoroutine(RemoveFavoriteSongRequest request, Action<string> onSuccess, Action<string> onError)
         {
             var query = $"?MemberId={request.MemberId}&SongId={request.SongId}";
+            Debug.Log(query);
             var url = favoriteSongsResourceUrl + query;
             ApiHelper.Instance.DeleteCoroutine(url,
                 (successValue) =>
@@ -108,9 +109,14 @@ namespace KOK.ApiHandler.Controller
         private NameValueCollection GenerateFavoriteSongQueryParams(FavoriteSongFilter filter, FavoriteSongOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
-            if (filter.SongName != null)
+            if (!string.IsNullOrEmpty(filter.SongName))
             {
                 queryParams.Add(nameof(filter.SongName), filter.SongName);
+            }
+
+            if (!string.IsNullOrEmpty(filter.MemberId.ToString()))
+            {
+                queryParams.Add(nameof(filter.MemberId), filter.MemberId.ToString());
             }
 
             queryParams.Add(nameof(paging.page), paging.page.ToString());

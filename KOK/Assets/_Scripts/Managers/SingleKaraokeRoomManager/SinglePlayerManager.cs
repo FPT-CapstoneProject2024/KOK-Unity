@@ -59,7 +59,9 @@ namespace KOK
                         .GetMemberFavoriteSongCoroutine(new FavoriteSongFilter() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)) },
                                                         FavoriteSongOrderFilter.SongId,
                                                         new PagingRequest(),
-                                                        (list) => { favoriteSongList = list.Results; UpdateSearchSongUI(); },
+                                                        (list) => { favoriteSongList = list.Results; 
+                                                            //UpdateSearchSongUI(); 
+                                                        },
                                                         (ex) => Debug.LogError(ex));
 
             //Load song from devide
@@ -76,7 +78,10 @@ namespace KOK
                         .GetMemberFavoriteSongCoroutine(new FavoriteSongFilter() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)) },
                                                         FavoriteSongOrderFilter.SongId,
                                                         new PagingRequest(),
-                                                        (list) => { favoriteSongList = list.Results; UpdateSearchSongUI(); },
+                                                        (list) => { 
+                                                            favoriteSongList = list.Results; 
+                                                            //UpdateSearchSongUI(); 
+                                                        },
                                                         (ex) => Debug.LogError(ex));
         }
 
@@ -200,7 +205,18 @@ namespace KOK
 
         public void RefreshFavSongList()
         {
-            StartCoroutine(LoadFavoriteSong());
+            //StartCoroutine(LoadFavoriteSong());
+            favoriteSongList = new();
+            FindAnyObjectByType<ApiHelper>().gameObject
+                        .GetComponent<FavoriteSongController>()
+                        .GetMemberFavoriteSongCoroutine(new FavoriteSongFilter() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)) },
+                                                        FavoriteSongOrderFilter.SongId,
+                                                        new PagingRequest(),
+                                                        (list) => {
+                                                            favoriteSongList = list.Results;
+                                                            UpdateSearchSongUI();
+                                                        },
+                                                        (ex) => Debug.LogError(ex));
         }
         private void CreateRecording()
         {

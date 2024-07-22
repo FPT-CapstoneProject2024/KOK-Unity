@@ -387,16 +387,16 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         FindAnyObjectByType<SongItemManager>().UpdateQueueSongList();
     }
 
+    public void RefreshSearchSongUI()
+    {
+        StartCoroutine(UpdateSearchSongUI());
+    }
+
+   
     IEnumerator UpdateSearchSongUI()
     {
         yield return new WaitForSeconds(1f);
-        if (SongList == null || SongList.Count == 0)
-        {
-            StartCoroutine(UpdateSearchSongUI());
-        } else
-        {
-            FindAnyObjectByType<SongItemManager>().UpdateSongList();
-        }
+        FindAnyObjectByType<SongItemManager>().UpdateSongList();
     }
     public void SetSinger()
     {

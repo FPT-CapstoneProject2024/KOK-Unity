@@ -38,21 +38,21 @@ namespace KOK
 
                 //List<SongDetail> songList = SongManager.songs;
                 List<SongDetail> songList = _runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().SongList;
-                //FindAnyObjectByType<ApiHelper>().gameObject
-                //    .GetComponent<SongController>()
-                //    .GetSongsFilterPagingCoroutine(new SongFilter(),
-                //                                    SongOrderFilter.SongName,
-                //                                    new PagingRequest(),
-                //                                    (list) => { songList = list; Debug.LogError(songList.ToCommaSeparatedString()); },
-                //                                    (ex) => Debug.LogError(ex));
                 
 
                 string searchKeyword = _searchSongInput.text;
                 if (!searchKeyword.IsNullOrEmpty())
                 {
                     songList = songList.Where(s => s.SongName.ContainsInsensitive(searchKeyword)
-                                                || s.Artist.ToCommaSeparatedString().ContainsInsensitive(searchKeyword)).ToList();
+                                                || s.Artist.ToCommaSeparatedString().ContainsInsensitive(searchKeyword)
+                                                || s.Singer.ToCommaSeparatedString().ContainsInsensitive(searchKeyword)
+                                                || s.Genre.ToCommaSeparatedString().ContainsInsensitive(searchKeyword)).ToList();
                 }
+
+                //if (_favToggle.isOn)
+                //{
+                //    songList = songList.Where(s => _runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().FavoriteSongList.FirstOrDefault(f => f.SongId == s.SongId) != null).ToList();
+                //}
 
                 foreach (var song in songList)
                 {
@@ -61,6 +61,15 @@ namespace KOK
                         GameObject songHolder = Instantiate(_songHolderPrefab, _viewportContent.transform);
                         songHolder.name = song.SongName;
                         songHolder.GetComponentInChildren<SongBinding>().BindingData(song);
+                        songHolder.transform.GetChild(0).name = song.SongId.ToString();
+                        //if (_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().IsFavoriteSong((Guid)song.SongId))
+                        //{
+                        //    _favToggle.isOn = true;
+                        //}
+                        //else
+                        //{
+                        //    _favToggle.isOn = false;
+                        //}
                     }
                     catch { }
                 }
