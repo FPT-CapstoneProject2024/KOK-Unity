@@ -202,20 +202,6 @@ namespace KOK
             return result;
         }*/
 
-        public string BuildUrl(string baseUrl, NameValueCollection queryParams)
-        {
-            var builder = new UriBuilder(baseUrl);
-            var query = HttpUtility.ParseQueryString(builder.Query);
-
-            foreach (string key in queryParams)
-            {
-                query[key] = queryParams[key];
-            }
-
-            builder.Query = query.ToString();
-            return builder.ToString();
-        }
-
         /*public NameValueCollection GeneratePostQueryParams(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
