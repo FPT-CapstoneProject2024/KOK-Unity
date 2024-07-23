@@ -25,5 +25,13 @@ namespace KOK
                 roomHolderObject.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = session.PlayerCount.ToString() + "/10";
             }
         }
+
+        public void ClearRoomList()
+        {
+            foreach (Transform child in _roomViewportContent.transform)
+            {
+                Destroy(child.gameObject);
+            }
+        }
     }
 }

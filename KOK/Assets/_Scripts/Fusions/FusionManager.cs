@@ -41,8 +41,6 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] Button randomJoinButton;
     [SerializeField] Button playVideoButton;
     [SerializeField] TextMeshProUGUI roomIdTMP;
-    [SerializeField] TMP_Dropdown roomListDropdown;
-    [SerializeField] TMP_Dropdown songListDropdown;
     [SerializeField] Transform spawnPoint;
 
     [SerializeField] float spawnOffset = 0f;
@@ -94,7 +92,6 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         itemPanelCanvas.gameObject.SetActive(false);
         videoPlayer.gameObject.SetActive(false);
 
-        roomListDropdown.ClearOptions();
         //songListDropdown.AddOptions(SongManager.songs.Select(x => x.songName).ToList());
 
         //OnRoomListDropdownValueChange();
@@ -124,12 +121,12 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         {
             _playerName = "Anonymous";
         }
-        var roomName = _roomList[roomListDropdown.value].Name.ToString();
-        if (roomName.IsNullOrEmpty())
-        {
-            roomName = "Nameless Room";
-        }
-        ConnectToRunner(_playerName, roomName);
+        //var roomName = _roomList[roomListDropdown.value].Name.ToString();
+        //if (roomName.IsNullOrEmpty())
+        //{
+        //    roomName = "Nameless Room";
+        //}
+        //ConnectToRunner(_playerName, roomName);
     }
     
     public void JoinRoom(string roomName)
@@ -277,9 +274,10 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         //playerObject = runner.Spawn(playerPrefab, new Vector3(spawnPoint.position.x + Random.Range(-spawnOffset, spawnOffset), 0, spawnPoint.position.z + Random.Range(-spawnOffset, spawnOffset)));
 
+        //_playerName = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
+
         playerObject = runner.Spawn(playerPrefab, Vector3.zero, Quaternion.identity);
 
-        
         if (runner.ActivePlayers.Count() > 1)
         {
             playerRole = 1;
@@ -290,6 +288,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
         runner.SetPlayerObject(runner.LocalPlayer, playerObject);
 
+        roomNameInput.interactable = false;
+        randomJoinButton.interactable = false;
         lobbyCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(true);
         popUpCanvas.gameObject.SetActive(true);
@@ -298,6 +298,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         gameManager.gameObject.SetActive(true);
 
         playerObject.transform.localPosition = spawnPoint.localPosition;
+        playerObject.GetComponent<PlayerNetworkBehavior>().PlayerName = _playerName;
+        playerObject.GetComponent<PlayerNetworkBehavior>().PlayerColor = _playerColor;
         StartCoroutine(WaitToSetPosition());
     }
     
@@ -327,6 +329,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
     {
         Debug.Log("OnDisconnectedFromServer");
+        FindAnyObjectByType<RoomListUpdate>().ClearRoomList();
+        createButton.interactable = false;
     }
 
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken)
@@ -399,8 +403,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         Debug.Log("OnSessionListUpdated");
         _roomList = sessionList;
-        roomListDropdown.ClearOptions();
-        roomListDropdown.AddOptions(_roomList.Select(x => x.Name).ToList());
+        //roomListDropdown.ClearOptions();
+        //roomListDropdown.AddOptions(_roomList.Select(x => x.Name).ToList());
         //OnRoomListDropdownValueChange();
         UpdateRoomList(sessionList);
     }
@@ -457,6 +461,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         Debug.Log("JoinLobby stated");
         string lobbyId = "DefaultLobbyId";
         var result = await runner.JoinSessionLobby(SessionLobby.Custom, lobbyId);
+        
         if (!result.Ok)
         {
             Debug.LogError("Unable to join lobby " + lobbyId);
@@ -466,6 +471,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
             Debug.Log("JoinLobby Ok");
             roomNameInput.interactable = true;
             randomJoinButton.interactable = true;
+            FindAnyObjectByType<RoomListUpdate>().UpdateRoomList(_roomList);
         }
 
     }

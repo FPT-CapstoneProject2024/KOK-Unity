@@ -57,13 +57,15 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     private void Start()
     {
-        LoadSongList();
-        ClearSongQueue();
-        NetworkRunner runner = NetworkRunner.Instances[0];
+
         if (this.HasStateAuthority)
         {
+            Debug.LogError(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName));
+            LoadSongList();
+            ClearSongQueue();
+            NetworkRunner runner = NetworkRunner.Instances[0];
             //PlayerName = FusionManager.Instance._playerName;
-            PlayerColor = FusionManager.Instance._playerColor;
+            //PlayerColor = FusionManager.Instance._playerColor;
 
             PlayerName = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
             if (runner.ActivePlayers.Count() > 1)
@@ -81,20 +83,21 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
             this.name = "Player: " + PlayerName;
             //GetComponentInChildren<TextMeshPro>().text = PlayerName.ToString();
+            playerNameLabel.text = PlayerName.ToString();
+            playerNameLabel.color = PlayerColor;
+            playerRenderer.color = PlayerColor;
+
+            videoPlayer = FindAnyObjectByType<VideoPlayer>();
+
+            RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
+
+            SetSinger();
+
+            StartCoroutine(UpdateTime());
+            StartCoroutine(UpdateSearchSongUI());
+            StartCoroutine(NotiJoinRoom());
         }
-        playerNameLabel.text = PlayerName.ToString();
-        playerNameLabel.color = PlayerColor;
-        playerRenderer.color = PlayerColor;
 
-        videoPlayer = FindAnyObjectByType<VideoPlayer>();
-
-        RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
-
-        SetSinger();
-
-        StartCoroutine(UpdateTime());
-        StartCoroutine(UpdateSearchSongUI());
-        StartCoroutine(NotiJoinRoom());
     }
 
     IEnumerator NotiJoinRoom()
@@ -103,7 +106,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         if (ChatManager.Instance != null)
         {
             ChatManager.Instance.SendMessageAll(PlayerName + " has joined");
-        } else
+        }
+        else
         {
             StartCoroutine(NotiJoinRoom());
         }
@@ -170,22 +174,34 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     public void Rpc_SetVideoPlayerSyncTime()
     {
-        videoPlayer.time = videoTime;
+        if (videoPlayer != null)
+        {
+            videoPlayer.time = videoTime;
+        }
     }
 
     public void Rpc_PrepareVideo()
     {
-        videoPlayer.Prepare();
+        if (videoPlayer != null)
+        {
+            videoPlayer.Prepare();
+        }
     }
 
     public void Rpc_PlayVideo()
     {
-        videoPlayer.Play();
+        if (videoPlayer != null)
+        {
+            videoPlayer.Play();
+        }
     }
 
     public void Rpc_StopVideo()
     {
-        videoPlayer.Stop();
+        if (videoPlayer != null)
+        {
+            videoPlayer.Stop();
+        }
     }
 
     public string GetSongURLToPlay()

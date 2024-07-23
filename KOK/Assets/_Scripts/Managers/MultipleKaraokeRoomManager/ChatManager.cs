@@ -9,7 +9,7 @@ using WebSocketSharp;
 
 namespace KOK
 {
-    public class ChatManager : MonoBehaviour
+    public class ChatManager : NetworkBehaviour
     {
         [SerializeField] TMP_InputField chatInputField;
         RPCMessage RPCMessage;
@@ -71,7 +71,7 @@ namespace KOK
         {
             if (runner.ActivePlayers.Count() > 1)
             {
-                RPC_SendMessage($"{message}");
+                RPC_SendMessage(runner,$"{message}");
             }
             else
             {
@@ -83,7 +83,7 @@ namespace KOK
         {
             if (runner.ActivePlayers.Count() > 1)
             {
-                RPC_SendMessage($"{username}: {message}");
+                RPC_SendMessage(runner,$"{username}: {message}");
             }
             else
             {
@@ -96,7 +96,7 @@ namespace KOK
         }
 
         [Rpc(RpcSources.All, RpcTargets.All)]
-        public static void RPC_SendMessage(string message, RpcInfo rpcInfo = default)
+        public static void RPC_SendMessage(NetworkRunner runner, string message)
         {
             messageTMPP.text += $"{message}\n";
         }
