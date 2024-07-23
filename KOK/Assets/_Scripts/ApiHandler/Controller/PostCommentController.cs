@@ -90,14 +90,19 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
         public NameValueCollection GeneratePostCommentQueryParams(PostCommentFilter filter, PostCommentOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
-            if (filter.MemberId != null)
-            {
-                queryParams.Add(nameof(filter.MemberId), filter.MemberId.ToString());
-            }
+            /* if (filter.MemberId != null)
+             {
+                 queryParams.Add(nameof(filter.MemberId), filter.MemberId.ToString());
+             }*/
 
-            if (filter.PostId != null)
+            /*if (filter.PostId != null)
             {
                 queryParams.Add(nameof(filter.PostId), filter.PostId.ToString());
+            }*/
+
+            if (filter.Comment!= null)
+            {
+                queryParams.Add(nameof(filter.Comment), filter.Comment.ToString());
             }
 
             queryParams.Add(nameof(paging.page), paging.page.ToString());

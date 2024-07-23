@@ -7,6 +7,9 @@ using UnityEngine.Video;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post;
 using System.Threading.Tasks;
 using KOK.ApiHandler.DTOModels;
+using KOK.ApiHandler.Controller;
+using KOK.ApiHandler.Utilities;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Post;
 
 namespace KOK
 {
@@ -28,6 +31,11 @@ namespace KOK
 
         private Camera mainCamera;
         public VideoPlayer videoPlayer;
+
+        private void Start()
+        {
+            GetPostsFilterPaging();
+        }
 
         void OnEnable()
         {
@@ -76,13 +84,29 @@ namespace KOK
             }
         }
 
+        public void GetPostsFilterPaging()
+        {            
+            FindAnyObjectByType<ApiHelper>().gameObject
+                .GetComponent<PostController>()
+                .GetPostsFilterPagingCoroutine(new PostFilter(),
+                                                new PostOrderFilter(),
+                                                new PagingRequest(),
+                                                SetInitialPosts,
+                                                OnError
+                );
+        }
+
+        private void OnSuccess(List<Post> post)
+        {
+            Debug.Log(post);
+        }
+
         public void SetInitialPosts(List<Post> postsData)
         {
             foreach (var postData in postsData)
             {
                 GameObject post = Instantiate(postPrefab, postParent);
                 post.GetComponentInChildren<TMP_Text>().text = postData.Caption;
-
                 // Store PostId as a custom data associated with the GameObject
                 post.name = postData.PostId.ToString(); // Use gameObject.name to store PostId
 
@@ -250,10 +274,15 @@ namespace KOK
 
         void UpdateMemberDisplay()
         {
-            /*if (memberText != null && currentPostIndex >= 0 && currentPostIndex < posts.Count)
+            if (memberText != null && currentPostIndex >= 0 && currentPostIndex < posts.Count)
             {
-                memberText.text = memberLoader.GetMemberName(posts[currentPostIndex].name);
-            }*/
+                //memberText.text = memberLoader.GetMemberName(posts[currentPostIndex].name);
+            }
+        }
+
+        private void OnError(string error)
+        {
+            Debug.LogError(error);
         }
     }
 }
