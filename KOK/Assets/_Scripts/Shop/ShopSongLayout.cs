@@ -30,12 +30,11 @@ namespace KOK
         private void Start()
         {
             songResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
-            
-            //StartCoroutine(shopSongController.GetSongsFilterPagingCoroutine(new SongFilter(), new SongOrderFilter(), new PagingRequest(), OnSuccessTest()));*/
-            GetSongsFilterPaging(/*new SongFilter(), new SongOrderFilter(), new PagingRequest()*/);
+                       
+            GetSongsFilterPaging();
         }
 
-        public void GetSongsFilterPaging(/*SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging*/)
+        public void GetSongsFilterPaging()
         {
             songList = new();
             FindAnyObjectByType<ApiHelper>().gameObject
@@ -46,14 +45,11 @@ namespace KOK
                                                 LayoutGenerate,
                                                 OnError
                 );
-            /*shopSongController = new SongController();
-            shopSongController.GetSongsFilterPagingCoroutine(
-                filter,
-                orderFilter,
-                paging,
-                OnSuccessTest,
-                OnErrorTest
-            );*/
+        }
+
+        private void OnSuccess(List<SongDetail> songList)
+        {
+            Debug.LogError(songList);
         }
 
         private void LayoutGenerate(List<SongDetail> songList)
@@ -79,6 +75,11 @@ namespace KOK
             Debug.Log("Song clicked: " + song.SongId);
         }
 
+        public void CloseClicked()
+        {
+            songPreview.HidePopup();
+        }
+
         public void RefreshClicked()
         {
             for (int i = 0; i < displayPanel.transform.childCount; i++)
@@ -87,8 +88,7 @@ namespace KOK
                 Destroy(child);
             }
 
-            //StartCoroutine(GetSongsFilterPagingCoroutine(new SongFilter(), new SongOrderFilter(), new PagingRequest()));
-            GetSongsFilterPaging(/*new SongFilter(), new SongOrderFilter(), new PagingRequest()*/);
+            GetSongsFilterPaging();
         }
 
         /*private IEnumerator GetSongsFilterPagingCoroutine(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)

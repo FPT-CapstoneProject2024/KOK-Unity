@@ -61,6 +61,11 @@ namespace KOK
             Debug.Log("Item clicked: " + item.ItemId);
         }
 
+        public void CloseClicked()
+        {
+            itemPreview.HidePopup();
+        }
+
         public void RefreshClicked()
         {
             for (int i = 0; i < displayPanel.transform.childCount; i++)

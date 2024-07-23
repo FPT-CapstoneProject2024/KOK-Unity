@@ -113,6 +113,7 @@ using KOK.ApiHandler.Context;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Post;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post;
 using Newtonsoft.Json;
 using System;
@@ -132,7 +133,7 @@ namespace KOK
 {
     public class PostController : MonoBehaviour
     {
-        private string postResourceUrl = string.Empty;
+        private string postResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Posts_Resource;
 
         private void Start()
         {
@@ -167,6 +168,24 @@ namespace KOK
             return result.Value;
         }
 
+        public void GetPostsFilterPagingCoroutine(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging, Action<List<Post>> onSuccess, Action<string> onError)
+        {
+            var queryParams = GeneratePostQueryParams(filter, orderFilter, paging);
+            var url = QueryHelper.BuildUrl(postResourceUrl, queryParams);
+
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<Post>>(successValue);
+                    onSuccess?.Invoke(result.Results);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to retrieve Post list: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
+        }
+
         /*public async Task<Post?> CreatePostAsync(CreatePostRequest createPost)
         {
             var jsonData = JsonConvert.SerializeObject(createPost);
@@ -185,7 +204,7 @@ namespace KOK
             return result.Value;
         }*/
 
-        /*public async Task<DynamicResponseResult<Post>?> GetPostsFilterPagingAsync(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging)
+        public async Task<DynamicResponseResult<Post>?> GetPostsFilterPagingAsync(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = GeneratePostQueryParams(filter, orderFilter, paging);
             var url = QueryHelper.BuildUrl(postResourceUrl, queryParams);
@@ -200,20 +219,25 @@ namespace KOK
 
             DynamicResponseResult<Post> result = JsonConvert.DeserializeObject<DynamicResponseResult<Post>>(jsonResult);
             return result;
-        }*/
+        }
 
-        /*public NameValueCollection GeneratePostQueryParams(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging)
+        public NameValueCollection GeneratePostQueryParams(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
-            if (filter.PostCode != null)
+            if (filter.Caption != null)
             {
-                queryParams.Add(nameof(filter.PostCode), filter.PostCode);
+                queryParams.Add(nameof(filter.Caption), filter.Caption.ToString());
             }
 
-            if (filter.PostName != null)
+            /*if (filter.PostId != null)
             {
-                queryParams.Add(nameof(filter.PostName), filter.PostName);
-            }
+                queryParams.Add(nameof(filter.PostId), filter.PostId.ToString());
+            }*/
+
+            /*if (filter.MemberId != null)
+            {
+                queryParams.Add(nameof(filter.MemberId), filter.MemberId.ToString());
+            }*/
 
             queryParams.Add(nameof(paging.page), paging.page.ToString());
             queryParams.Add(nameof(paging.pageSize), paging.pageSize.ToString());
@@ -221,7 +245,7 @@ namespace KOK
             queryParams.Add(nameof(orderFilter), orderFilter.ToString());
 
             return queryParams;
-        }*/
+        }
     }
 }
 

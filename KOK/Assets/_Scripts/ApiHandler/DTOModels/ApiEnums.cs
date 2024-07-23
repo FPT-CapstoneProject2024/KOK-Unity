@@ -36,8 +36,16 @@ namespace KOK.ApiHandler.DTOModels
 
     public enum PostCommentOrderFilter
     {
-        MemberId = 5,
-        PostId = 6,
+        Comment = 1,
+        //MemberId = 5,
+        //PostId = 6,
+    }
+
+    public enum PostOrderFilter
+    {
+        Caption = 1,
+        //MemberId = 4,
+        PostId = 0,
     }
 
     #endregion
