@@ -1,4 +1,5 @@
 using KOK.ApiHandler.DTOModels;
+using KOK.UISprite;
 using System;
 using TMPro;
 using UnityEngine;
@@ -27,6 +28,8 @@ namespace KOK
         [SerializeField] public TMP_Text SongPrice;
         [SerializeField] public Button BuySongButton;
         [SerializeField] public Button PlaySongButton;
+        [SerializeField] public ToggleSwapSprite ToggleSwapSprite;
+        [SerializeField] public Toggle FavoriteSongToggle;
 
         public SongDetail SongDetail;
 
@@ -57,18 +60,38 @@ namespace KOK
 
             PlaySongButton.AddEventListener(SongDetail.SongUrl, OnPlaySongClick);
 
-            var songParam = new BuySongParam()
+            if (SongDetail.isPurchased)
             {
-                SongId = (Guid)SongDetail.SongId,
-                SongName = SongDetail.SongName,
-                Price = SongDetail.Price,
-            };
-            BuySongButton.AddEventListener(songParam, OnBuySongClick);
+                BuySongButton.interactable = false;
+                BuySongButton.gameObject.GetComponent<Image>().color = Color.gray;
+            }
+            else
+            {
+                var songParam = new BuySongParam()
+                {
+                    SongId = (Guid)SongDetail.SongId,
+                    SongName = SongDetail.SongName,
+                    Price = SongDetail.Price,
+                };
+                BuySongButton.AddEventListener(songParam, OnBuySongClick);
+            }
+
+            if (SongDetail.isFavorite)
+            {
+                FavoriteSongToggle.isOn = true;
+                ToggleSwapSprite.ToggleSprite();
+            }
+            else
+            {
+                FavoriteSongToggle.isOn = false;
+                ToggleSwapSprite.ToggleSprite();
+            }
         }
 
         public void OnPlaySongClick(string songUrl)
         {
             Debug.Log("Play song with url: " + songUrl);
+            FindFirstObjectByType<SongHandler>().StartPreviewSong(songUrl);
         }
 
         public void OnBuySongClick(BuySongParam song)

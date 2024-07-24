@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 namespace KOK
 {
@@ -22,6 +23,9 @@ namespace KOK
         [SerializeField] public Button nextButton;
         [Header("Search Components")]
         [SerializeField] public TMP_InputField searchInput;
+        [Header("Preview Components")]
+        [SerializeField] public GameObject songPreviewPanel;
+        [SerializeField] public Button closePreviewButton;
 
         private SongFilter filter;
         private int currentPage = 1;
@@ -35,15 +39,12 @@ namespace KOK
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                LoadSong();
-            }
         }
 
         public void LoadSong()
         {
-            ApiHelper.Instance.GetComponent<SongController>().GetSongsFilterPagingCoroutine(filter, SongOrderFilter.SongName, new PagingRequest()
+            string accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
+            ApiHelper.Instance.GetComponent<SongController>().GetSongsFilterPagingCoroutine(!string.IsNullOrEmpty(accountId) ? accountId : Guid.Empty.ToString(), filter, SongOrderFilter.SongName, new PagingRequest()
             {
                 page = currentPage,
             }, OnLoadSongSuccess, OnLoadSongError);
@@ -153,8 +154,9 @@ namespace KOK
             LoadSong();
         }
 
-        private void SetInitialState()
+        public void SetInitialState()
         {
+            songPreviewPanel.SetActive(false);
             currentPage = 1;
             totalPage = 1;
             filter = new SongFilter();
@@ -165,6 +167,19 @@ namespace KOK
             DisableButton(previousButton);
             DisableButton(nextButton);
             pagingDisplay.text = $"{0}/{0}";
+        }
+
+        public void OnClosePreviewClick()
+        {
+            songPreviewPanel.GetComponent<VideoPlayer>().Stop();
+            songPreviewPanel.SetActive(false);
+        }
+
+        public void StartPreviewSong(string songUrl)
+        {
+            songPreviewPanel.GetComponent<VideoPlayer>().url = songUrl;
+            songPreviewPanel.SetActive(true);
+            songPreviewPanel.GetComponent<VideoPlayer>().Play();
         }
     }
 }

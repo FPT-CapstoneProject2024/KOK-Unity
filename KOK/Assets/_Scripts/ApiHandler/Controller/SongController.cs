@@ -117,5 +117,24 @@ namespace KOK.ApiHandler.Controller
                     onError?.Invoke(result);
                 });
         }
+
+        //bba26a12-ce0b-4572-a4c3-0a77da21e323
+        public void GetSongsFilterPagingCoroutine(string accountId, SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging, Action<DynamicResponseResult<SongDetail>> onSuccess, Action<DynamicResponseResult<SongDetail>> onError)
+        {
+            var queryParams = GenerateSongQueryParams(filter, orderFilter, paging);
+            var endpoint = songsResourceUrl + $"/{accountId}/filter";
+            var url = QueryHelper.BuildUrl(endpoint, queryParams);
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<SongDetail>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<SongDetail>>(errorValue);
+                    onError?.Invoke(result);
+                });
+        }
     }
 }
