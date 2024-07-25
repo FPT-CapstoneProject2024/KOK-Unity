@@ -51,16 +51,19 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     [Networked, Capacity(50)][SerializeField] public NetworkArray<NetworkString<_32>> QueueSinger2List { get; }
 
     public List<SongDetail> SongList { get; private set; }
+
+    public List<SongDetail> QueueSongList { get; private set; }
     public List<SongDetail> PurchasedSongList { get; private set; }
     public List<FavoriteSong> FavoriteSongList { get; private set; }
 
+    public string RoomLogString { get; private set; }
 
     private void Start()
     {
 
         if (this.HasStateAuthority)
         {
-            Debug.LogError(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName));
+            //Debug.LogError(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName));
             LoadSongList();
             ClearSongQueue();
             NetworkRunner runner = NetworkRunner.Instances[0];
@@ -72,10 +75,12 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             {
                 PlayerRole = 1;
                 StartCoroutine(SyncSongQueueWithHost());
+                StartCoroutine(SyncRoomLogWithHost());
             }
             else
             {
                 PlayerRole = 0;
+
             }
 
             CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
@@ -96,6 +101,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             StartCoroutine(UpdateTime());
             StartCoroutine(UpdateSearchSongUI());
             StartCoroutine(NotiJoinRoom());
+            RoomLogString = "";
         }
 
     }
@@ -439,6 +445,38 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     }
 
+    public void UpdateRoomLog(string newLog)
+    {
+        if (PlayerRole == 0)
+        {
+            RoomLogString += newLog;
+        }
+        else
+        {
+            //StartCoroutine(SyncRoomLogWithHost());
+        }
+        Debug.LogError(RoomLogString);
+    }
+
+    IEnumerator SyncRoomLogWithHost()
+    {
+        yield return new WaitForSeconds(1f);
+        try
+        {
+            var runner = NetworkRunner.Instances[0];
+
+            foreach (var player in runner.ActivePlayers)
+            {
+                if (runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole == 0)
+                {
+                    RoomLogString = runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().RoomLogString;
+                    break;
+                }
+            }
+            GameObject.Find("QueueToggle").GetComponent<SongItemManager>().UpdateQueueSongList();
+        }
+        catch (Exception) { };
+    }
 
 
 }

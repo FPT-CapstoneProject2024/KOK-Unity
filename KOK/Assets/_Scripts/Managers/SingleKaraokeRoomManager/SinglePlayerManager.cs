@@ -53,16 +53,16 @@ namespace KOK
             //Call api load purchased song
             purchasedSongList = new();
 
-            favoriteSongList = new();
-            FindAnyObjectByType<ApiHelper>().gameObject
-                        .GetComponent<FavoriteSongController>()
-                        .GetMemberFavoriteSongCoroutine(new FavoriteSongFilter() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)) },
-                                                        FavoriteSongOrderFilter.SongId,
-                                                        new PagingRequest(),
-                                                        (list) => { favoriteSongList = list.Results; 
-                                                            //UpdateSearchSongUI(); 
-                                                        },
-                                                        (ex) => Debug.LogError(ex));
+            //favoriteSongList = new();
+            //FindAnyObjectByType<ApiHelper>().gameObject
+            //            .GetComponent<FavoriteSongController>()
+            //            .GetMemberFavoriteSongCoroutine(new FavoriteSongFilter() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)) },
+            //                                            FavoriteSongOrderFilter.SongId,
+            //                                            new PagingRequest(),
+            //                                            (list) => { favoriteSongList = list.Results; 
+            //                                                //UpdateSearchSongUI(); 
+            //                                            },
+            //                                            (ex) => Debug.LogError(ex));
 
             //Load song from devide
         }
@@ -98,10 +98,10 @@ namespace KOK
             {
                 songListSearch = songList;
             }
-            if (favToggle.isOn)
-            {
-                songListSearch = songListSearch.Where(s => favoriteSongList.FirstOrDefault(f => f.SongId == s.SongId) != null).ToList();
-            }
+            //if (favToggle.isOn)
+            //{
+            //    songListSearch = songListSearch.Where(s => favoriteSongList.FirstOrDefault(f => f.SongId == s.SongId) != null).ToList();
+            //}
             foreach (Transform child in searchSongPanelContent.transform)
             {
                 Destroy(child.gameObject);
@@ -114,15 +114,15 @@ namespace KOK
                     songHolder.name = song.SongName;
                     songHolder.GetComponentInChildren<SongBinding>().BindingData(song);
                     songHolder.transform.GetChild(0).name = song.SongId.ToString();
-                    var favToggle = songHolder.transform.Find("FavouriteToggle").GetComponent<Toggle>();
-                    if (favoriteSongList.FirstOrDefault(f => f.SongId == song.SongId) != null)
-                    {
-                        favToggle.isOn = true;
-                    }
-                    else
-                    {
-                        favToggle.isOn = false;
-                    }
+                    //var favToggle = songHolder.transform.Find("FavouriteToggle").GetComponent<Toggle>();
+                    //if (favoriteSongList.FirstOrDefault(f => f.SongId == song.SongId) != null)
+                    //{
+                    //    favToggle.isOn = true;
+                    //}
+                    //else
+                    //{
+                    //    favToggle.isOn = false;
+                    //}
                 }
                 catch { }
             }
@@ -206,17 +206,17 @@ namespace KOK
         public void RefreshFavSongList()
         {
             //StartCoroutine(LoadFavoriteSong());
-            favoriteSongList = new();
-            FindAnyObjectByType<ApiHelper>().gameObject
-                        .GetComponent<FavoriteSongController>()
-                        .GetMemberFavoriteSongCoroutine(new FavoriteSongFilter() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)) },
-                                                        FavoriteSongOrderFilter.SongId,
-                                                        new PagingRequest(),
-                                                        (list) => {
-                                                            favoriteSongList = list.Results;
-                                                            UpdateSearchSongUI();
-                                                        },
-                                                        (ex) => Debug.LogError(ex));
+            //favoriteSongList = new();
+            //FindAnyObjectByType<ApiHelper>().gameObject
+            //            .GetComponent<FavoriteSongController>()
+            //            .GetMemberFavoriteSongCoroutine(new FavoriteSongFilter() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)) },
+            //                                            FavoriteSongOrderFilter.SongId,
+            //                                            new PagingRequest(),
+            //                                            (list) => {
+            //                                                favoriteSongList = list.Results;
+            //                                                UpdateSearchSongUI();
+            //                                            },
+            //                                            (ex) => Debug.LogError(ex));
         }
         private void CreateRecording()
         {

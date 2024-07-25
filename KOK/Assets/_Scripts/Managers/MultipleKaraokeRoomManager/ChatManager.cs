@@ -1,5 +1,6 @@
 using Fusion;
 using KOK.Assets._Scripts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,11 +72,11 @@ namespace KOK
         {
             if (runner.ActivePlayers.Count() > 1)
             {
-                RPC_SendMessage(runner,$"{message}");
+                RPC_SendMessage(runner,$"{message}\n");
             }
             else
             {
-                CallMessageOnly1Player($"{message}");
+                CallMessageOnly1Player($"{message}\n");
             }
         }
 
@@ -83,22 +84,25 @@ namespace KOK
         {
             if (runner.ActivePlayers.Count() > 1)
             {
-                RPC_SendMessage(runner,$"{username}: {message}");
+                RPC_SendMessage(runner,$"{username}: {message}\n");
             }
             else
             {
-                CallMessageOnly1Player($"{username}: {message}");
+                CallMessageOnly1Player($"{username}: {message}\n");
             }
         }
         public void CallMessageOnly1Player(string message)
         {
-            messageTMP.text += $"{message}\n";
+            Debug.LogError(message);
+            messageTMP.text += $"{message}";
+            runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().UpdateRoomLog($"[{DateTime.Now}] {message}");
         }
 
         [Rpc(RpcSources.All, RpcTargets.All)]
         public static void RPC_SendMessage(NetworkRunner runner, string message)
         {
-            messageTMPP.text += $"{message}\n";
+            messageTMPP.text += $"{message}";
+            runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().UpdateRoomLog($"{message}");
         }
     }
 }
