@@ -68,9 +68,16 @@ namespace KOK
                 BuySongButton.AddEventListener(songParam, OnBuySongClick);
             }
 
-            FavoriteSongToggle.isOn = true;
-            ToggleSwapSprite.ToggleSprite();
+            TurnFavoriteToggleOn();
 
+            var favoriteSongParam = new ExtendedFavoriteSongParam()
+            {
+                SongId = (Guid)FavoriteSong.SongId,
+                SongName = FavoriteSong.SongName,
+                IsFavorited = true,
+                FavoriteSongItem = gameObject
+            };
+            FavoriteSongToggle.AddEventListener(favoriteSongParam, OnFavoriteButtonToggle);
         }
 
         public void OnPlaySongClick(string songUrl)
@@ -83,5 +90,22 @@ namespace KOK
         {
             Debug.Log($"[Favorite Songs] Member buy song [{song.SongName}] with ID [{song.SongId}] cost [{song.Price}] UP.");
         }
+
+        public void OnFavoriteButtonToggle(ExtendedFavoriteSongParam song, bool isOn)
+        {
+            Debug.Log($"[Favorite Songs] Toggle: {isOn}, song ID: {song.SongId}, song name: {song.SongName}, is favorited: {song.IsFavorited}");
+            FindFirstObjectByType<FavoriteSongHandler>().OnFavoriteSongToggle(isOn, song);
+        }
+
+        public void TurnFavoriteToggleOn()
+        {
+            FavoriteSongToggle.isOn = true;
+            ToggleSwapSprite.ToggleSprite();
+        }
+    }
+
+    public class ExtendedFavoriteSongParam : FavoriteSongParam
+    {
+        public GameObject FavoriteSongItem { get; set; } = null;
     }
 }

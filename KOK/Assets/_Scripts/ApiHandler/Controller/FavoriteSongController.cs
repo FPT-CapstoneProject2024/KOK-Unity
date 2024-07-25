@@ -79,7 +79,6 @@ namespace KOK.ApiHandler.Controller
         public void RemoveFavoriteSongCoroutine(RemoveFavoriteSongRequest request, Action<string> onSuccess, Action<string> onError)
         {
             var query = $"?MemberId={request.MemberId}&SongId={request.SongId}";
-            Debug.Log(query);
             var url = favoriteSongsResourceUrl + query;
             ApiHelper.Instance.DeleteCoroutine(url,
                 (successValue) =>

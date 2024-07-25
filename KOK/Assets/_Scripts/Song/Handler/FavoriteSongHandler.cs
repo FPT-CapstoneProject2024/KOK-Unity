@@ -185,5 +185,44 @@ namespace KOK
         {
             songPreviewCanvas.GetComponent<PreviewSongHandler>().OnOpenPreviewSong(songUrl);
         }
+
+        public void OnFavoriteSongToggle(bool isOn, ExtendedFavoriteSongParam favoriteSongParam)
+        {
+            if (!isOn)
+            {
+                HandleDeleteFavoriteSong(favoriteSongParam);
+            }
+        }
+
+        private void HandleDeleteFavoriteSong(ExtendedFavoriteSongParam favoriteSongParam)
+        {
+            if (favoriteSongParam == null || !favoriteSongParam.IsFavorited)
+            {
+                Debug.Log("[Favorite Songs] Failed to delete favorite song - Invalid param");
+                return;
+            }
+            string accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
+            if (string.IsNullOrEmpty(accountId))
+            {
+                Debug.Log("[Favorite Songs] Failed to delete favorite song - Player ID not found");
+                return;
+            }
+            var request = new RemoveFavoriteSongRequest()
+            {
+                MemberId = Guid.Parse(accountId),
+                SongId = favoriteSongParam.SongId,
+            };
+            ApiHelper.Instance.GetComponent<FavoriteSongController>().RemoveFavoriteSongCoroutine(request,
+                (successValue) =>
+                {
+                    Debug.Log("[Favorite Songs] Successfully delete favorite song");
+                    Destroy(favoriteSongParam.FavoriteSongItem);
+                },
+                (errorValue) =>
+                {
+                    Debug.Log("[Favorite Songs] Failed to delete favorite song - Error api call");
+                    favoriteSongParam.FavoriteSongItem.GetComponent<FavoriteSongItemBinding>().TurnFavoriteToggleOn();
+                });
+        }
     }
 }

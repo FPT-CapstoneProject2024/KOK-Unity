@@ -219,7 +219,7 @@ namespace KOK.ApiHandler.Utilities
                 }
                 else
                 {
-                    onError?.Invoke(webRequest.result.ToString());
+                    onSuccess?.Invoke(webRequest.result.ToString());
                 }
             }
         }
