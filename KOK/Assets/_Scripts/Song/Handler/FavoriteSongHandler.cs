@@ -1,5 +1,4 @@
-﻿using Fusion;
-using KOK.ApiHandler.Controller;
+﻿using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using System;
@@ -7,11 +6,10 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Video;
 
 namespace KOK
 {
-    public class SongHandler : MonoBehaviour
+    public class FavoriteSongHandler : MonoBehaviour
     {
         [Header("Components")]
         [SerializeField] public GameObject songContainer;
@@ -26,33 +24,47 @@ namespace KOK
         [Header("Preview Components")]
         [SerializeField] public GameObject songPreviewCanvas;
 
-        private SongFilter filter;
+        private FavoriteSongFilter filter;
         private int currentPage = 1;
         private int totalPage = 1;
         private string searchKeyword = string.Empty;
-        private List<SongDetail> songDetails = new List<SongDetail>();
 
         private void OnEnable()
         {
             SetInitialState();
-            LoadSongs();
+            LoadFavoriteSongs();
         }
 
-        public void LoadSongs()
+        void Start()
         {
-            string accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
-            ApiHelper.Instance.GetComponent<SongController>().GetSongsFilterPagingCoroutine(!string.IsNullOrEmpty(accountId) ? accountId : Guid.Empty.ToString(), filter, SongOrderFilter.SongName, new PagingRequest()
-            {
-                page = currentPage,
-            }, OnLoadSongSuccess, OnLoadSongError);
+            //SetInitialState();
         }
 
-        public void OnLoadSongSuccess(DynamicResponseResult<SongDetail> responseResult)
+        public void LoadFavoriteSongs()
+        {
+            try
+            {
+                var controller = ApiHelper.Instance.gameObject.GetComponent<FavoriteSongController>();
+                controller.GetMemberFavoriteSongFilterCoroutine(filter, FavoriteSongOrderFilter.SongId, new PagingRequest()
+                {
+                    page = currentPage,
+                }, OnLoadSongSuccess, OnLoadSongError);
+
+            }
+            catch (Exception ex)
+            {
+                Debug.Log(ex.Message);
+                throw;
+            }
+            
+        }
+
+        public void OnLoadSongSuccess(DynamicResponseResult<FavoriteSong> responseResult)
         {
             ClearContainer();
             if (responseResult.Results == null || responseResult.Results.Count == 0)
             {
-                SetSongMessage("Không tìm thấy bài hát");
+                SetSongMessage("Không tìm thấy bài hát yêu thích");
                 pagingDisplay.text = $"{0}/{0}";
                 return;
             }
@@ -61,10 +73,10 @@ namespace KOK
             SpawnSongItem(responseResult.Results);
         }
 
-        public void OnLoadSongError(DynamicResponseResult<SongDetail> responseResult)
+        public void OnLoadSongError(DynamicResponseResult<FavoriteSong> responseResult)
         {
             ClearContainer();
-            SetSongMessage("Không tìm thấy bài hát");
+            SetSongMessage("Không tìm thấy bài hát yêu thích");
             pagingDisplay.text = $"{0}/{0}";
         }
 
@@ -84,26 +96,26 @@ namespace KOK
             }
         }
 
-        private void SpawnSongItem(List<SongDetail> songs)
+        private void SpawnSongItem(List<FavoriteSong> songs)
         {
             GameObject newSongItem;
             for (int i = 0; i < songs.Count; i++)
             {
                 newSongItem = Instantiate(songItemTemplate, songContainer.transform);
-                newSongItem.GetComponent<SongItemBinding>().BindData(songs[i]);
+                newSongItem.GetComponent<FavoriteSongItemBinding>().BindData(songs[i]);
             }
         }
 
         public void OnPreviousPageClick()
         {
             currentPage--;
-            LoadSongs();
+            LoadFavoriteSongs();
         }
 
         public void OnNextPageClick()
         {
             currentPage++;
-            LoadSongs();
+            LoadFavoriteSongs();
         }
 
         private void EnableButton(Button button)
@@ -118,7 +130,7 @@ namespace KOK
             button.gameObject.GetComponent<Image>().color = Color.gray;
         }
 
-        private void SetPagingData(DynamicResponseResult<SongDetail> responseResult)
+        private void SetPagingData(DynamicResponseResult<FavoriteSong> responseResult)
         {
             totalPage = (int)Math.Ceiling(responseResult.Metadata.Total / (double)responseResult.Metadata.Size);
             // Previous
@@ -148,14 +160,18 @@ namespace KOK
             currentPage = 1;
             searchKeyword = searchInput.text;
             filter.SongName = searchKeyword;
-            LoadSongs();
+            LoadFavoriteSongs();
         }
 
         public void SetInitialState()
         {
             currentPage = 1;
             totalPage = 1;
-            filter = new SongFilter();
+            var accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
+            filter = new FavoriteSongFilter() 
+            {
+                MemberId = string.IsNullOrEmpty(accountId) ? Guid.Empty : Guid.Parse(accountId),
+            };
             searchKeyword = string.Empty;
             searchInput.text = searchKeyword;
             ClearContainer();
@@ -163,82 +179,11 @@ namespace KOK
             DisableButton(previousButton);
             DisableButton(nextButton);
             pagingDisplay.text = $"{0}/{0}";
-            songDetails.Clear();
         }
 
         public void StartPreviewSong(string songUrl)
         {
             songPreviewCanvas.GetComponent<PreviewSongHandler>().OnOpenPreviewSong(songUrl);
-        }
-
-        public void OnFavoriteSongToggle(bool isOn, FavoriteSongParam favoriteSongParam)
-        {
-            if (isOn)
-            {
-                HandleAddFavoriteSong(favoriteSongParam);
-            }
-            else
-            {
-                HandleDeleteFavoriteSong(favoriteSongParam);
-            }
-        }
-
-        private void HandleAddFavoriteSong(FavoriteSongParam favoriteSongParam)
-        {
-            if (favoriteSongParam == null || favoriteSongParam.IsFavorited)
-            {
-                Debug.Log("[All Songs] Failed to add favorite song");
-                return;
-            }
-            string accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
-            if (string.IsNullOrEmpty(accountId))
-            {
-                Debug.Log("[All Songs] Failed to add favorite song - Player ID not found");
-                return;
-            }
-            var request = new AddFavoriteSongRequest()
-            {
-                MemberId = Guid.Parse(accountId),
-                SongId = favoriteSongParam.SongId,
-            };
-            ApiHelper.Instance.GetComponent<FavoriteSongController>().AddFavoriteSongCoroutine(request,
-                (successValue) =>
-                {
-                    Debug.Log("[All Songs] Successfully add favorite song");
-                },
-                (errorValue) =>
-                {
-                    Debug.Log("[All Songs] Failed to add favorite song - Error api call");
-                });
-        }
-
-        private void HandleDeleteFavoriteSong(FavoriteSongParam favoriteSongParam)
-        {
-            if (favoriteSongParam == null || !favoriteSongParam.IsFavorited)
-            {
-                Debug.Log("[All Songs] Failed to delete favorite song - Invalid param");
-                return;
-            }
-            string accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
-            if (string.IsNullOrEmpty(accountId))
-            {
-                Debug.Log("[All Songs] Failed to delete favorite song - Player ID not found");
-                return;
-            }
-            var request = new RemoveFavoriteSongRequest()
-            {
-                MemberId = Guid.Parse(accountId),
-                SongId = favoriteSongParam.SongId,
-            };
-            ApiHelper.Instance.GetComponent<FavoriteSongController>().RemoveFavoriteSongCoroutine(request,
-                (successValue) =>
-                {
-                    Debug.Log("[All Songs] Successfully delete favorite song");
-                },
-                (errorValue) =>
-                {
-                    Debug.Log("[All Songs] Failed to delete favorite song - Error api call");
-                });
         }
     }
 }

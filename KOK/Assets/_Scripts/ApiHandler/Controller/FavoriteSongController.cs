@@ -12,10 +12,15 @@ namespace KOK.ApiHandler.Controller
     {
         private string favoriteSongsResourceUrl = string.Empty;
 
-        private void Start()
+        private void Awake()
         {
             favoriteSongsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.FavoriteSongs_Resource;
         }
+
+        //private void Start()
+        //{
+        //    favoriteSongsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.FavoriteSongs_Resource;
+        //}
 
         private void Update()
         {
@@ -125,6 +130,23 @@ namespace KOK.ApiHandler.Controller
             queryParams.Add(nameof(orderFilter), orderFilter.ToString());
 
             return queryParams;
+        }
+
+        public void GetMemberFavoriteSongFilterCoroutine(FavoriteSongFilter filter, FavoriteSongOrderFilter orderFilter, PagingRequest paging, Action<DynamicResponseResult<FavoriteSong>> onSuccess, Action<DynamicResponseResult<FavoriteSong>> onError)
+        {
+            var queryParams = GenerateFavoriteSongQueryParams(filter, orderFilter, paging);
+            var url = QueryHelper.BuildUrl(favoriteSongsResourceUrl + "/filter", queryParams);
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<FavoriteSong>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<FavoriteSong>>(errorValue);
+                    onError?.Invoke(result);
+                });
         }
     }
 }

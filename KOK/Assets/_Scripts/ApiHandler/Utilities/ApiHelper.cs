@@ -5,10 +5,14 @@ using System.Collections;
 using System.Net.Http;
 using System.Threading.Tasks;
 using UnityEngine;
-using KOK.ApiHandler.DTOModels;
+using KOK.ApiHandler.Controller;
 
 namespace KOK.ApiHandler.Utilities
 {
+    [RequireComponent(typeof(FavoriteSongController))]
+    [RequireComponent(typeof(SongController))]
+    [RequireComponent(typeof(AccountController))]
+    [RequireComponent(typeof(AuthenticationController))]
     /// <summary>
     /// A singleton helper class to handle API calls in Unity.
     /// </summary>
@@ -20,7 +24,6 @@ namespace KOK.ApiHandler.Utilities
         private void Start()
         {
             jwtToken = string.Empty;
-            //loginData = null;
         }
 
         /// <summary>

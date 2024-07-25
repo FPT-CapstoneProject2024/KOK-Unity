@@ -18,6 +18,17 @@ namespace KOK
         }
     }
 
+    public static class ToggleExtension
+    {
+        public static void AddEventListener<T>(this Toggle toggle, T param, Action<T, bool> OnValueChanged)
+        {
+            toggle.onValueChanged.AddListener((bool isOn) =>
+            {
+                OnValueChanged(param, isOn);
+            });
+        }
+    }
+
     public class SongItemBinding : MonoBehaviour
     {
         [Header("Components")]
@@ -72,6 +83,7 @@ namespace KOK
                     SongId = (Guid)SongDetail.SongId,
                     SongName = SongDetail.SongName,
                     Price = SongDetail.Price,
+                    IsPurchased = SongDetail.isPurchased,
                 };
                 BuySongButton.AddEventListener(songParam, OnBuySongClick);
             }
@@ -86,6 +98,13 @@ namespace KOK
                 FavoriteSongToggle.isOn = false;
                 ToggleSwapSprite.ToggleSprite();
             }
+            var favoriteSongParam = new FavoriteSongParam()
+            {
+                SongId = (Guid)SongDetail.SongId,
+                SongName = SongDetail.SongName,
+                IsFavorited = SongDetail.isFavorite,
+            };
+            FavoriteSongToggle.AddEventListener(favoriteSongParam, OnFavoriteButtonToggle);
         }
 
         public void OnPlaySongClick(string songUrl)
@@ -98,6 +117,12 @@ namespace KOK
         {
             Debug.Log($"Member buy song [{song.SongName}] with ID [{song.SongId}] cost [{song.Price}] UP.");
         }
+
+        public void OnFavoriteButtonToggle(FavoriteSongParam song, bool isOn)
+        {
+            Debug.Log($"[All Songs] Toggle: {isOn}, song ID: {song.SongId}, song name: {song.SongName}, is favorited: {song.IsFavorited}");
+            FindFirstObjectByType<SongHandler>().OnFavoriteSongToggle(isOn, song);
+        }
     }
 
     public class BuySongParam
@@ -105,5 +130,13 @@ namespace KOK
         public Guid SongId { get; set; }
         public string SongName { get; set; }
         public decimal Price { get; set; }
+        public bool IsPurchased { get; set; }
+    }
+
+    public class FavoriteSongParam
+    {
+        public Guid SongId { get; set; }
+        public string SongName { get; set; }
+        public bool IsFavorited { get; set; }
     }
 }

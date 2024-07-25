@@ -11,5 +11,8 @@ namespace KOK.ApiHandler.DTOModels
         public List<string> Singers { get; set; }
         public List<string> Artists { get; set; }
         public List<string> Genres { get; set; }
+        public string SongUrl { get; set; } = string.Empty;
+        public decimal Price { get; set; } = 0;
+        public bool IsPurchased { get; set; } = false;
     }
 }
