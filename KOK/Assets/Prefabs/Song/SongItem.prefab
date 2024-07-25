@@ -125,7 +125,6 @@ GameObject:
   - component: {fileID: 2471211154133913431}
   - component: {fileID: 654085821570355761}
   - component: {fileID: 2984850474273811452}
-  - component: {fileID: 3821153972627126337}
   - component: {fileID: 4154885640067101307}
   m_Layer: 5
   m_Name: SongItem
@@ -204,20 +203,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3821153972627126337
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2234125000376400846}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb2371f84b6bc9b47ac5a4c5fe072699, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _popUpPrefab: {fileID: 6140844574200421352, guid: b2bbcb52fe4d5df40ad17f819469c9cf, type: 3}
-  _originalItem: {fileID: 2234125000376400846}
 --- !u!114 &4154885640067101307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237,6 +222,8 @@ MonoBehaviour:
   SongPrice: {fileID: 7210266851459112921}
   BuySongButton: {fileID: 1967806804588047753}
   PlaySongButton: {fileID: 6488076685068616458}
+  ToggleSwapSprite: {fileID: 8957149774217352844}
+  FavoriteSongToggle: {fileID: 4393934610704704547}
 --- !u!1 &2972444258285131436
 GameObject:
   m_ObjectHideFlags: 0
