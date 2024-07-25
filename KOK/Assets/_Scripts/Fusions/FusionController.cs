@@ -89,7 +89,7 @@ namespace KOK
 
         public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data)
         {
-            FusionManager.Instance?.OnReliableDataReceived(runner, player, key, data);  
+            FusionManager.Instance?.OnReliableDataReceived(runner, player, key, data);
         }
 
         public void OnSceneLoadDone(NetworkRunner runner)
@@ -118,6 +118,6 @@ namespace KOK
         }
 
 
-        
+
     }
 }

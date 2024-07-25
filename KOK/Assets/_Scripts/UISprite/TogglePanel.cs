@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,18 +15,28 @@ namespace KOK
 
         void Start()
         {
-            ToggleOnOffPanel();
+            var tmp = new List<TogglePanel>();
+            foreach (var panel in _groupTogglePanel) { tmp.Add(panel); }
+            foreach (TogglePanel togglePanel in tmp)
+            {
+                if (togglePanel == this)
+                {
+                    _groupTogglePanel.Remove(togglePanel);
+                }
+            }
+            ToggleOffPanel();
+            
         }
 
         public void ToggleOnOffPanel()
-        {
-            foreach (var togglePanel in _groupTogglePanel)
-            {
-                if (togglePanel != this) { togglePanel.ToggleOffPanel(); }
-
-            }
+        {            
             if (_toggle.isOn)
             {
+                foreach (var togglePanel in _groupTogglePanel)
+                {
+                    if (togglePanel != this) { togglePanel.ToggleOffPanel(); }
+
+                }
                 _panel.SetActive(true);
             }
             else if (!_toggle.isOn)
