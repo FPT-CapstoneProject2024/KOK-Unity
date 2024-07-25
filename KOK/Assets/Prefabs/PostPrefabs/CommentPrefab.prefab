@@ -109,8 +109,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 103.93, y: -32.1}
-  m_SizeDelta: {x: 116.58, y: 18.59}
+  m_AnchoredPosition: {x: 140.05548, y: -32.1}
+  m_SizeDelta: {x: 188.8311, y: 18.59}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1700806595230408772
 CanvasRenderer:
@@ -142,8 +142,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: We Need to Go Deeper
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: baa35b93a08cd1244965d5e8f161aff3, type: 2}
-  m_sharedMaterial: {fileID: -7449650586197744771, guid: baa35b93a08cd1244965d5e8f161aff3, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 51c6cf4636036ca4b8466426e70b415a, type: 2}
+  m_sharedMaterial: {fileID: -7449650586197744771, guid: 51c6cf4636036ca4b8466426e70b415a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -175,7 +175,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -354,8 +354,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Achievement Made!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: baa35b93a08cd1244965d5e8f161aff3, type: 2}
-  m_sharedMaterial: {fileID: -7449650586197744771, guid: baa35b93a08cd1244965d5e8f161aff3, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 51c6cf4636036ca4b8466426e70b415a, type: 2}
+  m_sharedMaterial: {fileID: -7449650586197744771, guid: 51c6cf4636036ca4b8466426e70b415a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
