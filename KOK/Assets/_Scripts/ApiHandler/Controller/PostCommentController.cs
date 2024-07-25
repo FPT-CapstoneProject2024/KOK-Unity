@@ -38,7 +38,7 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
 
         public async Task<List<PostComment?>> GetPostCommentsByPostIdAsync(Guid postId)
         {
-            var url = postCommentResourceUrl + "?" + postId.ToString();
+            var url = postCommentResourceUrl + "?PostId=" + postId.ToString();
             var jsonResult = await ApiHelper.Instance.GetAsync(url);
 
             if (string.IsNullOrEmpty(jsonResult))
@@ -49,6 +49,54 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
             ResponseResult<List<PostComment>> result = JsonConvert.DeserializeObject<ResponseResult<List<PostComment>>>(jsonResult);
 
             return result?.Value?.ToList();
+        }
+
+        public void GetPostCommentsByPostIdCoroutine(Guid postId, Action<List<PostComment>> onSuccess, Action<string> onError)
+        {
+            // Validate PostComment ID
+            if (postId == null)
+            {
+                Debug.Log("Failed to get PostComment by ID. PostComment ID is null!");
+                return;
+            }
+
+            // Prepare and send api request
+            var url = postCommentResourceUrl + "?PostId=" + postId.ToString();
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<PostComment>>(successValue);
+                    onSuccess?.Invoke(result.Results);
+                },
+                (errorValue) =>
+                {
+                    //Debug.LogError($"Error when trying to retrieve an PostComment by ID [{postId.ToString()}]: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
+        }
+
+        public void GetPostRepliesByCommentIdCoroutine(Guid postId, Action<List<PostComment>> onSuccess, Action<string> onError)
+        {
+            // Validate PostComment ID
+            if (postId == null)
+            {
+                Debug.Log("Failed to get PostComment by ID. PostComment ID is null!");
+                return;
+            }
+
+            // Prepare and send api request
+            var url = postCommentResourceUrl + "?ParentCommentId=" + postId.ToString();
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<PostComment>>(successValue);
+                    onSuccess?.Invoke(result.Results);
+                },
+                (errorValue) =>
+                {
+                    //Debug.LogError($"Error when trying to retrieve an PostComment by ID [{postId.ToString()}]: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
         }
 
         /*public async Task<PostComment?> CreatePostCommentAsync(CreatePostCommentRequest createPostComment)

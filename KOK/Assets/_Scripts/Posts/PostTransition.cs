@@ -10,6 +10,7 @@ using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Post;
+using System;
 
 namespace KOK
 {
@@ -229,14 +230,14 @@ namespace KOK
             UpdateMemberDisplay();
         }
 
-        private async Task LoadCommentsForCurrentPost()
+        private void LoadCommentsForCurrentPost()
         {
             if (postCommentLoader != null)
             {
                 string currentPostId = GetCurrentPostId();
                 if (!string.IsNullOrEmpty(currentPostId))
                 {
-                    await postCommentLoader.LoadPostCommentsAsync(currentPostId);
+                    postCommentLoader.GetPostComment(Guid.Parse(currentPostId));
                 }
             }
         }

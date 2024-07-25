@@ -14,6 +14,8 @@ using KOK.Assets._Scripts.ApiHandler.Controller;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.PostComment;
 using System.Threading.Tasks;
 using System;
+using Unity.VisualScripting;
+using UnityEngine.UI;
 
 namespace KOK
 {
@@ -21,62 +23,59 @@ namespace KOK
     {
         private List<Post> postList = new List<Post>();
         private List<PostComment> postCommentList = new List<PostComment>();
-        //private string postRateBaseUrl = "https://localhost:7017/api/postRates";
+        private List<PostComment> postReplyList = new List<PostComment>();
         private string postCommentsResourceUrl = string.Empty;
         public GameObject displayPanel;
-        public GameObject displayPrefab;
+        public GameObject parentCommentPrefab;
+        public GameObject childCommentDisplayContent;
+        public GameObject childCommentPrefab;
+        //public GameObject childCommentDisplayPanel;
+        public GameObject fullDisplayPanel;
+        public GameObject fullDisplayContent;
+        public GameObject replyPrefab;
         private int currentPostIndex = 0;
 
         void Start()
         {
-            //StartCoroutine(GetPostComments(postRateBaseUrl, "83096D27-3238-4D2D-A6B0-3F2D009DFA14"));
             postCommentsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.PostComments_Resource;
         }
 
-        /*public void StartLoadingPostComments(string postId)
+
+        /* public void GetCommentsFilterPaging()
+         {
+             postCommentList.Clear();
+             FindAnyObjectByType<ApiHelper>().gameObject
+                 .GetComponent<PostCommentController>()
+                 .GetPostCommentsFilterPagingCoroutine(new PostCommentFilter(),
+                                                     new PostCommentOrderFilter(),
+                                                     new PagingRequest(),
+                                                     CommentsGenerate,
+                                                     OnError
+                 );
+         }*/
+
+        public void GetPostComment(Guid postId)
         {
-            GetPostCommentsAsync
-        }*/
-
-        /*IEnumerator GetPostComments(string url, string id)
-        {
-            string reqUrl = $"{url}/{id}";
-            UnityWebRequest request = UnityWebRequest.Get(reqUrl);
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                string response = request.downloadHandler.text;
-                var responseObject = JsonConvert.DeserializeObject<PostRateResponseObject>(response);
-                var postRates = responseObject.Value;
-
-                postRateList.Clear();
-                postRateList.AddRange(postRates);
-
-                CommentsGenerate();
-                Debug.Log(response);
-            }
-            else
-            {
-                Debug.LogError(request.error);
-            }
-        }*/
-
-        /*public void GetCommentsFilterPaging()
-        {
-            postCommentList = new();
             FindAnyObjectByType<ApiHelper>().gameObject
                 .GetComponent<PostCommentController>()
-                .GetPostCommentsFilterPagingCoroutine(  new PostCommentFilter(),
-                                                    new PostCommentOrderFilter(),
-                                                    new PagingRequest(),
-                                                    CommentsGenerate,
+                .GetPostCommentsByPostIdCoroutine(postId,
+                                            ParentCommentsGenerate,
+                                            OnError
+                );
+        }
+
+        public void GetReplies(Guid commentId)
+        {
+            postReplyList.Clear();
+            FindAnyObjectByType<ApiHelper>().gameObject
+                .GetComponent<PostCommentController>()
+                .GetPostRepliesByCommentIdCoroutine(commentId,
+                                                    ChildCommentsGenerate,
                                                     OnError
                 );
-        }*/
+        }
 
-        void CommentsGenerate(List<PostComment> postCommentList)
+        void ParentCommentsGenerate(List<PostComment> postCommentList)
         {
             foreach (Transform child in displayPanel.transform)
             {
@@ -85,34 +84,125 @@ namespace KOK
 
             foreach (PostComment postComment in postCommentList)
             {
-                GameObject gameObj = Instantiate(displayPrefab, displayPanel.transform);
-                gameObj.transform.GetChild(1).GetComponent<TMP_Text>().text = postComment.MemberId.ToString();
-                gameObj.transform.GetChild(2).GetComponent<TMP_Text>().text = postComment.Comment;
+                if (postComment.CommentType.Equals(PostCommentType.PARENT))
+                {
+                    GameObject parentCommentObj = Instantiate(parentCommentPrefab, displayPanel.transform);
+                    parentCommentObj.transform.GetChild(1).GetComponent<TMP_Text>().text = postComment.MemberId.ToString();
+                    parentCommentObj.transform.GetChild(2).GetComponent<TMP_Text>().text = TruncateComment(postComment.Comment);
+                    parentCommentObj.GetComponent<Button>().onClick.AddListener(delegate ()
+                    {
+                        OpenComment(postComment.MemberId, postComment.Comment, postComment.CommentId.Value);
+                    });
+                    //commentObjects[postComment.CommentId.Value] = parentCommentObj;
+                }
             }
         }
 
-        public async Task LoadPostCommentsAsync(string postId)
+        void ChildCommentsGenerate(List<PostComment> postCommentList)
         {
-            PostCommentController postCommentController = FindAnyObjectByType<ApiHelper>().gameObject.GetComponent<PostCommentController>();
-
-            List<PostComment> postComments = await postCommentController.GetPostCommentsByPostIdAsync(Guid.Parse(postId));
-
-            //GetPostMember(postComment.MemberId.Value);
-            CommentsGenerate(postComments);
+            foreach (PostComment postComment in postCommentList)
+            {
+                if (postComment.CommentType.Equals(PostCommentType.CHILD))
+                {
+                    GenerateFullComment(postComment.MemberId, postComment.Comment, childCommentDisplayContent, true, replyPrefab);
+                    //GameObject childCommentObj = Instantiate(childCommentPrefab, childCommentDisplayPanel.transform);
+                    //GenerateFullComment(childCommentObj, postComment);
+                    /*childCommentObj.transform.GetChild(1).GetComponent<TMP_Text>().text = postComment.MemberId.ToString();
+                    childCommentObj.transform.GetChild(2).GetComponent<TMP_Text>().text = TruncateComment(postComment.Comment);
+                    childCommentObj.GetComponent<Button>().onClick.AddListener(delegate ()
+                    {
+                        OpenComment(childCommentObj, postComment.Comment);
+                    });  */                  
+                }
+            }
         }
 
         private void OnError(string error)
         {
+            foreach (Transform child in displayPanel.transform)
+            {
+                Destroy(child.gameObject);
+            }
             Debug.LogError(error);
         }
+
+        private string TruncateComment(string comment)
+        {
+            if (comment.Length > 64)
+            {
+                return comment.Substring(0, 61) + " ...";
+            }
+            return comment;
+        }
+
+        private void OpenComment(Guid memberId, string fullText, Guid commentId)
+        {
+            fullDisplayPanel.SetActive(true);
+
+            GenerateFullComment(memberId, fullText, fullDisplayContent, false, childCommentPrefab);
+
+            // Generate replies
+            GetReplies(commentId);
+        }
+
+        private void GenerateFullComment(Guid memberId, string fullText, GameObject displayContent, bool isChild, GameObject prefab)
+        {
+            if (isChild)
+            {
+                GameObject fullDisplayObj = Instantiate(prefab, displayContent.transform);
+
+                TMP_Text nameTMP = fullDisplayObj.transform.GetChild(0).transform.GetChild(1).GetComponent<TMP_Text>();
+                TMP_Text commentTMP = fullDisplayObj.transform.GetChild(0).transform.GetChild(2).GetComponent<TMP_Text>();
+
+                nameTMP.text = memberId.ToString();
+                commentTMP.text = fullText;
+
+                RectTransform rectTransform = fullDisplayObj.GetComponent<RectTransform>();
+                RectTransform rectTransform2 = fullDisplayObj.transform.GetChild(0).GetComponent<RectTransform>();
+
+                // Calculate the preferred height of the text
+                commentTMP.enableWordWrapping = true;
+                commentTMP.ForceMeshUpdate();
+                float preferredHeight = commentTMP.GetPreferredValues().y + 30;
+
+                if(preferredHeight < 51f)
+                {
+                    preferredHeight = 51f;
+                }
+                // Adjust the RectTransform size to fit the full comment
+                rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, preferredHeight);
+                rectTransform2.sizeDelta = new Vector2(rectTransform2.sizeDelta.x, preferredHeight);
+
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform2);
+            }
+            else
+            {
+                GameObject fullDisplayObj = Instantiate(prefab, displayContent.transform);
+
+                TMP_Text nameTMP = fullDisplayObj.transform.GetChild(1).GetComponent<TMP_Text>();
+                TMP_Text commentTMP = fullDisplayObj.transform.GetChild(2).GetComponent<TMP_Text>();
+
+                nameTMP.text = memberId.ToString();
+                commentTMP.text = fullText;
+
+                RectTransform rectTransform = fullDisplayObj.GetComponent<RectTransform>();
+
+                // Calculate the preferred height of the text
+                commentTMP.enableWordWrapping = true;
+                commentTMP.ForceMeshUpdate();
+                float preferredHeight = commentTMP.GetPreferredValues().y + 30;
+
+                if (preferredHeight < 51f)
+                {
+                    preferredHeight = 51f;
+                }
+
+                // Adjust the RectTransform size to fit the full comment
+                rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, preferredHeight);
+
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+            }
+        }
     }
-
-    /*public class PostRateResponseObject
-    {
-        public string Message { get; set; }
-        public bool Result { get; set; }
-        public List<PostRate> Value { get; set; }
-    }*/
 }
-
-
