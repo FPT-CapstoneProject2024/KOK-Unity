@@ -318,50 +318,50 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
     {
-        Debug.Log("OnConnectFailed");
+        //Debug.Log("OnConnectFailed");
     }
 
     public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
     {
-        Debug.Log("OnConnectRequest");
+        //Debug.Log("OnConnectRequest");
     }
 
     public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data)
     {
-        Debug.Log("OnCustomAuthenticationResponse");
+        //Debug.Log("OnCustomAuthenticationResponse");
     }
 
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
     {
-        Debug.Log("OnDisconnectedFromServer");
+        //Debug.Log("OnDisconnectedFromServer");
         FindAnyObjectByType<RoomListUpdate>().ClearRoomList();
         createButton.interactable = false;
     }
 
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken)
     {
-        Debug.Log("OnHostMigration");
+        //Debug.Log("OnHostMigration");
     }
 
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
-        Debug.Log("OnInput");
+        //Debug.Log("OnInput");
 
     }
 
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
     {
-        Debug.Log("OnInputMissing");
+        //Debug.Log("OnInputMissing");
     }
 
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
     {
-        Debug.Log("OnObjectEnterAOI");
+        //Debug.Log("OnObjectEnterAOI");
     }
 
     public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
     {
-        Debug.Log("OnObjectExitAOI");
+       // Debug.Log("OnObjectExitAOI");
     }
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
@@ -377,7 +377,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         
         string test = runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0].ToString();
-        Debug.LogError("OnPlayerLeft | " + test);
+        Debug.Log("OnPlayerLeft | " + test);
         runner.GetPlayerObject(runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0]).GetComponent<PlayerNetworkBehavior>().PlayerRole = 0;   
         ParticipantItemHandlerManager.Instance.UpdateParticipantList();
 
@@ -386,27 +386,27 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress)
     {
-        Debug.Log("OnReliableDataProgress");
+        //Debug.Log("OnReliableDataProgress");
     }
 
     public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data)
     {
-        Debug.Log("OnReliableDataReceived");
+        //Debug.Log("OnReliableDataReceived");
     }
 
     public void OnSceneLoadDone(NetworkRunner runner)
     {
-        Debug.Log("OnSceneLoadDone");
+        //Debug.Log("OnSceneLoadDone");
     }
 
     public void OnSceneLoadStart(NetworkRunner runner)
     {
-        Debug.Log("OnSceneLoadStart");
+        //Debug.Log("OnSceneLoadStart");
     }
 
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
     {
-        Debug.Log("OnSessionListUpdated");
+        //Debug.Log("OnSessionListUpdated");
         _roomList = sessionList;
         //roomListDropdown.ClearOptions();
         //roomListDropdown.AddOptions(_roomList.Select(x => x.Name).ToList());
@@ -422,7 +422,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message)
     {
-        Debug.Log("OnUserSimulationMessage");
+        //Debug.Log("OnUserSimulationMessage");
     }
 
     private void OnApplicationPause(bool pause)
@@ -439,7 +439,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     private void AssignHostRoleRandom(NetworkRunner runner)
     {
         int random = Random.Range(0, runner.ActivePlayers.Count() - 1);
-        Debug.LogError(runner.ActivePlayers.Count() +"=========================");
+        //Debug.LogError(runner.ActivePlayers.Count() +"=========================");
         int i = 0;
         foreach (var player in runner.ActivePlayers)
         {

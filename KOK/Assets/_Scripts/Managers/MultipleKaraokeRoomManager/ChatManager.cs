@@ -93,7 +93,7 @@ namespace KOK
         }
         public void CallMessageOnly1Player(string message)
         {
-            Debug.LogError(message);
+            //Debug.LogError(message);
             messageTMP.text += $"{message}";
             runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().UpdateRoomLog($"[{DateTime.Now}] {message}");
         }
