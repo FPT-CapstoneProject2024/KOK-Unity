@@ -136,4 +136,16 @@ namespace KOK.ApiHandler.DTOModels
 
 
     #endregion
+
+    #region PurchasedSong
+
+    public enum PurchasedSongOrderFilter
+    {
+        PurchasedSongId,
+        PurchaseDate,
+        MemberId,
+        SongId,
+    }
+
+    #endregion
 }
