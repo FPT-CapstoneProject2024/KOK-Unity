@@ -4,6 +4,7 @@ using UnityEngine;
 using Photon.Voice.Unity;
 using UnityEngine.UI;
 using Fusion;
+using TMPro;
 
 public class RoomClientController : MonoBehaviour
 {
@@ -11,10 +12,14 @@ public class RoomClientController : MonoBehaviour
     [SerializeField] Toggle echoToggle;
     [SerializeField] Recorder recorder;
 
+
+    public TextMeshProUGUI textMeshProUGUI;
+
     void Start()
     {
         ToggleMic();
         ToggleEcho();
+
     }
 
     public void ToggleMic()
@@ -29,6 +34,32 @@ public class RoomClientController : MonoBehaviour
         }
     }
 
+    public void CheckSinger(bool isSinger)
+    {
+        if (!isSinger)
+        {
+            TurnOffMic();
+            recorder.TransmitEnabled = false;
+            muteToggle.interactable = false;
+        }
+        else
+        {
+            muteToggle.interactable = true;
+            recorder.TransmitEnabled = !muteToggle.isOn;
+        }
+    }
+
+    public void TurnOffMic()
+    {
+        muteToggle.isOn = true;
+        recorder.TransmitEnabled = false;
+    }
+    public void TurnOnMic()
+    {
+        muteToggle.isOn = false;
+        recorder.TransmitEnabled = true;
+    }
+
     public void ToggleEcho()
     {
         if (echoToggle.isOn == true)
@@ -41,14 +72,11 @@ public class RoomClientController : MonoBehaviour
         }
     }
 
-    public static void TestRPC()
+
+    IEnumerator DebugTest()
     {
-
-        RPCVideoPlayerDemo.Rpc_TestPlayerList(FindAnyObjectByType<NetworkRunner>(), 1);
+        yield return new WaitForSeconds(1);
+        textMeshProUGUI.text = "Recorder: " + recorder.TransmitEnabled + " | " + recorder.DebugEchoMode;
+        StartCoroutine(DebugTest());
     }
-
-    //public static void Rpc_PrepareVideo()
-    //{
-    //    RPCVideoPlayerDemo.Rpc_Prepare(FindAnyObjectByType<NetworkRunner>(), 1);
-    //}
 }
