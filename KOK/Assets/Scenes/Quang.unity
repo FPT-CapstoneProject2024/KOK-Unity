@@ -350,8 +350,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -130.78998, y: 225}
-  m_SizeDelta: {x: 261.58, y: 450}
+  m_AnchoredPosition: {x: -130.78998, y: 240}
+  m_SizeDelta: {x: 261.58, y: 480}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &21399009
 MonoBehaviour:
@@ -4498,6 +4498,8 @@ GameObject:
   - component: {fileID: 386117423}
   - component: {fileID: 386117422}
   - component: {fileID: 386117421}
+  - component: {fileID: 386117430}
+  - component: {fileID: 386117429}
   m_Layer: 0
   m_Name: ApiHelper
   m_TagString: Untagged
@@ -4602,6 +4604,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e80f8477cab8c64eaeaf78f5ae016c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &386117429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386117420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa5dc4e04d679874d8c00255bcd8058c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &386117430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386117420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32296dbe32e0e3247a5a719e614dbe6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &390615833
@@ -10087,11 +10113,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6886740146997041452, guid: a9e614860a3803f46bf1c3a1df779d7f, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6886740146997041452, guid: a9e614860a3803f46bf1c3a1df779d7f, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6886740146997041452, guid: a9e614860a3803f46bf1c3a1df779d7f, type: 3}
       propertyPath: m_AnchorMin.y
