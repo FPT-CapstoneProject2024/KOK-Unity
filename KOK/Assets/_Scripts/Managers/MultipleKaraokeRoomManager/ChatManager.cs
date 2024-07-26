@@ -54,8 +54,7 @@ namespace KOK
             {
                 if (!chatInputField.text.IsNullOrEmpty() && ((Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.KeypadEnter))))
                 {
-                    SendMessageAll(playerName, chatInputField.text);
-                    chatInputField.text = "";
+                    SendChat();
                     allowEnter = false;
                 }
             }
@@ -66,6 +65,12 @@ namespace KOK
                     allowEnter = true;
                 }
             }
+        }
+
+        public void SendChat()
+        {
+            SendMessageAll(playerName, chatInputField.text.Trim());
+            chatInputField.text = "";
         }
 
         public void SendMessageAll(string message)

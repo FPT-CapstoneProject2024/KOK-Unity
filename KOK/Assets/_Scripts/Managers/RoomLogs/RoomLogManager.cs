@@ -126,9 +126,14 @@ namespace KOK
 
         IEnumerator PushLogToFirebase()
         {
-            yield return new WaitForSeconds(30f);
+            yield return new WaitForSeconds(60f);
             UploadRoomLogFile();
             StartCoroutine(PushLogToFirebase());
+        }
+
+        public void OnButtonSendChatClick()
+        {
+            ChatManager.Instance.SendChat();
         }
     }
 }
