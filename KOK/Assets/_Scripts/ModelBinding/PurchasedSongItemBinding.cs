@@ -6,19 +6,8 @@ using UnityEngine.UI;
 
 namespace KOK
 {
-    public class PurchasedSongItemBinding : MonoBehaviour
+    public class PurchasedSongItemBinding : SongItemBinding
     {
-        [Header("Components")]
-        [SerializeField] public TMP_Text SongName;
-        [SerializeField] public TMP_Text SongArtist;
-        [SerializeField] public TMP_Text SongSinger;
-        [SerializeField] public TMP_Text SongGenre;
-        [SerializeField] public TMP_Text SongPrice;
-        [SerializeField] public Button BuySongButton;
-        [SerializeField] public Button PlaySongButton;
-        [SerializeField] public ToggleSwapSprite ToggleSwapSprite;
-        [SerializeField] public Toggle FavoriteSongToggle;
-
         public PurchasedSong PurchasedSong;
 
         public void BindData(PurchasedSong purchasedSong)
@@ -56,47 +45,31 @@ namespace KOK
 
             if (PurchasedSong.IsFavorite)
             {
-                FavoriteSongToggle.isOn = true;
-                ToggleSwapSprite.ToggleSprite();
+                TurnFavoriteToggleOn();
             }
             else
             {
-                FavoriteSongToggle.isOn = false;
-                ToggleSwapSprite.ToggleSprite();
+                TurnFavoriteToggleOff();
             }
 
-            var favoriteSongParam = new ExtendedFavoriteSongParam()
+            var favoriteSongParam = new FavoriteSongParam()
             {
                 SongId = PurchasedSong.SongId,
                 SongName = PurchasedSong.SongName,
                 IsFavorited = PurchasedSong.IsFavorite,
-                FavoriteSongItem = gameObject
+                SongItem = gameObject
             };
             FavoriteSongToggle.AddEventListener(favoriteSongParam, OnFavoriteButtonToggle);
         }
 
         public void OnPlaySongClick(string songUrl)
         {
-            Debug.Log("[Purchased Songs] Play song with url: " + songUrl);
             FindFirstObjectByType<PurchasedSongHandler>().StartPreviewSong(songUrl);
         }
 
-        public void OnFavoriteButtonToggle(ExtendedFavoriteSongParam song, bool isOn)
+        public void OnFavoriteButtonToggle(FavoriteSongParam song, bool isOn)
         {
-            Debug.Log($"[Purchased Songs] Toggle: {isOn}, song ID: {song.SongId}, song name: {song.SongName}, is favorited: {song.IsFavorited}");
             FindFirstObjectByType<PurchasedSongHandler>().OnFavoriteSongToggle(isOn, song);
-        }
-
-        public void TurnFavoriteToggleOn()
-        {
-            FavoriteSongToggle.isOn = true;
-            ToggleSwapSprite.ToggleSprite();
-        }
-
-        public void TurnFavoriteToggleOff()
-        {
-            FavoriteSongToggle.isOn = false;
-            ToggleSwapSprite.ToggleSprite();
         }
     }
 }

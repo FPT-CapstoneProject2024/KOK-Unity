@@ -23,6 +23,8 @@ namespace KOK
         [SerializeField] public TMP_InputField searchInput;
         [Header("Preview Components")]
         [SerializeField] public GameObject songPreviewCanvas;
+        [Header("Purchase Components")]
+        [SerializeField] public GameObject songPurchaseCanvas;
 
         private SongFilter filter;
         private int currentPage = 1;
@@ -87,7 +89,7 @@ namespace KOK
             for (int i = 0; i < songs.Count; i++)
             {
                 newSongItem = Instantiate(songItemTemplate, songContainer.transform);
-                newSongItem.GetComponent<SongItemBinding>().BindData(songs[i]);
+                newSongItem.GetComponent<AllSongItemBinding>().BindData(songs[i]);
             }
         }
 
@@ -235,6 +237,11 @@ namespace KOK
                 {
                     Debug.Log("[All Songs] Failed to delete favorite song - Error api call");
                 });
+        }
+
+        public void StartPurchaseSong(BuySongParam buySongParam)
+        {
+            songPurchaseCanvas.GetComponent<SongPurchaseHandler>().ShowPurchaseSongDialog(buySongParam);
         }
     }
 }

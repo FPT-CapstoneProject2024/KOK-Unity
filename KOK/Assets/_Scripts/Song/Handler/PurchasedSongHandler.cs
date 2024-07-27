@@ -172,7 +172,7 @@ namespace KOK
             songPreviewCanvas.GetComponent<PreviewSongHandler>().OnOpenPreviewSong(songUrl);
         }
 
-        public void OnFavoriteSongToggle(bool isOn, ExtendedFavoriteSongParam favoriteSongParam)
+        public void OnFavoriteSongToggle(bool isOn, FavoriteSongParam favoriteSongParam)
         {
             if (isOn)
             {
@@ -184,7 +184,7 @@ namespace KOK
             }
         }
 
-        private void HandleDeleteFavoriteSong(ExtendedFavoriteSongParam favoriteSongParam)
+        private void HandleDeleteFavoriteSong(FavoriteSongParam favoriteSongParam)
         {
             if (favoriteSongParam == null || !favoriteSongParam.IsFavorited)
             {
@@ -210,11 +210,11 @@ namespace KOK
                 (errorValue) =>
                 {
                     Debug.Log("[Purchased Songs] Failed to delete favorite song - Error api call");
-                    favoriteSongParam.FavoriteSongItem.GetComponent<PurchasedSongItemBinding>().TurnFavoriteToggleOn();
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().TurnFavoriteToggleOn();
                 });
         }
 
-        private void HandleAddFavoriteSong(ExtendedFavoriteSongParam favoriteSongParam)
+        private void HandleAddFavoriteSong(FavoriteSongParam favoriteSongParam)
         {
             if (favoriteSongParam == null || favoriteSongParam.IsFavorited)
             {
@@ -240,7 +240,7 @@ namespace KOK
                 (errorValue) =>
                 {
                     Debug.Log("[Purchased Songs] Failed to add favorite song - Error api call");
-                    favoriteSongParam.FavoriteSongItem.GetComponent<PurchasedSongItemBinding>().TurnFavoriteToggleOff();
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().TurnFavoriteToggleOff();
                 });
         }
     }

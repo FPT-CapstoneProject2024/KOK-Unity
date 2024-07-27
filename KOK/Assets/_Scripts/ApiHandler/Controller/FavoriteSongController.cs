@@ -17,11 +17,6 @@ namespace KOK.ApiHandler.Controller
             favoriteSongsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.FavoriteSongs_Resource;
         }
 
-        //private void Start()
-        //{
-        //    favoriteSongsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.FavoriteSongs_Resource;
-        //}
-
         private void Update()
         {
             #region Testing

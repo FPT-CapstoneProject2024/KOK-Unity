@@ -23,6 +23,8 @@ namespace KOK
         [SerializeField] public TMP_InputField searchInput;
         [Header("Preview Components")]
         [SerializeField] public GameObject songPreviewCanvas;
+        [Header("Purchase Components")]
+        [SerializeField] public GameObject songPurchaseCanvas;
 
         private FavoriteSongFilter filter;
         private int currentPage = 1;
@@ -186,7 +188,7 @@ namespace KOK
             songPreviewCanvas.GetComponent<PreviewSongHandler>().OnOpenPreviewSong(songUrl);
         }
 
-        public void OnFavoriteSongToggle(bool isOn, ExtendedFavoriteSongParam favoriteSongParam)
+        public void OnFavoriteSongToggle(bool isOn, FavoriteSongParam favoriteSongParam)
         {
             if (!isOn)
             {
@@ -194,7 +196,7 @@ namespace KOK
             }
         }
 
-        private void HandleDeleteFavoriteSong(ExtendedFavoriteSongParam favoriteSongParam)
+        private void HandleDeleteFavoriteSong(FavoriteSongParam favoriteSongParam)
         {
             if (favoriteSongParam == null || !favoriteSongParam.IsFavorited)
             {
@@ -216,13 +218,18 @@ namespace KOK
                 (successValue) =>
                 {
                     Debug.Log("[Favorite Songs] Successfully delete favorite song");
-                    Destroy(favoriteSongParam.FavoriteSongItem);
+                    Destroy(favoriteSongParam.SongItem);
                 },
                 (errorValue) =>
                 {
                     Debug.Log("[Favorite Songs] Failed to delete favorite song - Error api call");
-                    favoriteSongParam.FavoriteSongItem.GetComponent<FavoriteSongItemBinding>().TurnFavoriteToggleOn();
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().TurnFavoriteToggleOn();
                 });
+        }
+
+        public void StartPurchaseSong(BuySongParam buySongParam)
+        {
+            songPurchaseCanvas.GetComponent<SongPurchaseHandler>().ShowPurchaseSongDialog(buySongParam);
         }
     }
 }
