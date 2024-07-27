@@ -80,7 +80,11 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             else
             {
                 PlayerRole = 0;
-
+                string logFileName = PlayerName.ToString() + "_" + DateTime.Now + ".txt";
+                logFileName = logFileName.Replace(" ", "");
+                logFileName = logFileName.Replace(":", "");
+                logFileName = logFileName.Replace("/", "");
+                RoomLogManager.Instance.CreateRoomLog(logFileName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
             }
 
             CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
@@ -450,12 +454,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         if (PlayerRole == 0)
         {
             RoomLogString += newLog;
+            RoomLogManager.Instance.AppendLogToFile(newLog);
         }
-        else
-        {
-            //StartCoroutine(SyncRoomLogWithHost());
-        }
-        Debug.LogError(RoomLogString);
     }
 
     IEnumerator SyncRoomLogWithHost()
