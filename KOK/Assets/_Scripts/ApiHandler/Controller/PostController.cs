@@ -229,16 +229,6 @@ namespace KOK
                 queryParams.Add(nameof(filter.Caption), filter.Caption.ToString());
             }
 
-            /*if (filter.PostId != null)
-            {
-                queryParams.Add(nameof(filter.PostId), filter.PostId.ToString());
-            }*/
-
-            /*if (filter.MemberId != null)
-            {
-                queryParams.Add(nameof(filter.MemberId), filter.MemberId.ToString());
-            }*/
-
             queryParams.Add(nameof(paging.page), paging.page.ToString());
             queryParams.Add(nameof(paging.pageSize), paging.pageSize.ToString());
             queryParams.Add(nameof(paging.OrderType), paging.OrderType.ToString());
