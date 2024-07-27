@@ -136,4 +136,33 @@ namespace KOK.ApiHandler.DTOModels
 
 
     #endregion
+
+    #region PurchasedSong
+
+    public enum PurchasedSongOrderFilter
+    {
+        PurchasedSongId,
+        PurchaseDate,
+        MemberId,
+        SongId,
+    }
+
+    #endregion
+
+    #region Transaction
+
+    public enum InAppTransactionStatus
+    {
+        PENDING,
+        COMPLETE,
+        CANCELED,
+    }
+
+    public enum InAppTransactionType
+    {
+        BUY_ITEM = 1,
+        BUY_SONG = 2,
+    }
+
+    #endregion
 }

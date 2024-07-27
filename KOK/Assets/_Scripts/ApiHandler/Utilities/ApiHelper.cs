@@ -13,6 +13,8 @@ namespace KOK.ApiHandler.Utilities
     [RequireComponent(typeof(SongController))]
     [RequireComponent(typeof(AccountController))]
     [RequireComponent(typeof(AuthenticationController))]
+    [RequireComponent(typeof(PurchasedSongController))]
+    [RequireComponent(typeof(ShopController))]
     /// <summary>
     /// A singleton helper class to handle API calls in Unity.
     /// </summary>
@@ -219,7 +221,7 @@ namespace KOK.ApiHandler.Utilities
                 }
                 else
                 {
-                    onError?.Invoke(webRequest.result.ToString());
+                    onSuccess?.Invoke(webRequest.result.ToString());
                 }
             }
         }

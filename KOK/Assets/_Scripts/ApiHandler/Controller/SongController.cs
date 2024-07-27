@@ -1,18 +1,11 @@
 ﻿using KOK.ApiHandler.Context;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
-using KOK.Assets._Scripts;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Item;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Song;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace KOK.ApiHandler.Controller
@@ -24,10 +17,6 @@ namespace KOK.ApiHandler.Controller
         private void Start()
         {
             songsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
-        }
-
-        void Update()
-        {
         }
 
         private async Task<DynamicResponseResult<SongDetail>?> GetSongsFilterPagingAsync(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)

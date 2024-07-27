@@ -17,11 +17,6 @@ namespace KOK.ApiHandler.Controller
             favoriteSongsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.FavoriteSongs_Resource;
         }
 
-        //private void Start()
-        //{
-        //    favoriteSongsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.FavoriteSongs_Resource;
-        //}
-
         private void Update()
         {
             #region Testing
@@ -79,7 +74,6 @@ namespace KOK.ApiHandler.Controller
         public void RemoveFavoriteSongCoroutine(RemoveFavoriteSongRequest request, Action<string> onSuccess, Action<string> onError)
         {
             var query = $"?MemberId={request.MemberId}&SongId={request.SongId}";
-            Debug.Log(query);
             var url = favoriteSongsResourceUrl + query;
             ApiHelper.Instance.DeleteCoroutine(url,
                 (successValue) =>

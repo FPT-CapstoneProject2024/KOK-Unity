@@ -23,6 +23,8 @@ namespace KOK
         [SerializeField] public TMP_InputField searchInput;
         [Header("Preview Components")]
         [SerializeField] public GameObject songPreviewCanvas;
+        [Header("Purchase Components")]
+        [SerializeField] public GameObject songPurchaseCanvas;
 
         private FavoriteSongFilter filter;
         private int currentPage = 1;
@@ -184,6 +186,50 @@ namespace KOK
         public void StartPreviewSong(string songUrl)
         {
             songPreviewCanvas.GetComponent<PreviewSongHandler>().OnOpenPreviewSong(songUrl);
+        }
+
+        public void OnFavoriteSongToggle(bool isOn, FavoriteSongParam favoriteSongParam)
+        {
+            if (!isOn)
+            {
+                HandleDeleteFavoriteSong(favoriteSongParam);
+            }
+        }
+
+        private void HandleDeleteFavoriteSong(FavoriteSongParam favoriteSongParam)
+        {
+            if (favoriteSongParam == null || !favoriteSongParam.IsFavorited)
+            {
+                Debug.Log("[Favorite Songs] Failed to delete favorite song - Invalid param");
+                return;
+            }
+            string accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
+            if (string.IsNullOrEmpty(accountId))
+            {
+                Debug.Log("[Favorite Songs] Failed to delete favorite song - Player ID not found");
+                return;
+            }
+            var request = new RemoveFavoriteSongRequest()
+            {
+                MemberId = Guid.Parse(accountId),
+                SongId = favoriteSongParam.SongId,
+            };
+            ApiHelper.Instance.GetComponent<FavoriteSongController>().RemoveFavoriteSongCoroutine(request,
+                (successValue) =>
+                {
+                    Debug.Log("[Favorite Songs] Successfully delete favorite song");
+                    Destroy(favoriteSongParam.SongItem);
+                },
+                (errorValue) =>
+                {
+                    Debug.Log("[Favorite Songs] Failed to delete favorite song - Error api call");
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().TurnFavoriteToggleOn();
+                });
+        }
+
+        public void StartPurchaseSong(BuySongParam buySongParam)
+        {
+            songPurchaseCanvas.GetComponent<SongPurchaseHandler>().ShowPurchaseSongDialog(buySongParam);
         }
     }
 }
