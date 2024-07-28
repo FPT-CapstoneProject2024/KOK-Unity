@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Item
+namespace KOK.ApiHandler.DTOModels
 {
     public class AddKaraokeRoomRequest
     {

@@ -80,7 +80,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             else
             {
                 PlayerRole = 0;
-                string logFileName = PlayerName.ToString() + "_" + DateTime.Now + ".txt";
+                string logFileName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now + ".txt";
                 logFileName = logFileName.Replace(" ", "");
                 logFileName = logFileName.Replace(":", "");
                 logFileName = logFileName.Replace("/", "");

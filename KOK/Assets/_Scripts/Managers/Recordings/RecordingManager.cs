@@ -12,6 +12,8 @@ namespace KOK
         private string recordingsTempLocation = string.Empty;
         private AudioSource audioSource;
 
+        public string RecordingFileName;
+
         private void Start()
         {
             recordingsTempLocation = Application.persistentDataPath + "/Recordings/Temp";
