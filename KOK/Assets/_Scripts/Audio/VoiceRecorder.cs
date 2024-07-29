@@ -121,7 +121,17 @@ namespace KOK.Audio
             // Check current microphone
             if (currentMicrophone == null)
             {
-                Debug.LogError("Failed to start recording. No microphone detected!");
+                Microphone.GetDeviceCaps(Microphone.devices[0], out int minFrequency, out int maxFrequency);
+                currentMicrophone = new RecordingMicrophone()
+                {
+                    Name = Microphone.devices[0],
+                    MinimumFrequency = minFrequency,
+                    MaximumFrequency = maxFrequency
+                };
+                if(currentMicrophone == null)
+                {
+                    Debug.LogError("Failed to start recording. No microphone detected!");
+                }
                 return;
             }
             isRecording = true;
@@ -188,8 +198,7 @@ namespace KOK.Audio
             bool uploadSuccessful = false;
             StorageMetadata fileMetadata = null;
             AggregateException uploadException = null;
-            //Debug.Log(compressedFilePath);
-            //Debug.Log(FirebaseStorageManager.Instance);
+            Debug.Log("Compressed File Path: " + compressedFilePath);
             FirebaseStorageManager.Instance.UploadVoiceRecordingByLocalFile(compressedFilePath,
                 (metadata) =>
                 {
