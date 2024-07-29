@@ -274,6 +274,10 @@ public class WaveformSlider : MonoBehaviour
 */
 
 
+using KOK.ApiHandler.Controller;
+using KOK.ApiHandler.DTOModels;
+using KOK.ApiHandler.Utilities;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Recording;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -309,7 +313,7 @@ public class WaveformDisplay : MonoBehaviour
         ffmpeg = new FFMPEG();
         string audioFolderPath = Path.Combine(Application.persistentDataPath, "AudioProcess");
         audioFileNames.Add("extractedAudio.wav");
-        audioFileNames.Add("extractedAudio.wav");
+        audioFileNames.Add("recordedVoice.wav");
 
         foreach (string fileName in audioFileNames)
         {
@@ -340,8 +344,11 @@ public class WaveformDisplay : MonoBehaviour
         }
 
         refreshButton.onClick.AddListener(RefreshTracks);
+
+        
     }
 
+    
     /*void Start()
     {
         for (int i = 0; i < audioClips.Count; i++)
@@ -641,6 +648,16 @@ public class WaveformDisplay : MonoBehaviour
         }
         
         StartCoroutine(ffmpeg.CombineAudioAndAudio(listFinalAudios[0], listFinalAudios[1]));
+    }
+
+    public void ShowPopup()
+    {
+        gameObject.SetActive(true);
+    }
+
+    public void HidePopup()
+    {
+        gameObject.SetActive(false);
     }
 }
 

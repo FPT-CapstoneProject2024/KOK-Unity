@@ -1,8 +1,12 @@
-using KOK.ApiHandler.Context;
+﻿using KOK.ApiHandler.Context;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Collections.Specialized;
 using UnityEngine;
 
@@ -17,24 +21,48 @@ namespace KOK
             purchasedSongsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.PurchasedSongs_Resource;
         }
 
-        public void GetMemberPurchasedSongFilterCoroutine(PurchasedSongFilter filter, PurchasedSongOrderFilter orderFilter, PagingRequest paging, Action<DynamicResponseResult<PurchasedSong>> onSuccess, Action<DynamicResponseResult<PurchasedSong>> onError)
+        public void GetPurchasedSongByIdCoroutine(Guid songId, Action<List<PurchasedSong>> onSuccess, Action<string> onError)
         {
-            var queryParams = GeneratePurchasedSongQueryParams(filter, orderFilter, paging);
-            var url = QueryHelper.BuildUrl(purchasedSongsResourceUrl + "/filter", queryParams);
+            // Validate song ID
+            if (songId == null)
+            {
+                Debug.Log("Failed to get song by ID. Song ID is null!");
+                return;
+            }
+
+            // Prepare and send API request
+            var url = purchasedSongsResourceUrl + "?PurchasedSongId=" + songId.ToString();
             ApiHelper.Instance.GetCoroutine(url,
                 (successValue) =>
                 {
                     var result = JsonConvert.DeserializeObject<DynamicResponseResult<PurchasedSong>>(successValue);
-                    onSuccess?.Invoke(result);
+                    onSuccess?.Invoke(result.Results);
                 },
                 (errorValue) =>
                 {
-                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<PurchasedSong>>(errorValue);
-                    onError?.Invoke(result);
+                    Debug.LogError($"Error when trying to retrieve a song by ID [{songId.ToString()}]: {errorValue}");
+                    onError?.Invoke(errorValue);
                 });
         }
 
-        private NameValueCollection GeneratePurchasedSongQueryParams(PurchasedSongFilter filter, PurchasedSongOrderFilter orderFilter, PagingRequest paging)
+    public void GetMemberPurchasedSongFilterCoroutine(PurchasedSongFilter filter, PurchasedSongOrderFilter orderFilter, PagingRequest paging, Action<DynamicResponseResult<PurchasedSong>> onSuccess, Action<DynamicResponseResult<PurchasedSong>> onError)
+    {
+        var queryParams = GeneratePurchasedSongQueryParams(filter, orderFilter, paging);
+        var url = QueryHelper.BuildUrl(purchasedSongsResourceUrl + "/filter", queryParams);
+        ApiHelper.Instance.GetCoroutine(url,
+            (successValue) =>
+            {
+                var result = JsonConvert.DeserializeObject<DynamicResponseResult<PurchasedSong>>(successValue);
+                onSuccess?.Invoke(result);
+            },
+            (errorValue) =>
+            {
+                var result = JsonConvert.DeserializeObject<DynamicResponseResult<PurchasedSong>>(errorValue);
+                onError?.Invoke(result);
+            });
+    }
+
+    private NameValueCollection GeneratePurchasedSongQueryParams(PurchasedSongFilter filter, PurchasedSongOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
             if (!string.IsNullOrEmpty(filter.SongName))

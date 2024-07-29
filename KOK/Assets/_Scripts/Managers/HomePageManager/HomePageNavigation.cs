@@ -17,7 +17,7 @@ namespace KOK
             SceneManager.LoadScene(sceneName: "MultipleRoom");
         }
 
-        public void ToPostScene()
+        public void ToEditScene()
         {
             SceneManager.LoadScene(sceneName: "Quang");
         }
