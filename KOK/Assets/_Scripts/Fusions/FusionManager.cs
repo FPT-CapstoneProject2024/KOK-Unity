@@ -487,6 +487,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         if (RPCVideoPlayer.isPlaying())
         {
             StopVideo();
+
+            RPCSongManager.Rpc_StopRecording(NetworkRunner.Instances[0]);
         }
         else
         {
@@ -497,7 +499,6 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         string url = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().GetSongURLToPlay();
         RPCVideoPlayer.Rpc_OnPlayVideoButtonClick(runner, url);
-        RPCSongManager.Rpc_RemoveSong(runner, 0);
         foreach (var item in FindObjectsByType<SongItemManager>(FindObjectsSortMode.None))
         {
             item.UpdateQueueSongList();
@@ -511,6 +512,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         if (RPCVideoPlayer.isPlaying())
         {
             StopVideo();
+
+            RPCSongManager.Rpc_StopRecording(NetworkRunner.Instances[0]);
             PlayVideo();
         }
         else
@@ -522,8 +525,6 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     private void StopVideo()
     {
         RPCVideoPlayer.Rpc_Stop(runner);
-
-        RPCSongManager.Rpc_StopRecording(runner);
     }
 
     public void AddSongToQueue(string songCode, string singer1Name, string singer2Name)

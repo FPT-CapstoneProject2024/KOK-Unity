@@ -102,14 +102,14 @@ namespace KOK
                         MemberId = Guid.Parse(memberIds[i]),
                     });
             }
-
+            //Debug.LogError(createRecordingRequest);
 
             //Call api create recording, set by file name
 
             ApiHelper.Instance.GetComponent<RecordingController>().AddRecordingCoroutine(
                 createRecordingRequest,
-                (rr) => { Debug.LogError(rr.Value); },
-                (ex) => { Debug.LogError(ex.Result.Value); }
+                (rr) => { Debug.Log(rr.Value); },
+                (ex) => { Debug.LogError(ex.Message); }
             );
 
         }

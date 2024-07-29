@@ -1265,7 +1265,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &342588738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2366,7 +2366,8 @@ MonoBehaviour:
   queueSongHolderPrefab: {fileID: 6140844574200421352, guid: 19616ab7efa616b448882ffe1a7ebd86, type: 3}
   favToggle: {fileID: 267158428}
   videoPlayer: {fileID: 1804832846}
-  voiceRecorder: {fileID: 0}
+  voiceRecorder: {fileID: 1703946563}
+  playerNameText: {fileID: 2833523327494467342}
 --- !u!114 &620968360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2374,7 +2375,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 620968354}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7e636d9d19149894f981a0319a8f0e55, type: 3}
   m_Name: 
@@ -2846,7 +2847,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &703069322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4286,7 +4287,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1926037901}
   m_Direction: 0
   m_Value: 1
-  m_Size: 1
+  m_Size: 0.9999999
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

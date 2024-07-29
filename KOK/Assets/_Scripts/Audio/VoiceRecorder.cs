@@ -138,6 +138,7 @@ namespace KOK.Audio
             startRecordTime = Time.time;
             recordCountdown = MAX_RECORDING_DURATION_SECONDS;
             audioSource.clip = Microphone.Start(currentMicrophone.Name, false, MAX_RECORDING_DURATION_SECONDS, currentMicrophone.MaximumFrequency);
+            audioSource.volume = 1f;
             Debug.Log("Start recording!");
         }
         
@@ -152,7 +153,17 @@ namespace KOK.Audio
             // Check current microphone
             if (currentMicrophone == null)
             {
-                Debug.LogError("Failed to start recording. No microphone detected!");
+                Microphone.GetDeviceCaps(Microphone.devices[0], out int minFrequency, out int maxFrequency);
+                currentMicrophone = new RecordingMicrophone()
+                {
+                    Name = Microphone.devices[0],
+                    MinimumFrequency = minFrequency,
+                    MaximumFrequency = maxFrequency
+                };
+                if (currentMicrophone == null)
+                {
+                    Debug.LogError("Failed to start recording. No microphone detected!");
+                }
                 return;
             }
             isRecording = true;
@@ -177,9 +188,8 @@ namespace KOK.Audio
         private void HandleFinishRecording()
         {
             string wavFilePath = SaveAudioClipAsWav();
-
             // Compress .wav file to zip
-            string compressedFilePath = FileCompressionHelper.CompressWavFileAsZip(recordingSaveLocation, wavFilePath);
+            string compressedFilePath = FileCompressionHelper.CompressWavFileAsZip(Application.persistentDataPath + "/Recordings/", wavFilePath);
             Debug.Log($"Compressed file path: {compressedFilePath}");
             if (string.IsNullOrEmpty(compressedFilePath))
             {
