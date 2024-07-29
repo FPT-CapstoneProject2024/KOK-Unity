@@ -2,6 +2,7 @@ using Fusion;
 using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
+using KOK.Audio;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,8 +32,30 @@ namespace KOK
         [SerializeField] Toggle favToggle;
 
         [SerializeField] VideoPlayer videoPlayer;
+
+        [SerializeField] VoiceRecorder voiceRecorder;
+
+        Guid karaokeRoomId;
+
+        private void OnEnable()
+        {
+            string logFileName = "RoomLog_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName).ToString() + "_" + DateTime.Now + ".txt";
+            logFileName = logFileName.Replace(" ", "");
+            logFileName = logFileName.Replace(":", "");
+            logFileName = logFileName.Replace("/", "");
+            ApiHelper.Instance.GetComponent<KaraokeRoomController>().AddKaraokeRoomCoroutine(
+                new AddKaraokeRoomRequest()
+                {
+                    RoomLog = logFileName,
+                    CreatorId = Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
+                },
+                (kr) => {karaokeRoomId = kr.Value.RoomId;},
+                (er) => { Debug.LogError(er); }
+                );
+        }
         void Start()
         {
+            if (voiceRecorder == null) { voiceRecorder = FindAnyObjectByType<VoiceRecorder>(); }
             StartCoroutine(LoadSong());
         }
 
@@ -69,7 +92,7 @@ namespace KOK
 
         IEnumerator LoadFavoriteSong()
         {
-            yield return new WaitForSeconds (1);
+            yield return new WaitForSeconds(1);
             purchasedSongList = new();
 
             favoriteSongList = new();
@@ -78,8 +101,9 @@ namespace KOK
                         .GetMemberFavoriteSongCoroutine(new FavoriteSongFilter() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)) },
                                                         FavoriteSongOrderFilter.SongId,
                                                         new PagingRequest(),
-                                                        (list) => { 
-                                                            favoriteSongList = list.Results; 
+                                                        (list) =>
+                                                        {
+                                                            favoriteSongList = list.Results;
                                                             //UpdateSearchSongUI(); 
                                                         },
                                                         (ex) => Debug.LogError(ex));
@@ -147,7 +171,7 @@ namespace KOK
             }
         }
 
-        
+
 
         public SongDetail GetSongBySongCode(string songCode)
         {
@@ -183,12 +207,35 @@ namespace KOK
             if (videoPlayer.isPlaying)
             {
                 videoPlayer.Stop();
+                voiceRecorder.StopRecording();
             }
             else
             {
                 videoPlayer.url = queueSongList[0].SongUrl;
                 videoPlayer.Play();
                 queueSongList.RemoveAt(0);
+
+                var audioFile = "SongCode_SingerUsername_" + DateTime.Now.ToString();
+                audioFile = audioFile.Replace(" ", "");
+                audioFile = audioFile.Replace(":", "");
+                audioFile = audioFile.Replace("/", "");
+                voiceRecorder.StartRecording(audioFile);
+                RecordingManager.Instance.CreateRecording(
+                    "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName),
+                    UnityEngine.Random.Range(1, 100),
+                    "ebe4174c-5069-4767-a5c3-a962563d813f",
+                    PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
+                    PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
+                    karaokeRoomId.ToString(),
+                    new List<string>()
+                    {
+                        audioFile,
+                    },
+                    new List<string>()
+                    {
+                        PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)
+                    }
+                    ) ;
             }
         }
 
