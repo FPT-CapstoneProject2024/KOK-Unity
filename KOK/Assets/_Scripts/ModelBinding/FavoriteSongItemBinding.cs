@@ -7,19 +7,8 @@ using UnityEngine.UI;
 
 namespace KOK
 {
-    public class FavoriteSongItemBinding : MonoBehaviour
+    public class FavoriteSongItemBinding : SongItemBinding
     {
-        [Header("Components")]
-        [SerializeField] public TMP_Text SongName;
-        [SerializeField] public TMP_Text SongArtist;
-        [SerializeField] public TMP_Text SongSinger;
-        [SerializeField] public TMP_Text SongGenre;
-        [SerializeField] public TMP_Text SongPrice;
-        [SerializeField] public Button BuySongButton;
-        [SerializeField] public Button PlaySongButton;
-        [SerializeField] public ToggleSwapSprite ToggleSwapSprite;
-        [SerializeField] public Toggle FavoriteSongToggle;
-
         public FavoriteSong FavoriteSong;
 
         public void BindData(FavoriteSong favoriteSong)
@@ -54,8 +43,7 @@ namespace KOK
 
             if (FavoriteSong.IsPurchased)
             {
-                BuySongButton.interactable = false;
-                BuySongButton.gameObject.GetComponent<Image>().color = Color.gray;
+                DisableBuySongButton();
             }
             else
             {
@@ -64,24 +52,36 @@ namespace KOK
                     SongId = (Guid)FavoriteSong.SongId,
                     SongName = FavoriteSong.SongName,
                     Price = FavoriteSong.Price,
+                    SongItem = gameObject
                 };
                 BuySongButton.AddEventListener(songParam, OnBuySongClick);
             }
 
-            FavoriteSongToggle.isOn = true;
-            ToggleSwapSprite.ToggleSprite();
+            TurnFavoriteToggleOn();
 
+            var favoriteSongParam = new FavoriteSongParam()
+            {
+                SongId = (Guid)FavoriteSong.SongId,
+                SongName = FavoriteSong.SongName,
+                IsFavorited = true,
+                SongItem = gameObject
+            };
+            FavoriteSongToggle.AddEventListener(favoriteSongParam, OnFavoriteButtonToggle);
         }
 
         public void OnPlaySongClick(string songUrl)
         {
-            Debug.Log("[Favorite Songs] Play song with url: " + songUrl);
             FindFirstObjectByType<FavoriteSongHandler>().StartPreviewSong(songUrl);
         }
 
         public void OnBuySongClick(BuySongParam song)
         {
-            Debug.Log($"[Favorite Songs] Member buy song [{song.SongName}] with ID [{song.SongId}] cost [{song.Price}] UP.");
+            FindFirstObjectByType<FavoriteSongHandler>().StartPurchaseSong(song);
+        }
+
+        public void OnFavoriteButtonToggle(FavoriteSongParam song, bool isOn)
+        {
+            FindFirstObjectByType<FavoriteSongHandler>().OnFavoriteSongToggle(isOn, song);
         }
     }
 }
