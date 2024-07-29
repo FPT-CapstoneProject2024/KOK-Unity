@@ -104,15 +104,7 @@ namespace KOK
             {
                 if (postComment.CommentType.Equals(PostCommentType.CHILD))
                 {
-                    GenerateFullComment(postComment.MemberId, postComment.Comment, childCommentDisplayContent, true, replyPrefab);
-                    //GameObject childCommentObj = Instantiate(childCommentPrefab, childCommentDisplayPanel.transform);
-                    //GenerateFullComment(childCommentObj, postComment);
-                    /*childCommentObj.transform.GetChild(1).GetComponent<TMP_Text>().text = postComment.MemberId.ToString();
-                    childCommentObj.transform.GetChild(2).GetComponent<TMP_Text>().text = TruncateComment(postComment.Comment);
-                    childCommentObj.GetComponent<Button>().onClick.AddListener(delegate ()
-                    {
-                        OpenComment(childCommentObj, postComment.Comment);
-                    });  */                  
+                    GenerateFullComment(postComment.MemberId, postComment.Comment, childCommentDisplayContent, true, replyPrefab);             
                 }
             }
         }

@@ -37,15 +37,17 @@ namespace KOK.ApiHandler.DTOModels
     public enum PostCommentOrderFilter
     {
         Comment = 1,
-        //MemberId = 5,
-        //PostId = 6,
     }
 
     public enum PostOrderFilter
     {
         Caption = 1,
-        //MemberId = 4,
         PostId = 0,
+    }
+
+    public enum RecordingOrderFilter
+    {
+        RecordingName = 1,
     }
 
     #endregion
@@ -135,5 +137,13 @@ namespace KOK.ApiHandler.DTOModels
 
 
 
+    #endregion
+
+    #region Recording
+    public enum RecordingType
+    {
+        SINGLE,
+        MULTIPLE,
+    }
     #endregion
 }

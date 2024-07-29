@@ -246,21 +246,21 @@ public class FFMPEG : MonoBehaviour
     public TMP_Text text2;
     public TMP_Text text3;
 
-    private AudioSource audioSource;
+    //private AudioSource audioSource;
     private AudioClip audioClip;
 
     void Start()
     {
-        audioSource = gameObject.AddComponent<AudioSource>();
-        audioSource.loop = false;
+        /*audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.loop = false;*/
 
-        StartCoroutine(DownloadAndProcess());
+        //StartCoroutine(DownloadAndProcess());
     }
 
     IEnumerator DownloadAndProcess()
     {
-        yield return StartCoroutine(DownloadFile(audioUrl, "test.wav"));
-        yield return StartCoroutine(DownloadFile(videoUrl, "Tuý Âm.mp4"));
+        yield return StartCoroutine(DownloadFile(audioUrl, "test.wav", "AudioProcess"));
+        yield return StartCoroutine(DownloadFile(videoUrl, "Tuý Âm.mp4", "AudioProcess"));
 
         string audioPath = Path.Combine(Application.persistentDataPath, "test.wav");
         string videoPath = Path.Combine(Application.persistentDataPath, "Tuý Âm.mp4");
@@ -269,9 +269,41 @@ public class FFMPEG : MonoBehaviour
         //yield return StartCoroutine(CombineAudioAndVideo(audioPath, videoPath));
     }
 
+    public IEnumerator DownloadFile(string url, string fileName, string folderName)
+    {
+        string folderPath = Path.Combine(Application.persistentDataPath, folderName);
+        string filePath = Path.Combine(folderPath, fileName);
+
+        if (!Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+        }
+
+        UnityWebRequest request = UnityWebRequest.Get(url);
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+        {
+            Debug.LogError("Error downloading file: " + request.error);
+            text2.text = request.error;
+        }
+        else
+        {
+            File.WriteAllBytes(filePath, request.downloadHandler.data);
+            Debug.Log("Downloaded file: " + filePath);
+            if (File.Exists(filePath))
+            {
+                text2.text = filePath;
+            }
+            else
+            {
+                text2.text = "download error";
+            }
+        }
+    }
 
     // Message: Download xuong folder Music chi hoat dong voi wav file, mp4 file k download xuong do dc
-    IEnumerator DownloadFile(string url, string fileName)
+    public IEnumerator DownloadFileToMusicFolder(string url, string fileName)
     {
         UnityWebRequest request = UnityWebRequest.Get(url);
         yield return request.SendWebRequest();
@@ -337,7 +369,7 @@ public class FFMPEG : MonoBehaviour
         return audioClip;
     }
 
-    IEnumerator CombineAudioAndVideo(string audioPath, string videoPath)
+    public IEnumerator CombineAudioAndVideo(string audioPath, string videoPath)
     {
         string combinedFilePath = Path.Combine(Application.persistentDataPath, "combined_output.mp4");
 
