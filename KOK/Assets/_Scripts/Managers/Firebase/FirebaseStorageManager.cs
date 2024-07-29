@@ -177,6 +177,7 @@ namespace KOK
         public void UploadRoomLogFile(string localFilePath, Action<StorageMetadata> onSuccess, Action<AggregateException> onError)
         {
             string fileName = Path.GetFileName(localFilePath);
+            //fileName.Replace(".txt", "");
             StorageReference fileRef = roomLoggingReference.Child(fileName);
 
             fileRef.PutFileAsync(localFilePath)
@@ -184,7 +185,7 @@ namespace KOK
                 {
                     if (task.IsFaulted || task.IsCanceled)
                     {
-                        Debug.Log(task.Exception.ToString());
+                        Debug.LogError(task.Exception.ToString());
                         onError?.Invoke(task.Exception);
                     }
                     else

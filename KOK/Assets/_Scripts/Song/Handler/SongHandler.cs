@@ -1,5 +1,4 @@
-﻿using Fusion;
-using KOK.ApiHandler.Controller;
+﻿using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using System;
@@ -7,7 +6,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Video;
 
 namespace KOK
 {
@@ -25,12 +23,13 @@ namespace KOK
         [SerializeField] public TMP_InputField searchInput;
         [Header("Preview Components")]
         [SerializeField] public GameObject songPreviewCanvas;
+        [Header("Purchase Components")]
+        [SerializeField] public GameObject songPurchaseCanvas;
 
         private SongFilter filter;
         private int currentPage = 1;
         private int totalPage = 1;
         private string searchKeyword = string.Empty;
-        private List<SongDetail> songDetails = new List<SongDetail>();
 
         private void OnEnable()
         {
@@ -90,7 +89,7 @@ namespace KOK
             for (int i = 0; i < songs.Count; i++)
             {
                 newSongItem = Instantiate(songItemTemplate, songContainer.transform);
-                newSongItem.GetComponent<SongItemBinding>().BindData(songs[i]);
+                newSongItem.GetComponent<AllSongItemBinding>().BindData(songs[i]);
             }
         }
 
@@ -163,7 +162,6 @@ namespace KOK
             DisableButton(previousButton);
             DisableButton(nextButton);
             pagingDisplay.text = $"{0}/{0}";
-            songDetails.Clear();
         }
 
         public void StartPreviewSong(string songUrl)
@@ -239,6 +237,11 @@ namespace KOK
                 {
                     Debug.Log("[All Songs] Failed to delete favorite song - Error api call");
                 });
+        }
+
+        public void StartPurchaseSong(BuySongParam buySongParam)
+        {
+            songPurchaseCanvas.GetComponent<SongPurchaseHandler>().ShowPurchaseSongDialog(buySongParam);
         }
     }
 }

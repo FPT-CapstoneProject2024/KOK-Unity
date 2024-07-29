@@ -34,8 +34,8 @@ namespace KOK
             {
                 var runner = FindAnyObjectByType<NetworkRunner>();
 
-                string test = runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList().ToSeparatedString(",");
-                Debug.Log(test);
+                //string test = runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList().ToSeparatedString(",");
+                //Debug.Log(test);
 
                 if (_viewportContent == null) { return; }
                 if (_runner == null) { _runner = NetworkRunner.Instances[0]; }

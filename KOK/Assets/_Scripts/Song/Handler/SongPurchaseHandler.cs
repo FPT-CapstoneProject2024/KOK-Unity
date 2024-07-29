@@ -1,0 +1,90 @@
+using KOK.ApiHandler.DTOModels;
+using KOK.ApiHandler.Utilities;
+using System;
+using TMPro;
+using UnityEngine;
+
+namespace KOK
+{
+    public class SongPurchaseHandler : MonoBehaviour
+    {
+        [Header("Purchase Components")]
+        [SerializeField] public GameObject PurchaseComponent;
+        [SerializeField] public TMP_Text SongName;
+        [SerializeField] public TMP_Text SongPrice;
+        [Header("Notify Components")]
+        [SerializeField] public GameObject NotifyComponent;
+        [SerializeField] public TMP_Text NotifyMessage;
+
+        private BuySongParam SongParam;
+
+        void Start()
+        {
+            SongParam = null;
+            gameObject.SetActive(false);
+        }
+
+        private void DisplayPurchase()
+        {
+            PurchaseComponent.SetActive(true);
+            NotifyComponent.SetActive(false);
+        }
+
+        private void DisplayNotification()
+        {
+            NotifyComponent.SetActive(true);
+            PurchaseComponent.SetActive(false);
+        }
+
+        private void SetNotifyMessage(string text)
+        {
+            NotifyMessage.text = text;
+        }
+
+        public void ShowPurchaseSongDialog(BuySongParam buySongParam)
+        {
+            SongParam = buySongParam;
+            // Update UI
+            SongName.text = SongParam.SongName;
+            SongPrice.text = String.Format("{0:0.00}", SongParam.Price);
+            DisplayPurchase();
+            gameObject.SetActive(true);
+        }
+
+        public void OnCancelPurchaseSong()
+        {
+            SongParam = null;
+            gameObject.SetActive(false);
+        }
+
+        public void OnConfirmPurchaseSong()
+        {
+            Debug.Log("Confirm Purchase Song");
+            string accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
+            if (string.IsNullOrEmpty(accountId))
+            {
+                SetNotifyMessage("Failed to purchase song - Player ID not found");
+                return;
+            }
+            var purchaseRequest = new SongPurchaseRequest()
+            {
+                MemberId = Guid.Parse(accountId),
+                SongId = SongParam.SongId,
+            };
+            ApiHelper.Instance.GetComponent<ShopController>().PurchaseSongCoroutine(purchaseRequest, OnPurchaseSongSuccess, OnPurchaseSongError);
+        }
+
+        private void OnPurchaseSongSuccess(ResponseResult<SongPurchaseResponse> response)
+        {
+            SetNotifyMessage(response.Message);
+            DisplayNotification();
+            SongParam.SongItem.GetComponent<SongItemBinding>().DisableBuySongButton();
+        }
+
+        private void OnPurchaseSongError(ResponseResult<SongPurchaseResponse> response)
+        {
+            SetNotifyMessage(response.Message);
+            DisplayNotification();
+        }
+    }
+}

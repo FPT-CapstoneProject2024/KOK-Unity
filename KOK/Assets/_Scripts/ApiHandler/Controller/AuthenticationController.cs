@@ -17,10 +17,6 @@ namespace KOK
             authenticationResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Authentication_Resource;
         }
 
-        private async void Update()
-        {
-        }
-
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
         {
             var jsonData = JsonConvert.SerializeObject(loginRequest);
