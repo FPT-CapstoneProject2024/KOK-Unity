@@ -34,11 +34,14 @@ namespace KOK
         [SerializeField] VideoPlayer videoPlayer;
 
         [SerializeField] VoiceRecorder voiceRecorder;
+        [SerializeField] TMP_Text playerNameText;
 
         Guid karaokeRoomId;
 
         private void OnEnable()
         {
+            playerNameText.text = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
+
             string logFileName = "RoomLog_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName).ToString() + "_" + DateTime.Now + ".txt";
             logFileName = logFileName.Replace(" ", "");
             logFileName = logFileName.Replace(":", "");
@@ -49,7 +52,7 @@ namespace KOK
                     RoomLog = logFileName,
                     CreatorId = Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
                 },
-                (kr) => {karaokeRoomId = kr.Value.RoomId;},
+                (kr) => { karaokeRoomId = kr.Value.RoomId; },
                 (er) => { Debug.LogError(er); }
                 );
         }
@@ -213,16 +216,19 @@ namespace KOK
             {
                 videoPlayer.url = queueSongList[0].SongUrl;
                 videoPlayer.Play();
-                queueSongList.RemoveAt(0);
 
-                var audioFile = "SongCode_SingerUsername_" + DateTime.Now.ToString();
+                var audioFile = queueSongList[0].SongCode + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString();
                 audioFile = audioFile.Replace(" ", "");
                 audioFile = audioFile.Replace(":", "");
                 audioFile = audioFile.Replace("/", "");
+
                 voiceRecorder.StartRecording(audioFile);
+
+                queueSongList.RemoveAt(0);
+
                 RecordingManager.Instance.CreateRecording(
                     "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName),
-                    UnityEngine.Random.Range(1, 100),
+                    UnityEngine.Random.Range(50, 100),
                     "ebe4174c-5069-4767-a5c3-a962563d813f",
                     PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
                     PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
@@ -235,7 +241,7 @@ namespace KOK
                     {
                         PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)
                     }
-                    ) ;
+                    );
             }
         }
 

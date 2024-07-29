@@ -44,6 +44,8 @@ namespace KOK
                     }
                 }
                 RPCSongManager.Rpc_StartRecording(runner);
+                yield return new WaitForSeconds(1f);
+                RPCSongManager.Rpc_RemoveSong(runner, 0);
             }
             else
             {
@@ -74,10 +76,10 @@ namespace KOK
             {
                 var delta = runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().videoTime - runner.GetPlayerObject(host).GetComponent<PlayerNetworkBehavior>().videoTime;
 
-                Debug.Log(runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName + ": "
-                    + runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().videoTime + " - "
-                    + runner.GetPlayerObject(host).GetComponent<PlayerNetworkBehavior>().videoTime + " = "
-                    + delta);
+                //Debug.Log(runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName + ": "
+                //    + runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().videoTime + " - "
+                //    + runner.GetPlayerObject(host).GetComponent<PlayerNetworkBehavior>().videoTime + " = "
+                //    + delta);
                 //Debug.Log(GetSortedList()[0].PlayerName + ": " + GetSortedList()[0].videoTime);
 
                 if (delta < -1d || delta > 1d)
