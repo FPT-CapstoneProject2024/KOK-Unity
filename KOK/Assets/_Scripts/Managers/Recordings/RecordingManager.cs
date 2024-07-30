@@ -108,7 +108,7 @@ namespace KOK
 
             ApiHelper.Instance.GetComponent<RecordingController>().AddRecordingCoroutine(
                 createRecordingRequest,
-                (rr) => { Debug.Log(rr.Value); },
+                (rr) => { /*Debug.Log(rr.Value);*/ },
                 (ex) => { Debug.LogError(ex.Message); }
             );
 
