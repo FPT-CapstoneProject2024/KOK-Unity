@@ -607,7 +607,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             RecordingManager.Instance.CreateRecording(
                     recordingName,
                     UnityEngine.Random.Range(50, 100),
-                    "ebe4174c-5069-4767-a5c3-a962563d813f",
+                    "2265c487-8243-4547-b79b-baef95de50eb",
                     PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
                     PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
                     RoomLogManager.Instance.roomId.ToString(),

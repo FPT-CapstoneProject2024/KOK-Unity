@@ -82,7 +82,7 @@ namespace KOK
 
                 if (delta < -1d || delta > 1d)
                 {
-                    Debug.LogError("Delta: " + delta);
+                    Debug.LogWarning("Delta: " + delta);
                     runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().videoTime = runner.GetPlayerObject(host).GetComponent<PlayerNetworkBehavior>().videoTime;
                     runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().Rpc_SetVideoPlayerSyncTime();
 
