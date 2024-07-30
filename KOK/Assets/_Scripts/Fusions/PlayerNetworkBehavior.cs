@@ -3,6 +3,8 @@ using KOK;
 using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
+using KOK.Audio;
 using Photon.Realtime;
 using System;
 using System.Collections;
@@ -21,6 +23,7 @@ using static Unity.Collections.Unicode;
 
 public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetworkBehavior>, IComparer<PlayerNetworkBehavior>
 {
+    [Networked] public NetworkString<_64> AccountId { get; set; }
     [Networked] public NetworkString<_32> PlayerName { get; set; }
     [SerializeField] TextMeshPro playerNameLabel;
     [Networked] public Color PlayerColor { get; set; }
@@ -50,6 +53,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     [Networked, Capacity(50)][SerializeField] public NetworkArray<NetworkString<_32>> QueueSinger1List { get; }
     [Networked, Capacity(50)][SerializeField] public NetworkArray<NetworkString<_32>> QueueSinger2List { get; }
 
+    [Networked] public NetworkString<_128> audioUrl { get; set; }
+
     public List<SongDetail> SongList { get; private set; }
 
     public List<SongDetail> QueueSongList { get; private set; }
@@ -57,6 +62,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     public List<FavoriteSong> FavoriteSongList { get; private set; }
 
     public string RoomLogString { get; private set; }
+
+    [SerializeField] private VoiceRecorder voiceRecorder { get; set; }
 
     private void Start()
     {
@@ -70,6 +77,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             //PlayerName = FusionManager.Instance._playerName;
             //PlayerColor = FusionManager.Instance._playerColor;
 
+            AccountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
             PlayerName = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
             if (runner.ActivePlayers.Count() > 1)
             {
@@ -80,33 +88,32 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             else
             {
                 PlayerRole = 0;
-                string logFileName = PlayerName.ToString() + "_" + DateTime.Now + ".txt";
-                logFileName = logFileName.Replace(" ", "");
-                logFileName = logFileName.Replace(":", "");
-                logFileName = logFileName.Replace("/", "");
-                RoomLogManager.Instance.CreateRoomLog(logFileName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
+                //string logFileName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now + ".txt";
+                //logFileName = logFileName.Replace(" ", "");
+                //logFileName = logFileName.Replace(":", "");
+                //logFileName = logFileName.Replace("/", "");
+                //RoomLogManager.Instance.CreateRoomLog(logFileName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
             }
 
             CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
             AvatarCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
 
-            this.name = "Player: " + PlayerName;
-            //GetComponentInChildren<TextMeshPro>().text = PlayerName.ToString();
-            playerNameLabel.text = PlayerName.ToString();
-            playerNameLabel.color = PlayerColor;
-            playerRenderer.color = PlayerColor;
 
             videoPlayer = FindAnyObjectByType<VideoPlayer>();
 
-            RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
+            //RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
 
             SetSinger();
 
             StartCoroutine(UpdateTime());
             StartCoroutine(UpdateSearchSongUI());
-            StartCoroutine(NotiJoinRoom());
+            //StartCoroutine(NotiJoinRoom());
             RoomLogString = "";
+            voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
         }
+        this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
+        playerNameLabel.color = PlayerColor;
+        playerRenderer.color = PlayerColor;
 
     }
 
@@ -476,6 +483,63 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             GameObject.Find("QueueToggle").GetComponent<SongItemManager>().UpdateQueueSongList();
         }
         catch (Exception) { };
+    }
+
+    public void StartRecording()
+    {
+        if (isSinger)
+        {
+            var audioFile = QueueSongCodeList[0] + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString();
+            audioFile = audioFile.Replace(" ", "");
+            audioFile = audioFile.Replace(":", "");
+            audioFile = audioFile.Replace("/", "");
+
+            if (voiceRecorder == null) voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
+            voiceRecorder.StartRecording(audioFile);
+
+            audioUrl = audioFile;
+        }
+
+        if (PlayerRole == 0)
+        {
+            StartCoroutine(CreateRecording());
+        }
+    }
+
+    IEnumerator CreateRecording()
+    {
+        yield return new WaitForSeconds(5f);
+        if (PlayerRole == 0)
+        {
+            List<string> singerAudioUrls = new();
+            List<string> singerAccountIds = new();
+            var runner = NetworkRunner.Instances[0];
+            foreach (var player in runner.ActivePlayers)
+            {
+                if (runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().isSinger)
+                {
+                    singerAudioUrls.Add(runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().audioUrl.ToString());
+                    singerAccountIds.Add(runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().AccountId.ToString());
+                }
+            }
+
+            RecordingManager.Instance.CreateRecording(
+                    "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName),
+                    UnityEngine.Random.Range(50, 100),
+                    "ebe4174c-5069-4767-a5c3-a962563d813f",
+                    PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
+                    PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
+                    RoomLogManager.Instance.roomId.ToString(),
+                    singerAudioUrls,
+                    singerAccountIds
+                    );
+        }
+    }
+
+    public void StopRecording()
+    {
+        if (voiceRecorder == null) voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
+        voiceRecorder.StopRecording();
     }
 
 

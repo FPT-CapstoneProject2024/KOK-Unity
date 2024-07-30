@@ -1,4 +1,5 @@
 ﻿using KOK.ApiHandler.DTOModels;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.VoiceAudios;
 
-namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Recording
+namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response
 {
     [Serializable]
     public class Recording
@@ -25,5 +26,9 @@ namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Recording
         public Guid KaraokeRoomId { get; set; }
 
         public ICollection<VoiceAudio> VoiceAudios { get; set; }
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

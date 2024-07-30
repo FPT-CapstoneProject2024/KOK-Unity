@@ -18,6 +18,8 @@ namespace KOK
 
         public static RoomLogManager Instance { get; private set; }
 
+        public Guid roomId;
+
         private bool allowAppendLog = false;
         private void Awake()
         {
@@ -50,8 +52,9 @@ namespace KOK
                     RoomLog = fileLogName,
                     CreatorId = creatorId
                 },
-                (kr) => { 
+                (kr) => {
                     //Debug.LogError(kr.Value.RoomId + "  |  " + kr.Value.ToString()); 
+                    roomId = kr.Value.RoomId;
                 },
                 (ex) => { 
                     Debug.LogError(ex); 

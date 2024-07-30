@@ -6,15 +6,22 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using UnityEngine;
 using KOK.ApiHandler.Controller;
+using KOK.Assets._Scripts.ApiHandler.Controller;
 
 namespace KOK.ApiHandler.Utilities
 {
-    [RequireComponent(typeof(FavoriteSongController))]
-    [RequireComponent(typeof(SongController))]
     [RequireComponent(typeof(AccountController))]
     [RequireComponent(typeof(AuthenticationController))]
+    [RequireComponent(typeof(FavoriteSongController))]
+    [RequireComponent(typeof(KaraokeRoomController))]
+    [RequireComponent(typeof(PostCommentController))]
+    [RequireComponent(typeof(PostController))]
+    [RequireComponent(typeof(PostRatingController))]
     [RequireComponent(typeof(PurchasedSongController))]
+    [RequireComponent(typeof(RecordingController))]
     [RequireComponent(typeof(ShopController))]
+    [RequireComponent(typeof(ShopItemController))]
+    [RequireComponent(typeof(SongController))]
     /// <summary>
     /// A singleton helper class to handle API calls in Unity.
     /// </summary>

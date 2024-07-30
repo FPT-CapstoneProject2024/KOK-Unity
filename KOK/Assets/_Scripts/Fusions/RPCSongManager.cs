@@ -52,13 +52,13 @@ namespace KOK
         [Rpc]
         public static void Rpc_StartRecording(NetworkRunner runner)
         {
-            FindAnyObjectByType<VoiceRecorder>().StartRecording();
+            runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().StartRecording();
         }
         
         [Rpc]
         public static void Rpc_StopRecording(NetworkRunner runner)
         {
-            FindAnyObjectByType<VoiceRecorder>().StopRecording();
+            runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().StopRecording();
         }
 
         
