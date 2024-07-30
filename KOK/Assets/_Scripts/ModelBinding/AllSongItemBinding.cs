@@ -92,6 +92,7 @@ namespace KOK
                 SongId = (Guid)SongDetail.SongId,
                 SongName = SongDetail.SongName,
                 IsFavorited = SongDetail.isFavorite,
+                SongItem = gameObject
             };
             FavoriteSongToggle.AddEventListener(favoriteSongParam, OnFavoriteButtonToggle);
         }
