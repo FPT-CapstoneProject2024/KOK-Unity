@@ -65,6 +65,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     [SerializeField] private VoiceRecorder voiceRecorder { get; set; }
 
+    private bool isRecording = false;
+
     private void Start()
     {
         if (this.HasStateAuthority)
@@ -229,9 +231,27 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             if (videoPlayer != null)
             {
                 videoPlayer.Play();
+                StartCoroutine(RecordingAndRemoveSongFromQueue());
+            }
+        }
+    }
+
+    IEnumerator RecordingAndRemoveSongFromQueue()
+    {
+        yield return new WaitForSeconds(0.1f);
+        if (videoPlayer.isPlaying)
+        {
+            if (isSinger)
+            {
                 RPCSongManager.Rpc_StartRecording(NetworkRunner.Instances[0]);
+            }
+            if (PlayerRole == 0)
+            {
                 RPCSongManager.Rpc_RemoveSong(NetworkRunner.Instances[0], 0);
             }
+        } else
+        {
+            StartCoroutine(RecordingAndRemoveSongFromQueue());
         }
     }
 
@@ -542,6 +562,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     {
         if (this.HasStateAuthority)
         {
+            if (isRecording) return;
             if (isSinger)
             {
                 var audioFile = QueueSongCodeList[0] + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString();
@@ -553,6 +574,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 voiceRecorder.StartRecording(audioFile);
 
                 audioUrl = audioFile;
+
+                isRecording = true;
             }
 
             if (PlayerRole == 0)
@@ -579,8 +602,10 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 }
             }
 
+            string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
+
             RecordingManager.Instance.CreateRecording(
-                    "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName),
+                    recordingName,
                     UnityEngine.Random.Range(50, 100),
                     "ebe4174c-5069-4767-a5c3-a962563d813f",
                     PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
@@ -594,8 +619,13 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     public void StopRecording()
     {
-        if (voiceRecorder == null) voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
-        voiceRecorder.StopRecording();
+        if (this.HasStateAuthority)
+        {
+            if (!isRecording) return;
+            if (voiceRecorder == null) voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
+            voiceRecorder.StopRecording();
+            isRecording = false;
+        }
     }
 
 
