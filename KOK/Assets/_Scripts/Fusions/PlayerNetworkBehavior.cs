@@ -88,11 +88,11 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             else
             {
                 PlayerRole = 0;
-                //string logFileName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now + ".txt";
-                //logFileName = logFileName.Replace(" ", "");
-                //logFileName = logFileName.Replace(":", "");
-                //logFileName = logFileName.Replace("/", "");
-                //RoomLogManager.Instance.CreateRoomLog(logFileName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
+                string logFileName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now + ".txt";
+                logFileName = logFileName.Replace(" ", "");
+                logFileName = logFileName.Replace(":", "");
+                logFileName = logFileName.Replace("/", "");
+                RoomLogManager.Instance.CreateRoomLog(logFileName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
             }
 
             CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
@@ -107,7 +107,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
             StartCoroutine(UpdateTime());
             StartCoroutine(UpdateSearchSongUI());
-            //StartCoroutine(NotiJoinRoom());
+            StartCoroutine(NotiJoinRoom());
             RoomLogString = "";
             voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
         }
