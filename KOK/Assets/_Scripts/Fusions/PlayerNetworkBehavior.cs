@@ -67,7 +67,6 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     private void Start()
     {
-        Debug.LogError("HasStateAuthority: " + HasStateAuthority);
         if (this.HasStateAuthority)
         {
             //Debug.LogError(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName));
@@ -111,6 +110,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             RoomLogString = "";
             voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
         }
+        Debug.LogError(PlayerName + " HasStateAuthority: " + HasStateAuthority);
         this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
         playerNameLabel.color = PlayerColor;
         playerRenderer.color = PlayerColor;
@@ -229,6 +229,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             if (videoPlayer != null)
             {
                 videoPlayer.Play();
+                RPCSongManager.Rpc_StartRecording(NetworkRunner.Instances[0]);
+                RPCSongManager.Rpc_RemoveSong(NetworkRunner.Instances[0], 0);
             }
         }
     }

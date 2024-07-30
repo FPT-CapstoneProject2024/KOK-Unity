@@ -43,9 +43,7 @@ namespace KOK
                         runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().Rpc_PlayVideo();
                     }
                 }
-                RPCSongManager.Rpc_StartRecording(runner);
-                yield return new WaitForSeconds(1f);
-                RPCSongManager.Rpc_RemoveSong(runner, 0);
+                
             }
             else
             {
