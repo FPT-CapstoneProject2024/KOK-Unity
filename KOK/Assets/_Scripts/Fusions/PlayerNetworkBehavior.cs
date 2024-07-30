@@ -23,7 +23,7 @@ using static Unity.Collections.Unicode;
 
 public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetworkBehavior>, IComparer<PlayerNetworkBehavior>
 {
-    [Networked] public NetworkString<_64> AccountId {  get; set; }
+    [Networked] public NetworkString<_64> AccountId { get; set; }
     [Networked] public NetworkString<_32> PlayerName { get; set; }
     [SerializeField] TextMeshPro playerNameLabel;
     [Networked] public Color PlayerColor { get; set; }
@@ -63,7 +63,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     public string RoomLogString { get; private set; }
 
-    [SerializeField]private VoiceRecorder voiceRecorder {  get; set; }
+    [SerializeField] private VoiceRecorder voiceRecorder { get; set; }
 
     private void Start()
     {
@@ -88,35 +88,32 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             else
             {
                 PlayerRole = 0;
-                string logFileName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now + ".txt";
-                logFileName = logFileName.Replace(" ", "");
-                logFileName = logFileName.Replace(":", "");
-                logFileName = logFileName.Replace("/", "");
-                RoomLogManager.Instance.CreateRoomLog(logFileName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
+                //string logFileName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now + ".txt";
+                //logFileName = logFileName.Replace(" ", "");
+                //logFileName = logFileName.Replace(":", "");
+                //logFileName = logFileName.Replace("/", "");
+                //RoomLogManager.Instance.CreateRoomLog(logFileName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
             }
 
             CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
             AvatarCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
 
-            this.name = "Player: " + PlayerName;
-            //GetComponentInChildren<TextMeshPro>().text = PlayerName.ToString();
-            playerNameLabel.text = PlayerName.ToString();
-            playerNameLabel.color = PlayerColor;
-            playerRenderer.color = PlayerColor;
 
             videoPlayer = FindAnyObjectByType<VideoPlayer>();
 
-            RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
+            //RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
 
             SetSinger();
 
             StartCoroutine(UpdateTime());
             StartCoroutine(UpdateSearchSongUI());
-            StartCoroutine(NotiJoinRoom());
+            //StartCoroutine(NotiJoinRoom());
             RoomLogString = "";
+            voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
         }
-
-        voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
+        this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
+        playerNameLabel.color = PlayerColor;
+        playerRenderer.color = PlayerColor;
 
     }
 
@@ -490,7 +487,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     public void StartRecording()
     {
-        if(isSinger)
+        if (isSinger)
         {
             var audioFile = QueueSongCodeList[0] + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString();
             audioFile = audioFile.Replace(" ", "");
