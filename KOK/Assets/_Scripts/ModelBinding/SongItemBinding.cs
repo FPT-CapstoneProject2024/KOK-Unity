@@ -26,7 +26,7 @@ namespace KOK
 
         public void TurnFavoriteToggleOff()
         {
-            FavoriteSongToggle.isOn = true;
+            FavoriteSongToggle.isOn = false;
             ToggleSwapSprite.ToggleSprite();
         }
 

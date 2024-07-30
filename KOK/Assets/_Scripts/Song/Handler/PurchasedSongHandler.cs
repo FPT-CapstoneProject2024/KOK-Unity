@@ -206,6 +206,7 @@ namespace KOK
                 (successValue) =>
                 {
                     Debug.Log("[Purchased Songs] Successfully delete favorite song");
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().TurnFavoriteToggleOff();
                 },
                 (errorValue) =>
                 {
@@ -236,10 +237,12 @@ namespace KOK
                 (successValue) =>
                 {
                     Debug.Log("[Purchased Songs] Successfully add favorite song");
+                    favoriteSongParam.IsFavorited = true;
                 },
                 (errorValue) =>
                 {
                     Debug.Log("[Purchased Songs] Failed to add favorite song - Error api call");
+                    favoriteSongParam.IsFavorited = false;
                     favoriteSongParam.SongItem.GetComponent<SongItemBinding>().TurnFavoriteToggleOff();
                 });
         }
