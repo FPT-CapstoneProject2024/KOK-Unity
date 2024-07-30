@@ -21,5 +21,10 @@ namespace KOK
         {
             SceneManager.LoadScene(sceneName: "Quang");
         }
+
+        public void ToSongsScene()
+        {
+            SceneManager.LoadScene(sceneName: "Song");
+        }
     }
 }
