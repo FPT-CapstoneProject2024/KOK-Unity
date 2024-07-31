@@ -4,7 +4,6 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.Utilities;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Recording;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.VoiceAudios;
 using System;
 using KOK.Assets._Scripts.ApiHandler.Controller;
@@ -17,7 +16,7 @@ using KOK.Assets._Scripts.FileManager;
 using System.Collections;
 using WebSocketSharp;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PostComment;
-using static UnityEditor.Progress;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 
 public class RecordingLoader : MonoBehaviour
 {

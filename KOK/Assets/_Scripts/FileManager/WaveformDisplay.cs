@@ -277,7 +277,6 @@ public class WaveformSlider : MonoBehaviour
 using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Recording;
 using KOK.Assets._Scripts.FileManager;
 using System;
 using System.Collections;
