@@ -22,6 +22,7 @@ namespace KOK
         [SerializeField] GameObject _songHolderPrefab;
         [SerializeField] TMP_InputField _searchSongInput;
         [SerializeField] Toggle _favToggle;
+        [SerializeField] Toggle _purToggle;
 
         private NetworkRunner _runner;
 
@@ -29,6 +30,7 @@ namespace KOK
         {
             try
             {
+                List<SongDetail> searchSongList = new List<SongDetail>();
                 if (_viewportContent == null) { return; }
                 if (_runner == null) { _runner = NetworkRunner.Instances[0]; }
                 foreach (Transform child in _viewportContent.transform)
@@ -37,24 +39,32 @@ namespace KOK
                 }
 
                 //List<SongDetail> songList = SongManager.songs;
+                Debug.Log(_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>());
                 List<SongDetail> songList = _runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().SongList;
-                
 
                 string searchKeyword = _searchSongInput.text;
                 if (!searchKeyword.IsNullOrEmpty())
                 {
-                    songList = songList.Where(s => s.SongName.ContainsInsensitive(searchKeyword)
+                    searchSongList = songList.Where(s => s.SongName.ContainsInsensitive(searchKeyword)
                                                 || s.Artist.ToCommaSeparatedString().ContainsInsensitive(searchKeyword)
                                                 || s.Singer.ToCommaSeparatedString().ContainsInsensitive(searchKeyword)
                                                 || s.Genre.ToCommaSeparatedString().ContainsInsensitive(searchKeyword)).ToList();
                 }
+                else
+                {
+                    searchSongList = songList;
+                }
 
-                //if (_favToggle.isOn)
-                //{
-                //    songList = songList.Where(s => _runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().FavoriteSongList.FirstOrDefault(f => f.SongId == s.SongId) != null).ToList();
-                //}
+                if (_favToggle.isOn)
+                {
+                    searchSongList = searchSongList.Where(s => s.isFavorite == true).ToList();
+                }
+                if (_purToggle.isOn)
+                {
+                    searchSongList = searchSongList.Where(s => s.isPurchased == true).ToList();
+                }
 
-                foreach (var song in songList)
+                foreach (var song in searchSongList)
                 {
                     try
                     {
@@ -62,19 +72,24 @@ namespace KOK
                         songHolder.name = song.SongName;
                         songHolder.GetComponentInChildren<SongBinding>().BindingData(song);
                         songHolder.transform.GetChild(0).name = song.SongId.ToString();
-                        //if (_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().IsFavoriteSong((Guid)song.SongId))
-                        //{
-                        //    _favToggle.isOn = true;
-                        //}
-                        //else
-                        //{
-                        //    _favToggle.isOn = false;
-                        //}
+
+                        if (song.isFavorite)
+                        {
+                            songHolder.transform.Find("FavouriteToggle").GetComponent<Toggle>().isOn = true;
+                        }
+                        else
+                        {
+                            songHolder.transform.Find("FavouriteToggle").GetComponent<Toggle>().isOn = false;
+                        }
+
+                        if (!song.isPurchased)
+                        {
+                            songHolder.GetComponentInChildren<Image>().color = Color.grey;
+                        }
                     }
-                    catch { }
+                    catch (Exception ex) { Debug.LogError(ex); }
                 }
-            }
-            catch { }
+            } catch { }
         }
 
         public void UpdateQueueSongList()
