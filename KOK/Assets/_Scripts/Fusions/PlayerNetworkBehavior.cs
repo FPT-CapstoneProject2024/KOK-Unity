@@ -162,7 +162,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                                                     },
                                                     (drr) => { SongList = drr.Results.ToList(); StartCoroutine(UpdateSearchSongUI()); Debug.Log("Reload song success!"); },
                                                     (ex) => Debug.LogError(ex));
-            
+
             //Load purchased song list here
 
             PurchasedSongList = new();
@@ -198,7 +198,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             if (videoPlayer != null)
             {
                 videoPlayer.time = videoTime;
-            } else
+            }
+            else
             {
                 videoPlayer = FindAnyObjectByType<VideoPlayer>();
                 videoPlayer.time = videoTime;
@@ -213,8 +214,9 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             if (videoPlayer != null)
             {
                 videoPlayer.Prepare();
-            } 
-            else {
+            }
+            else
+            {
                 videoPlayer = FindAnyObjectByType<VideoPlayer>();
                 videoPlayer.Prepare();
             }
@@ -246,7 +248,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             {
                 RPCSongManager.Rpc_RemoveSong(NetworkRunner.Instances[0], 0);
             }
-        } else
+        }
+        else
         {
             StartCoroutine(RecordingAndRemoveSongFromQueue());
         }
@@ -594,23 +597,40 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             {
                 if (runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().isSinger)
                 {
-                    singerAudioUrls.Add(runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().audioUrl.ToString());
-                    singerAccountIds.Add(runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().AccountId.ToString());
+                    var audioUrl = runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().audioUrl.ToString();
+                    if (!audioUrl.IsNullOrEmpty())
+                    {
+                        singerAudioUrls.Add(audioUrl);
+                    }
+                    var accountId = runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().AccountId.ToString();
+                    if (!accountId.IsNullOrEmpty())
+                    {
+                        singerAccountIds.Add(accountId);
+                    }
                 }
             }
 
-            string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
+            if (singerAccountIds.Count == 0 || singerAccountIds.Count != singerAudioUrls.Count)
+            {
+                Debug.Log("Room recording is NOT ready: " + singerAudioUrls.Count);
+                StartCoroutine(CreateRecording());
+            }
+            else
+            {
+                Debug.Log("Room recording is ready: " + singerAudioUrls.Count);
+                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
 
-            RecordingManager.Instance.CreateRecording(
-                    recordingName,
-                    UnityEngine.Random.Range(50, 100),
-                    "2265c487-8243-4547-b79b-baef95de50eb",
-                    PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
-                    PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
-                    RoomLogManager.Instance.roomId.ToString(),
-                    singerAudioUrls,
-                    singerAccountIds
-                    );
+                RecordingManager.Instance.CreateRecording(
+                        recordingName,
+                        UnityEngine.Random.Range(50, 100),
+                        "2265c487-8243-4547-b79b-baef95de50eb",
+                        PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
+                        PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
+                        RoomLogManager.Instance.roomId.ToString(),
+                        singerAudioUrls,
+                        singerAccountIds
+                        );
+            }
         }
     }
 
