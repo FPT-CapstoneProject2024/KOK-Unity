@@ -277,13 +277,16 @@ public class WaveformSlider : MonoBehaviour
 using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
+using KOK.Assets._Scripts.FileManager;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class WaveformDisplay : MonoBehaviour
 {
@@ -292,12 +295,13 @@ public class WaveformDisplay : MonoBehaviour
     public List<ScrollRect> scrollRects;
     public List<RectTransform> playbackIndicators;
     public List<TMP_InputField> startTimeInputFields;
+    //private List<AudioSource> audioSources = new List<AudioSource>();
     private List<AudioSource> audioSources = new List<AudioSource>();
     private List<AudioClip> originalAudioClips = new List<AudioClip>(); // Store original audio clips
     private List<AudioClip> audioClips = new List<AudioClip>();
     private List<Texture2D> waveformTextures = new List<Texture2D>();
     private List<string> audioFileNames = new List<string>();
-    private FFMPEG ffmpeg;
+    private FFMPEG ffmpeg = new FFMPEG();
 
     public Button refreshButton;
 
@@ -307,12 +311,13 @@ public class WaveformDisplay : MonoBehaviour
     private bool isDragging = false;
     private float endBufferTime = 0.05f; // Buffer time to stop playback before the actual end (for waveform display bug fixing)
 
-    void Start()
+    public RecordingLoader recordingLoader;
+
+    void InitializeDisplay(string audioName)
     {
-        ffmpeg = new FFMPEG();
         string audioFolderPath = Path.Combine(Application.persistentDataPath, "AudioProcess");
         audioFileNames.Add("extractedAudio.wav");
-        audioFileNames.Add("recordedVoice.wav");
+        audioFileNames.Add(audioName);
 
         foreach (string fileName in audioFileNames)
         {
@@ -343,26 +348,40 @@ public class WaveformDisplay : MonoBehaviour
         }
 
         refreshButton.onClick.AddListener(RefreshTracks);
-
-        
     }
 
-    
-    /*void Start()
+    void FixedUpdate()
     {
-        for (int i = 0; i < audioClips.Count; i++)
+        /*for (int i = 0; i < audioSources.Count; i++)
         {
-            originalAudioClips.Add(audioClips[i]); // Store the original clip
-            CreateWaveformAndAudioSource(i);
-        }
+            if (!isDragging)
+            {
+                if (audioSources[i].time >= audioClips[i].length - endBufferTime)
+                {
+                    // Pause the audio near the end
+                    audioSources[i].Pause();
+                }
 
-        refreshButton.onClick.AddListener(RefreshTracks);
-    }*/
+                sliders[i].value = audioSources[i].time;
 
-    void Update()
-    {
+                // Calculate the normalized playback position
+                float normalizedPosition = audioSources[i].time / audioClips[i].length;
+
+                // Update the horizontal scroll position to keep the indicator fixed
+                UpdateScrollRect(i, normalizedPosition);
+            }
+            else
+            {
+                isDragging = false;
+            }
+        }*/
         for (int i = 0; i < audioSources.Count; i++)
         {
+            if (audioSources[i] == null)
+            {
+                continue; // Skip null AudioSources
+            }
+
             if (!isDragging)
             {
                 if (audioSources[i].time >= audioClips[i].length - endBufferTime)
@@ -387,7 +406,7 @@ public class WaveformDisplay : MonoBehaviour
     }
 
     void CreateWaveformAndAudioSource(int index)
-    {
+    {    
         AudioSource audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.clip = audioClips[index];
         audioSource.loop = false;
@@ -465,8 +484,6 @@ public class WaveformDisplay : MonoBehaviour
 
         return texture;
     }
-
-
 
     void OnSliderValueChanged(int index, float value)
     {
@@ -580,7 +597,6 @@ public class WaveformDisplay : MonoBehaviour
         }
     }
 
-
     AudioClip TrimAudioClip(AudioClip clip, float startTime, float endTime)
     {
         if (startTime < 0 || endTime > clip.length || startTime >= endTime)
@@ -649,14 +665,46 @@ public class WaveformDisplay : MonoBehaviour
         StartCoroutine(ffmpeg.CombineAudioAndAudio(listFinalAudios[0], listFinalAudios[1]));
     }
 
-    public void ShowPopup()
+    public void ShowPopup(string audioName)
     {
         gameObject.SetActive(true);
+        //StartCoroutine(Wait(audioName)); 
+        InitializeDisplay(audioName);
     }
 
     public void HidePopup()
     {
-        gameObject.SetActive(false);
+        Clear();
+
+        StartCoroutine(Wait());
+    }
+
+    IEnumerator Wait()
+    {
+        yield return new WaitForSeconds(0.1f);
+        if (audioFileNames != null && originalAudioClips != null && waveformTextures != null && audioClips != null)
+        {
+            gameObject.SetActive(false);
+            recordingLoader.Show();
+        }
+        else
+        {
+            Wait();
+        }
+    }
+
+    private void Clear()
+    {
+        //audioSources.Clear();
+        originalAudioClips.Clear();
+        audioClips.Clear();
+        waveformTextures.Clear();
+        audioFileNames.Clear();
+
+        for (int i = 0; i < audioSources.Count; i++)
+        {
+            Destroy(audioSources[i]);
+        }
+        audioSources.Clear();
     }
 }
-
