@@ -140,17 +140,28 @@ namespace KOK
             postResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Posts_Resource;
         }
 
-        public void GetPostByIdCoroutine(Guid postId, Action<string> onSuccess, Action<string> onError)
+        public void GetPostByIdCoroutine(Guid postId, Action<List<Post>> onSuccess, Action<string> onError)
         {
+            // Validate Post ID
             if (postId == null)
             {
-                Debug.Log("Failed to get post by ID. Post ID is null!");
+                Debug.Log("Failed to get Post by ID. Post ID is null!");
                 return;
             }
 
-            // Prepare and send api request 
-            var url = postResourceUrl + "/" + postId.ToString();
-            ApiHelper.Instance.GetCoroutine(url, onSuccess, onError);
+            // Prepare and send api request
+            var url = postResourceUrl + "?PostId=" + postId.ToString();
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<Post>>(successValue);
+                    onSuccess?.Invoke(result.Results);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to retrieve an Post by ID [{postId.ToString()}]: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
         }
 
         public async Task<Post?> GetPostByIdAsync(Guid postId)

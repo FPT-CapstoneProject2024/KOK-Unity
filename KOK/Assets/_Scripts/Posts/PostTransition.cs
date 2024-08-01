@@ -11,6 +11,7 @@ using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Post;
 using System;
+using KOK.Assets._Scripts.Posts;
 
 namespace KOK
 {
@@ -26,6 +27,7 @@ namespace KOK
         private SwipeDetector swipeDetector;
         public PostCommentLoader postCommentLoader;
         public MemberLoader memberLoader;
+        public PostLoader postLoader;
 
         public TMP_Text captionText;
         public TMP_Text memberText;
@@ -53,38 +55,6 @@ namespace KOK
             swipeDetector.OnSwipeDown.RemoveListener(SwipeDown);
         }
 
-        void PlayVideo()
-        {
-            if (currentPostIndex == 0)
-            {
-                videoPlayer.Stop();
-                videoPlayer.url = "https://firebasestorage.googleapis.com/v0/b/kok-unity.appspot.com/o/KaraokeVideos%2FBu%E1%BB%93n%20Th%C3%AC%20C%E1%BB%A9%20Kh%C3%B3c%20%C4%90i.mp4?alt=media&token=f46adca8-0cd5-4860-896c-dd8efb3bf05a";
-                videoPlayer.Prepare();
-                videoPlayer.Play();
-            }
-            if (currentPostIndex == 1)
-            {
-                videoPlayer.Stop();
-                videoPlayer.url = "https://firebasestorage.googleapis.com/v0/b/kok-unity.appspot.com/o/KaraokeVideos%2FM%E1%BB%99t%20%C4%90%C3%AAm%20Say.mp4?alt=media&token=ff66ba2c-ef79-4900-9b0d-c672c3ce7c6e";
-                videoPlayer.Prepare();
-                videoPlayer.Play();
-            }
-            if (currentPostIndex == 2)
-            {
-                videoPlayer.Stop();
-                videoPlayer.url = "https://firebasestorage.googleapis.com/v0/b/kok-unity.appspot.com/o/KaraokeVideos%2FT%C3%BAy%20%C3%82m.mp4?alt=media&token=77cd5236-39e2-4120-95dd-ec64ed64cc3e";
-                videoPlayer.Prepare();
-                videoPlayer.Play();
-            }
-            if (currentPostIndex == 3)
-            {
-                videoPlayer.Stop();
-                videoPlayer.url = "https://firebasestorage.googleapis.com/v0/b/kok-unity.appspot.com/o/KaraokeVideos%2FBu%E1%BB%93n%20Th%C3%AC%20C%E1%BB%A9%20Kh%C3%B3c%20%C4%90i.mp4?alt=media&token=f46adca8-0cd5-4860-896c-dd8efb3bf05a";
-                videoPlayer.Prepare();
-                videoPlayer.Play();
-            }
-        }
-
         public void GetPostsFilterPaging()
         {            
             FindAnyObjectByType<ApiHelper>().gameObject
@@ -97,9 +67,20 @@ namespace KOK
                 );
         }
 
-        private void OnSuccess(List<Post> post)
+        public void GetPost(Guid postId)
         {
-            Debug.Log(post);
+            FindAnyObjectByType<ApiHelper>().gameObject
+                .GetComponent<PostController>()
+                .GetPostByIdCoroutine(  postId,
+                                        PlayVideo,
+                                        OnError
+                );
+        }
+
+        // dont ask about list
+        void PlayVideo(List<Post> post)
+        {
+            postLoader.GetRecordingById(post[0].RecordingId.Value);
         }
 
         public void SetInitialPosts(List<Post> postsData)
@@ -124,11 +105,14 @@ namespace KOK
 
             // Load comments for the initial post
             LoadCommentsForCurrentPost();
-
             LoadMemberForCurrentPost();
+
             // Update caption and member display initially
             UpdateCaptionDisplay();
             UpdateMemberDisplay();
+
+            // Load video
+
         }
 
         void SwipeUp()
@@ -136,7 +120,7 @@ namespace KOK
             if (currentPostIndex < posts.Count - 1)
             {
                 StartCoroutine(TransitionPost(currentPostIndex + 1, true)); // true for swipe up
-                PlayVideo();
+                //PlayVideo();
             }
             else
             {
@@ -148,7 +132,7 @@ namespace KOK
         {
             if (currentPostIndex > 0)
             {
-                PlayVideo();
+                //PlayVideo();
                 StartCoroutine(TransitionPost(currentPostIndex - 1, false)); // false for swipe down
             }
             else
@@ -187,6 +171,7 @@ namespace KOK
             // Load comments and member details for the new current post
             LoadCommentsForCurrentPost();
             LoadMemberForCurrentPost();
+            LoadVideoForCurrentPost();
 
             // Update caption and member display after transition
             UpdateCaptionDisplay();
@@ -224,6 +209,7 @@ namespace KOK
             // Load comments and member details for the current post after resetting positions
             LoadCommentsForCurrentPost();
             LoadMemberForCurrentPost();
+            LoadVideoForCurrentPost();
 
             // Update caption and member display after resetting positions
             UpdateCaptionDisplay();
@@ -238,6 +224,19 @@ namespace KOK
                 if (!string.IsNullOrEmpty(currentPostId))
                 {
                     postCommentLoader.GetPostComment(Guid.Parse(currentPostId));
+                }
+            }
+        }
+
+        private void LoadVideoForCurrentPost()
+        {
+            if (postLoader != null)
+            {
+                string currentPostId = GetCurrentPostId();
+
+                if (!string.IsNullOrEmpty(currentPostId))
+                {
+                    GetPost(Guid.Parse(currentPostId));
                 }
             }
         }
