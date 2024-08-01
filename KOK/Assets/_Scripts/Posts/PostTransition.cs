@@ -106,13 +106,11 @@ namespace KOK
             // Load comments for the initial post
             LoadCommentsForCurrentPost();
             LoadMemberForCurrentPost();
+            LoadVideoForCurrentPost();
 
             // Update caption and member display initially
             UpdateCaptionDisplay();
             UpdateMemberDisplay();
-
-            // Load video
-
         }
 
         void SwipeUp()

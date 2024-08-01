@@ -24,8 +24,8 @@ namespace KOK.Assets._Scripts.Posts
         {
             FindAnyObjectByType<ApiHelper>().gameObject
                 .GetComponent<RecordingController>()
-                .GetRecordingByIdCoroutine( recordingId,
-                                            test,
+                .GetRecordingsByIdCoroutine2( recordingId,
+                                            LoadVideo,
                                             test2
                                             );
         }
@@ -36,7 +36,7 @@ namespace KOK.Assets._Scripts.Posts
                 .GetComponent<PurchasedSongController>()
                 .GetPurchasedSongByIdCoroutine(purchasedSongId,
                                                 GetSongCoroutine,
-                                                OnError1
+                                                OnError2
                                                 );
         }
 
@@ -47,7 +47,7 @@ namespace KOK.Assets._Scripts.Posts
                 .GetComponent<SongController>()
                 .GetSongByIdCoroutine(song[0].SongId,
                                         SetSongUrl,
-                                        OnError2
+                                        OnError3
                                         );
         }
 
@@ -58,16 +58,19 @@ namespace KOK.Assets._Scripts.Posts
         }
 
         // chua down
-        private void test (ResponseResult<Recording> recording)
+        private void LoadVideo(List<Recording> recordings)
         {
-            foreach(var voiceAudio in recording.Value.VoiceAudios)
+            foreach (var recording in recordings)
             {
-                GetPurchasedSongCoroutine(recording.Value.PurchasedSongId);
-                var startTimeSong = recording.Value.StartTime;
-                var startTimeVoiceAudio = voiceAudio.StartTime;                
-                var voiceUrl = voiceAudio.VoiceUrl;
-                string voiceFolderPath = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + voiceUrl + ".wav");
-                StartCoroutine(PlayVideo(voiceFolderPath, startTimeVoiceAudio, startTimeSong, voiceUrl));
+                foreach (var voiceAudio in recording.VoiceAudios)
+                {
+                    GetPurchasedSongCoroutine(recording.PurchasedSongId);
+                    var startTimeSong = recording.StartTime;
+                    var startTimeVoiceAudio = voiceAudio.StartTime;
+                    var voiceUrl = voiceAudio.VoiceUrl;
+                    string voiceFolderPath = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + voiceUrl + ".wav");
+                    StartCoroutine(PlayVideo(voiceFolderPath, startTimeVoiceAudio, startTimeSong, voiceUrl));
+                }
             }
         }
 
@@ -85,17 +88,17 @@ namespace KOK.Assets._Scripts.Posts
             }
         }
 
-        private void test2 (ResponseResult<Recording> error)
+        private void test2 (string error)
         {
             Debug.Log (error);
         }
 
-        private void OnError1(string error)
+        private void OnError2(string error)
         {
             Debug.Log(error);
         }
 
-        private void OnError2(ResponseResult<SongDetail> detail)
+        private void OnError3(ResponseResult<SongDetail> detail)
         {
             Debug.Log(detail);
         }
