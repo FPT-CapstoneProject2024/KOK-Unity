@@ -1,5 +1,6 @@
 using KOK.ApiHandler.DTOModels;
 using KOK.UISprite;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,7 +16,7 @@ namespace KOK
             PurchasedSong = purchasedSong;
 
             SongName.text = PurchasedSong.SongName;
-            SongPrice.text = PurchasedSong.Price.ToString();
+            SongPrice.text = String.Format("{0:0.00}", PurchasedSong.Price);
 
             string artist = string.Empty;
             foreach (var a in PurchasedSong.Artists)
@@ -69,6 +70,7 @@ namespace KOK
 
         public void OnFavoriteButtonToggle(FavoriteSongParam song, bool isOn)
         {
+            DisableFavoriteToggle();
             FindFirstObjectByType<PurchasedSongHandler>().OnFavoriteSongToggle(isOn, song);
         }
     }
