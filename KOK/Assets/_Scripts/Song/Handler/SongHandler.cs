@@ -151,7 +151,7 @@ namespace KOK
         {
             currentPage = 1;
             searchKeyword = searchInput.text;
-            filter.SongName = searchKeyword;
+            SetFilterKeyword();
             LoadSongs();
         }
 
@@ -208,10 +208,14 @@ namespace KOK
                 (successValue) =>
                 {
                     Debug.Log("[All Songs] Successfully add favorite song");
+                    favoriteSongParam.IsFavorited = true;
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().EnableFavoriteToggle();
                 },
                 (errorValue) =>
                 {
                     Debug.Log("[All Songs] Failed to add favorite song - Error api call");
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().TurnFavoriteToggleOff();
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().EnableFavoriteToggle();
                 });
         }
 
@@ -237,16 +241,29 @@ namespace KOK
                 (successValue) =>
                 {
                     Debug.Log("[All Songs] Successfully delete favorite song");
+                    favoriteSongParam.IsFavorited = false;
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().EnableFavoriteToggle();
                 },
                 (errorValue) =>
                 {
                     Debug.Log("[All Songs] Failed to delete favorite song - Error api call");
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().TurnFavoriteToggleOn();
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().EnableFavoriteToggle();
                 });
         }
 
         public void StartPurchaseSong(BuySongParam buySongParam)
         {
             songPurchaseCanvas.GetComponent<SongPurchaseHandler>().ShowPurchaseSongDialog(buySongParam);
+        }
+
+        private void SetFilterKeyword()
+        {
+            filter.SongName = searchKeyword;
+            filter.SongCode = searchKeyword;
+            filter.GenreName = searchKeyword;
+            filter.ArtistName = searchKeyword;
+            filter.SingerName = searchKeyword;
         }
     }
 }

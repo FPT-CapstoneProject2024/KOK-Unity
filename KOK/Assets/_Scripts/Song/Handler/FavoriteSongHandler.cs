@@ -224,6 +224,7 @@ namespace KOK
                 {
                     Debug.Log("[Favorite Songs] Failed to delete favorite song - Error api call");
                     favoriteSongParam.SongItem.GetComponent<SongItemBinding>().TurnFavoriteToggleOn();
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().EnableFavoriteToggle();
                 });
         }
 
