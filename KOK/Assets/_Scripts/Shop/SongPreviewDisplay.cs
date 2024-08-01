@@ -1,4 +1,5 @@
-﻿using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Song;
+﻿using KOK.ApiHandler.DTOModels;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Song;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace KOK.Assets._Scripts.Shop
             gameObject.SetActive(false);
         }
 
-        public void ShowPopup(Song song)
+        public void ShowPopup(SongDetail song)
         {
             gameObject.SetActive(true);
             Display(song);
@@ -33,7 +34,7 @@ namespace KOK.Assets._Scripts.Shop
             gameObject.SetActive(false);
         }
 
-        public void Display(Song song)
+        public void Display(SongDetail song)
         {
             songNameDisplay.text = song.SongName;
             songDescriptionDisplay.text = song.SongDescription;

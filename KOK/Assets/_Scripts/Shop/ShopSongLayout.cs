@@ -8,20 +8,20 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using KOK.ApiHandler.DTOModels;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Song;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Song;
 using KOK.ApiHandler.Context;
 using KOK.Assets._Scripts.Shop;
+using KOK.ApiHandler.Controller;
+using KOK.ApiHandler.Utilities;
 
 namespace KOK
 {
     public class ShopSongLayout : MonoBehaviour
     {
-        [SerializeField] private List<Song> songList = new List<Song>();
-        private ShopSongController shopSongController;
+        private List<SongDetail> songList = new List<SongDetail>();
+        private SongController shopSongController;
         public SongPreviewDisplay songPreview;
 
-        private List<string> songCodes = new List<string>();
         public GameObject displayPanel;
         public GameObject displayButton;
         private string songResourceUrl = string.Empty;
@@ -29,16 +29,34 @@ namespace KOK
         private void Start()
         {
             songResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
-            shopSongController = new ShopSongController();
-            StartCoroutine(GetSongsFilterPagingCoroutine(new SongFilter(), new SongOrderFilter(), new PagingRequest()));
+                       
+            GetSongsFilterPaging();
         }
 
-        private void LayoutGenerate()
+        public void GetSongsFilterPaging()
+        {
+            songList = new();
+            FindAnyObjectByType<ApiHelper>().gameObject
+                .GetComponent<SongController>()
+                .GetSongsFilterPagingCoroutine( new SongFilter(),
+                                                new SongOrderFilter(),
+                                                new PagingRequest(),
+                                                LayoutGenerate,
+                                                OnError
+                );
+        }
+
+        private void OnSuccess(List<SongDetail> songList)
+        {
+            Debug.LogError(songList);
+        }
+
+        private void LayoutGenerate(List<SongDetail> songList)
         {
             for (int i = 0; i < songList.Count; i++)
             {
                 GameObject gameObj = Instantiate(displayButton, displayPanel.transform);
-                gameObj.transform.GetChild(0).GetComponent<TMP_Text>().text = songCodes[i];
+                gameObj.transform.GetChild(0).GetComponent<TMP_Text>().text = songList[i].SongCode;
 
                 int index = i;
                 Debug.Log(songList[i].SongId);
@@ -50,10 +68,15 @@ namespace KOK
             }
         }
 
-        private void SongClicked(Song song)
+        private void SongClicked(SongDetail song)
         {
             songPreview.ShowPopup(song);
             Debug.Log("Song clicked: " + song.SongId);
+        }
+
+        public void CloseClicked()
+        {
+            songPreview.HidePopup();
         }
 
         public void RefreshClicked()
@@ -64,12 +87,12 @@ namespace KOK
                 Destroy(child);
             }
 
-            StartCoroutine(GetSongsFilterPagingCoroutine(new SongFilter(), new SongOrderFilter(), new PagingRequest()));
+            GetSongsFilterPaging();
         }
 
-        private IEnumerator GetSongsFilterPagingCoroutine(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
+        /*private IEnumerator GetSongsFilterPagingCoroutine(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
         {
-            string url = shopSongController.BuildUrl(songResourceUrl, shopSongController.GenerateSongQueryParams(filter, orderFilter, paging));
+            string url = QueryHelper.BuildUrl(songResourceUrl, shopSongController.GenerateSongQueryParams(filter, orderFilter, paging));
 
             UnityWebRequest request = UnityWebRequest.Get(url);
             yield return request.SendWebRequest();
@@ -96,6 +119,26 @@ namespace KOK
             {
                 Debug.LogError(request.error);
             }
+        }*/
+
+   /*     private void OnSuccessTest(List<SongDetail> songDetails)
+        {
+            songCodes.Clear();
+            songList.Clear();
+
+            foreach (SongDetail song in songDetails)
+            {
+                songCodes.Add(song.SongCode);
+                songList.Add(song);
+            }
+
+            LayoutGenerate();
+            //Debug.Log(response);
+        }*/
+
+        private void OnError(string error)
+        {
+            Debug.LogError(error);
         }
     }
 }

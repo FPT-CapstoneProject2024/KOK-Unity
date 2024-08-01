@@ -15,6 +15,41 @@ namespace KOK.ApiHandler.DTOModels
         PhoneNumber = 13,
     }
 
+    public enum SongOrderFilter
+    {
+        SongId = 0,
+        SongName = 1,
+        SongCode = 7,
+    }
+
+    public enum FavoriteSongOrderFilter
+    {
+        MemberId = 0,
+        SongId = 1
+    }
+
+    public enum ItemOrderFilter
+    {
+        ItemCode = 1,
+        ItemName = 2,
+    }
+
+    public enum PostCommentOrderFilter
+    {
+        Comment = 1,
+    }
+
+    public enum PostOrderFilter
+    {
+        Caption = 1,
+        PostId = 0,
+    }
+
+    public enum RecordingOrderFilter
+    {
+        RecordingName = 1,
+    }
+
     #endregion
 
     #region Account
@@ -57,11 +92,7 @@ namespace KOK.ApiHandler.DTOModels
         DEFAULT,
     }
 
-    public enum ItemOrderFilter
-    {
-        ItemCode = 1,
-        ItemName = 2,
-    }
+
 
     #endregion
 
@@ -86,12 +117,6 @@ namespace KOK.ApiHandler.DTOModels
         ROCK = 3,
     }
 
-    public enum SongOrderFilter
-    {
-        SongName = 1,
-        SongCode = 7,       
-    }
-
     #endregion
 
     #region PostComment
@@ -106,5 +131,48 @@ namespace KOK.ApiHandler.DTOModels
         DEACTIVE,
         ACTIVE,
     }
+    #endregion
+
+    #region FavoriteSong
+
+
+
+    #endregion
+
+    #region Recording
+    public enum RecordingType
+    {
+        SINGLE,
+        MULTIPLE,
+    }
+    #endregion
+
+    #region PurchasedSong
+
+    public enum PurchasedSongOrderFilter
+    {
+        PurchasedSongId,
+        PurchaseDate,
+        MemberId,
+        SongId,
+    }
+
+    #endregion
+
+    #region Transaction
+
+    public enum InAppTransactionStatus
+    {
+        PENDING,
+        COMPLETE,
+        CANCELED,
+    }
+
+    public enum InAppTransactionType
+    {
+        BUY_ITEM = 1,
+        BUY_SONG = 2,
+    }
+
     #endregion
 }

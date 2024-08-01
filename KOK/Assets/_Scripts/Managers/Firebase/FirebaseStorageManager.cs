@@ -4,6 +4,7 @@ using Firebase.Storage;
 using System;
 using System.Collections;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -14,10 +15,12 @@ namespace KOK
     {
         const string STORAGE_BUCKET_URL = "gs://kok-unity.appspot.com";
         const string VOICE_RECORDINGS_REF_NAME = "VoiceRecordings";
+        const string ROOM_LOG_REF_NAME = "RoomLogs";
 
         private FirebaseStorage firebaseStorage;
         private StorageReference rootStorageReference;
         private StorageReference voiceRecordingReference;
+        private StorageReference roomLoggingReference;
 
         private void Start()
         {
@@ -33,6 +36,7 @@ namespace KOK
                     firebaseStorage = FirebaseStorage.DefaultInstance;
                     rootStorageReference = firebaseStorage.GetReferenceFromUrl(STORAGE_BUCKET_URL);
                     voiceRecordingReference = rootStorageReference.Child(VOICE_RECORDINGS_REF_NAME);
+                    roomLoggingReference = rootStorageReference.Child(ROOM_LOG_REF_NAME);
                 }
                 else
                 {
@@ -133,6 +137,65 @@ namespace KOK
             Debug.Log($"Bucket: {metadata.Bucket}");
             Debug.Log($"Generation: {metadata.Generation}");
             Debug.Log($"Md5 Hash: {metadata.Md5Hash}");
+        }
+
+        //public IEnumerator DownLoadRoomLogFile(string downloadUrl, string localFilePath, Action<string> onSuccess, Action<string> onError)
+        //{
+        //    UnityWebRequest request = UnityWebRequest.Get(downloadUrl);
+        //    //var operation = request.SendWebRequest();
+
+        //    yield return request.SendWebRequest();
+
+        //    if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+        //    {
+        //        Debug.Log($"{downloadUrl} - GET - {request.error}");
+        //        onError?.Invoke(request.downloadHandler.text);
+        //    }
+        //    else
+        //    {
+        //        onSuccess?.Invoke(request.downloadHandler.text);
+        //    }
+        //}
+        public void DownLoadRoomLogFile(string localFilePath, Action onSuccess, Action onError)
+        {
+            string fileName = Path.GetFileName(localFilePath);
+            StorageReference fileRef = roomLoggingReference.Child(fileName);
+            fileRef.GetFileAsync(localFilePath).ContinueWith(task => {
+                if (task.IsFaulted || task.IsCanceled)
+                {
+                    Debug.Log(task.Exception.ToString());
+                    onError?.Invoke();
+                }
+                else
+                {
+                    Debug.Log("File downloaded successfully.");
+                    onSuccess?.Invoke();
+                }
+            });
+        }
+
+        public void UploadRoomLogFile(string localFilePath, Action<StorageMetadata> onSuccess, Action<AggregateException> onError)
+        {
+            string fileName = Path.GetFileName(localFilePath);
+            //fileName.Replace(".txt", "");
+            StorageReference fileRef = roomLoggingReference.Child(fileName);
+
+            fileRef.PutFileAsync(localFilePath)
+                .ContinueWith((Task<StorageMetadata> task) =>
+                {
+                    if (task.IsFaulted || task.IsCanceled)
+                    {
+                        Debug.LogError(task.Exception.ToString());
+                        onError?.Invoke(task.Exception);
+                    }
+                    else
+                    {
+                        // Metadata contains file metadata such as size, content-type, and download URL.
+                        StorageMetadata metadata = task.Result;
+                        Debug.Log("Finished uploading...");
+                        onSuccess?.Invoke(metadata);
+                    }
+                });
         }
     }
 }

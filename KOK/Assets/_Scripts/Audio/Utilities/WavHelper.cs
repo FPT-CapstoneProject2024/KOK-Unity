@@ -13,7 +13,10 @@ namespace KOK
         /// <param name="clip">The AudioClip to be saved as a WAV file.</param>
         public static void SaveWavFile(string filePath, AudioClip clip)
         {
-            using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+
+            var directory = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+            using (FileStream fileStream = new FileStream(filePath, FileMode.OpenOrCreate))
             {
                 WriteWavFile(fileStream, clip);
             }

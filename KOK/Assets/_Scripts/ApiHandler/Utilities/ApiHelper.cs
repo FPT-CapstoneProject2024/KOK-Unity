@@ -5,9 +5,23 @@ using System.Collections;
 using System.Net.Http;
 using System.Threading.Tasks;
 using UnityEngine;
+using KOK.ApiHandler.Controller;
+using KOK.Assets._Scripts.ApiHandler.Controller;
 
 namespace KOK.ApiHandler.Utilities
 {
+    [RequireComponent(typeof(AccountController))]
+    [RequireComponent(typeof(AuthenticationController))]
+    [RequireComponent(typeof(FavoriteSongController))]
+    [RequireComponent(typeof(KaraokeRoomController))]
+    [RequireComponent(typeof(PostCommentController))]
+    [RequireComponent(typeof(PostController))]
+    [RequireComponent(typeof(PostRatingController))]
+    [RequireComponent(typeof(PurchasedSongController))]
+    [RequireComponent(typeof(RecordingController))]
+    [RequireComponent(typeof(ShopController))]
+    [RequireComponent(typeof(ShopItemController))]
+    [RequireComponent(typeof(SongController))]
     /// <summary>
     /// A singleton helper class to handle API calls in Unity.
     /// </summary>
@@ -15,6 +29,11 @@ namespace KOK.ApiHandler.Utilities
     {
         private static readonly HttpClient httpClient = new HttpClient();
         private string jwtToken = string.Empty;
+
+        private void Start()
+        {
+            jwtToken = string.Empty;
+        }
 
         /// <summary>
         /// Sets the JWT token to be used for API requests.
@@ -27,6 +46,11 @@ namespace KOK.ApiHandler.Utilities
             {
                 httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
             }
+        }
+
+        public bool IsJwtTokenEmpty()
+        {
+            return string.IsNullOrEmpty(jwtToken);
         }
 
         #region CallApiByCoroutine
@@ -67,6 +91,17 @@ namespace KOK.ApiHandler.Utilities
         }
 
         /// <summary>
+        /// Sends a DELETE request to the specified URL.
+        /// </summary>
+        /// <param name="url">The URL to send the DELETE request to.</param>
+        /// <param name="onSuccess">Callback invoked when the request is successful, with the response text as a parameter.</param>
+        /// <param name="onError">Callback invoked when the request fails, with the error message as a parameter.</param>
+        public void DeleteCoroutine(string url, Action<string> onSuccess, Action<string> onError)
+        {
+            StartCoroutine(DeleteRequest(url, onSuccess, onError));
+        }
+
+        /// <summary>
         /// Coroutine to send a GET request.
         /// </summary>
         /// <param name="url">The URL to send the GET request to.</param>
@@ -86,7 +121,8 @@ namespace KOK.ApiHandler.Utilities
 
                 if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
-                    onError?.Invoke(webRequest.error);
+                    Debug.Log($"{url} - GET - {webRequest.error}");
+                    onError?.Invoke(webRequest.downloadHandler.text);
                 }
                 else
                 {
@@ -121,7 +157,8 @@ namespace KOK.ApiHandler.Utilities
 
                 if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
-                    onError?.Invoke(webRequest.error);
+                    Debug.Log($"{url} - POST - {webRequest.error}");
+                    onError?.Invoke(webRequest.downloadHandler.text);
                 }
                 else
                 {
@@ -156,11 +193,42 @@ namespace KOK.ApiHandler.Utilities
 
                 if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
-                    onError?.Invoke(webRequest.error);
+                    Debug.Log($"{url} - PUT - {webRequest.error}");
+                    onError?.Invoke(webRequest.downloadHandler.text);
                 }
                 else
                 {
                     onSuccess?.Invoke(webRequest.downloadHandler.text);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Coroutine to send a DELETE request.
+        /// </summary>
+        /// <param name="url">The URL to send the DELETE request to.</param>
+        /// <param name="onSuccess">Callback invoked when the request is successful, with the response text as a parameter.</param>
+        /// <param name="onError">Callback invoked when the request fails, with the error message as a parameter.</param>
+        /// <returns>IEnumerator for coroutine handling.</returns>
+        private IEnumerator DeleteRequest(string url, Action<string> onSuccess, Action<string> onError)
+        {
+            using (UnityWebRequest webRequest = UnityWebRequest.Delete(url))
+            {
+                if (!string.IsNullOrEmpty(jwtToken))
+                {
+                    webRequest.SetRequestHeader("Authorization", "Bearer " + jwtToken);
+                }
+
+                yield return webRequest.SendWebRequest();
+
+                if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
+                {
+                    Debug.Log($"{url} - DELETE - {webRequest.error}");
+                    onError?.Invoke(webRequest.error.ToString());
+                }
+                else
+                {
+                    onSuccess?.Invoke(webRequest.result.ToString());
                 }
             }
         }
@@ -229,6 +297,26 @@ namespace KOK.ApiHandler.Utilities
             catch (Exception ex)
             {
                 Debug.LogError($"PUT Request Error: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Sends a DELETE request to the specified URL.
+        /// </summary>
+        /// <param name="url">The URL to send the DELETE request to.</param>
+        /// <returns>The response text from the DELETE request.</returns>
+        public async Task<string> DeleteAsync(string url)
+        {
+            try
+            {
+                HttpResponseMessage response = await httpClient.DeleteAsync(url);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"DELETE Request Error: {ex.Message}");
                 return null;
             }
         }
