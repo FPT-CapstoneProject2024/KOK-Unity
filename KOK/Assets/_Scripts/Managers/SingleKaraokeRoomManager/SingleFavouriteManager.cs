@@ -13,6 +13,7 @@ namespace KOK
     {
         [SerializeField] Toggle favToggle;
         [SerializeField] GameObject songCode;
+        [SerializeField] SinglePlayerManager singlePlayerManager;
 
         bool isFirstLoad = true;
 
@@ -27,6 +28,14 @@ namespace KOK
             {
                 return;
             }
+
+            if (singlePlayerManager == null) {
+                singlePlayerManager = FindAnyObjectByType<SinglePlayerManager>();
+            }
+
+            singlePlayerManager.DisableUIElement();
+            singlePlayerManager.ClearSearchSongList();
+
             Guid songId = Guid.Parse(songCode.name.ToString());
             if (favToggle.isOn)
             {
@@ -36,7 +45,7 @@ namespace KOK
                                                         (fsr) =>
                                                         {
                                                             Debug.Log(fsr);
-                                                            FindAnyObjectByType<SinglePlayerManager>().ReloadSong();
+                                                            singlePlayerManager.ReloadSong();
                                                         },
                                                         (ex) => Debug.LogError(ex));
             }
@@ -48,7 +57,7 @@ namespace KOK
                                                         (fsr) =>
                                                         {
                                                             Debug.Log(fsr);
-                                                            FindAnyObjectByType<SinglePlayerManager>().ReloadSong();
+                                                            singlePlayerManager.ReloadSong();
                                                         },
                                                         (ex) => Debug.LogError(ex));
             }
@@ -58,6 +67,7 @@ namespace KOK
         {
             yield return new WaitForSeconds(1f);
             isFirstLoad = false;
+            singlePlayerManager = FindAnyObjectByType<SinglePlayerManager>();
         }
 
     }

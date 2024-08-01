@@ -40,6 +40,8 @@ namespace KOK
         [SerializeField] Toggle songPanelFavouriteToggle;
         [SerializeField] Toggle songPanelPurchasedToggle;
 
+        [SerializeField] LoadingManager _loadingManager;
+
         Guid karaokeRoomId;
 
         private void OnEnable()
@@ -73,7 +75,10 @@ namespace KOK
 
         IEnumerator LoadSong()
         {
-            yield return new WaitForSeconds(1);
+            ClearSearchSongList();
+            _loadingManager.DisableUIElement();
+            yield return new WaitForSeconds(0.5f);
+            Debug.Log("Start to load song");
             if (songPanelFavouriteToggle == null)
             {
                 songPanelFavouriteToggle = transform.Find("SongPanelFavouriteToggle").GetComponent<Toggle>();
@@ -103,10 +108,21 @@ namespace KOK
             //Load song from devide
         }
 
-
-
+        public void DisableUIElement()
+        {
+            _loadingManager.DisableUIElement();
+        }
+        public void ClearSearchSongList()
+        {
+            foreach (Transform child in searchSongPanelContent.transform)
+            {
+                Destroy(child.gameObject);
+            }
+        }
         public void UpdateSearchSongUI()
         {
+            ClearSearchSongList();
+            DisableUIElement();
             string searchKeyword = searchSongInput.text;
             List<SongDetail> songListSearch = new();
             if (!searchKeyword.IsNullOrEmpty())
@@ -131,10 +147,7 @@ namespace KOK
                 songListSearch = songListSearch.Where(s => s.isPurchased == true).ToList();
             }
 
-            foreach (Transform child in searchSongPanelContent.transform)
-            {
-                Destroy(child.gameObject);
-            }
+            
 
             foreach (var song in songListSearch)
             {
@@ -160,6 +173,8 @@ namespace KOK
                 }
                 catch { }
             }
+
+            _loadingManager.EnableUIElement();
         }
         public void UpdateQueueSongUI()
         {
@@ -234,12 +249,44 @@ namespace KOK
 
                 voiceRecorder.StartRecording(audioFile);
 
+                Guid songId = (Guid)queueSongList[0].SongId;
+
                 queueSongList.RemoveAt(0);
 
-                RecordingManager.Instance.CreateRecording(
-                    "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName),
+                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName)+"_"+  DateTime.Now;
+                recordingName = recordingName.Replace(" ", "");
+                recordingName = recordingName.Replace(":", "");
+                recordingName = recordingName.Replace("/", "");
+
+                ApiHelper.Instance.GetComponent<PurchasedSongController>()
+                    .GetMemberPurchasedSongFilterCoroutine(
+                        new()
+                        {
+                            MemberId = Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
+                            SongId = songId,
+                        },
+                        PurchasedSongOrderFilter.SongId,
+                        new()
+                        {
+                            pageSize = 1,
+                        },
+                        (successValue) => { CreateRecording(recordingName, 
+                            audioFile, 
+                            successValue.Results[0].PurchasedSongId.ToString()); 
+                            Debug.LogError("Get purchased song success: "+ successValue.Results[0].SongName.ToString()); },
+                        (er) => { }
+                        );
+
+                
+            }
+        }
+
+        public void CreateRecording(string recordingName, string audioFile, string purSongId)
+        {
+            RecordingManager.Instance.CreateRecording(
+                    recordingName,
                     UnityEngine.Random.Range(50, 100),
-                    "2265c487-8243-4547-b79b-baef95de50eb",
+                    purSongId,
                     PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
                     PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
                     karaokeRoomId.ToString(),
@@ -252,7 +299,6 @@ namespace KOK
                         PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)
                     }
                     );
-            }
         }
 
         public void OnPlayNextSongVideoButtonClick()

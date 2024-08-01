@@ -25,6 +25,7 @@ namespace KOK
         [SerializeField] public GameObject songPreviewCanvas;
         [Header("Purchase Components")]
         [SerializeField] public GameObject songPurchaseCanvas;
+        [SerializeField] LoadingManager loadingManager;
 
         private SongFilter filter;
         private int currentPage = 1;
@@ -39,6 +40,8 @@ namespace KOK
 
         public void LoadSongs()
         {
+            loadingManager.DisableUIElement();
+            ClearContainer();
             string accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
             ApiHelper.Instance.GetComponent<SongController>().GetSongsFilterPagingCoroutine(!string.IsNullOrEmpty(accountId) ? accountId : Guid.Empty.ToString(), filter, SongOrderFilter.SongName, new PagingRequest()
             {
@@ -58,6 +61,7 @@ namespace KOK
             SetSongMessage(string.Empty);
             SetPagingData(responseResult);
             SpawnSongItem(responseResult.Results);
+            loadingManager.EnableUIElement();
         }
 
         public void OnLoadSongError(DynamicResponseResult<SongDetail> responseResult)
@@ -65,6 +69,7 @@ namespace KOK
             ClearContainer();
             SetSongMessage("Không tìm thấy bài hát");
             pagingDisplay.text = $"{0}/{0}";
+            loadingManager.EnableUIElement();
         }
 
         private void SetSongMessage(string message)
