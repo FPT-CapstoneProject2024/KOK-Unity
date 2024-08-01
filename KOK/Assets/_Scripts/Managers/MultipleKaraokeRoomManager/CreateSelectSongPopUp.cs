@@ -15,11 +15,12 @@ namespace KOK
 
         private void Start()
         {
-            _parent = GameObject.Find("PopUpCanvas").transform;
+            
         }
 
         public void SpawnPopUp()
         {
+            if (_parent == null) { _parent = GameObject.Find("PopUpCanvas").transform; }
             if (transform.childCount > 0) {
                 foreach (Transform child in _parent.transform)
                 {
