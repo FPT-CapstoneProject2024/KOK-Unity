@@ -242,10 +242,10 @@ namespace KOK
                 videoPlayer.url = queueSongList[0].SongUrl;
                 videoPlayer.Play();
 
-                var audioFile = queueSongList[0].SongCode + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString();
-                audioFile = audioFile.Replace(" ", "");
-                audioFile = audioFile.Replace(":", "");
-                audioFile = audioFile.Replace("/", "");
+                var audioFile = queueSongList[0].SongCode + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
+                //audioFile = audioFile.Replace(" ", "");
+                //audioFile = audioFile.Replace(":", "");
+                //audioFile = audioFile.Replace("/", "");
 
                 voiceRecorder.StartRecording(audioFile);
 
@@ -253,10 +253,10 @@ namespace KOK
 
                 queueSongList.RemoveAt(0);
 
-                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName)+"_"+  DateTime.Now;
-                recordingName = recordingName.Replace(" ", "");
-                recordingName = recordingName.Replace(":", "");
-                recordingName = recordingName.Replace("/", "");
+                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName)+"_"+ DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
+                //recordingName = recordingName.Replace(" ", "");
+                //recordingName = recordingName.Replace(":", "");
+                //recordingName = recordingName.Replace("/", "");
 
                 ApiHelper.Instance.GetComponent<PurchasedSongController>()
                     .GetMemberPurchasedSongFilterCoroutine(
