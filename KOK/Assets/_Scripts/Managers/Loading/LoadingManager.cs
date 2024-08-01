@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,8 +11,9 @@ namespace KOK
 
         private void OnEnable()
         {
-            loadingSymbol.SetActive(false);
+            //loadingSymbol.SetActive(false);
         }
+
         public void DisableUIElement()
         {
             loadingSymbol.SetActive(true);
@@ -28,6 +27,16 @@ namespace KOK
         {
             loadingSymbol.SetActive(false);
             foreach (Selectable u in uiElementsNeedToDisable) { u.interactable = true; }
+        }
+
+        public void EnableLoadingSymbol()
+        {
+            loadingSymbol.SetActive(true);
+        }
+
+        public void DisableLoadingSymbol()
+        {
+            loadingSymbol.SetActive(false);
         }
     }
 }
