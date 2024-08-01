@@ -1,4 +1,4 @@
-using Fusion;
+﻿using Fusion;
 using KOK;
 using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
@@ -81,9 +81,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         {
             if (this.HasStateAuthority)
             {
-                //Debug.LogError(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName));
-                LoadSongList();
-                ClearSongQueue();
+                voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
+                loadingManager = FindAnyObjectByType<LoadingManager>();
                 NetworkRunner runner = NetworkRunner.Instances[0];
                 //PlayerName = FusionManager.Instance._playerName;
                 //PlayerColor = FusionManager.Instance._playerColor;
@@ -99,10 +98,12 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 else
                 {
                     PlayerRole = 0;
-                    string recordingName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now + ".txt";
-                    recordingName = recordingName.Replace(" ", "");
-                    recordingName = recordingName.Replace(":", "");
-                    recordingName = recordingName.Replace("/", "");
+                    //string recordingName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now.ToString() + ".txt";
+                    //recordingName = recordingName.Replace(" ", "");
+                    //recordingName = recordingName.Replace(":", "");
+                    //recordingName = recordingName.Replace("/", "");
+
+                    string recordingName = $"RoomLog_{PlayerName}_{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss")}.txt";
                     RoomLogManager.Instance.CreateRoomLog(recordingName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
                 }
 
@@ -120,8 +121,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 StartCoroutine(UpdateSearchSongUI());
                 StartCoroutine(NotiJoinRoom());
                 RoomLogString = "";
-                voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
-                loadingManager = FindAnyObjectByType<LoadingManager>();
+                LoadSongList();
+                ClearSongQueue();
             }
             Debug.Log(PlayerName + " HasStateAuthority: " + HasStateAuthority);
             this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
@@ -242,7 +243,10 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         if (videoPlayer != null)
         {
             videoPlayer.Play();
-            StartCoroutine(RecordingAndRemoveSongFromQueue());
+            if (this.HasStateAuthority)
+            {
+                StartCoroutine(RecordingAndRemoveSongFromQueue());
+            }
         }
 
     }
@@ -258,8 +262,9 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             }
             if (PlayerRole == 0)
             {
-                RPCSongManager.Rpc_RemoveSong(NetworkRunner.Instances[0], 0);
+                StartCoroutine(CreateRecording());
             }
+
         }
         else
         {
@@ -435,9 +440,6 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                     singer2Count++;
                 }
             }
-            //Debug.LogError(QueueSongCodeList.ToCommaSeparatedString()
-            //             + QueueSinger1List.ToCommaSeparatedString()
-            //             + QueueSinger2List.ToCommaSeparatedString());
         }
     }
 
@@ -575,10 +577,10 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             if (isRecording) return;
             if (isSinger)
             {
-                var audioFile = QueueSongCodeList[0] + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString();
-                audioFile = audioFile.Replace(" ", "");
-                audioFile = audioFile.Replace(":", "");
-                audioFile = audioFile.Replace("/", "");
+                var audioFile = QueueSongCodeList[0] + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
+                //audioFile = audioFile.Replace(" ", "");
+                //audioFile = audioFile.Replace(":", "");
+                //audioFile = audioFile.Replace("/", "");
 
                 if (voiceRecorder == null) voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
                 voiceRecorder.StartRecording(audioFile);
@@ -587,17 +589,14 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
                 isRecording = true;
             }
-
-            if (PlayerRole == 0)
-            {
-                StartCoroutine(CreateRecording());
-            }
         }
     }
 
+    bool isCreateRecording = false;
+
     IEnumerator CreateRecording()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(0.1f);
         if (PlayerRole == 0)
         {
             List<string> singerAudioUrls = new();
@@ -620,18 +619,25 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 }
             }
 
+            //check xem đã tạo xong url của audio chưa, nếu chưa thì lặp lại hàm này
             if (singerAccountIds.Count == 0 || singerAccountIds.Count != singerAudioUrls.Count)
             {
                 Debug.Log("Room recording is NOT ready: " + singerAudioUrls.Count);
                 StartCoroutine(CreateRecording());
+                yield break;
             }
             else
             {
+                if (isCreateRecording) yield break;
+                isCreateRecording = true;
                 Debug.Log("Room recording is ready: " + singerAudioUrls.Count);
-                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now;
+                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
                 recordingName = recordingName.Replace(" ", "");
                 recordingName = recordingName.Replace(":", "");
                 recordingName = recordingName.Replace("/", "");
+
+
+                RPCSongManager.Rpc_RemoveSong(NetworkRunner.Instances[0], 0);
 
                 RecordingManager.Instance.CreateRecording(
                         recordingName,
@@ -655,6 +661,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             if (voiceRecorder == null) voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
             voiceRecorder.StopRecording();
             isRecording = false;
+            isCreateRecording = false;
         }
     }
 
