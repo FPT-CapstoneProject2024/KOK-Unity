@@ -20,7 +20,7 @@ using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 
 public class RecordingLoader : MonoBehaviour
 {
-    public TMP_Dropdown tmpDropdown; 
+    //public TMP_Dropdown tmpDropdown; 
 
     // List to store the mappings between dropdown options and Recording/VoiceAudio objects
     private List<(Recording recording, VoiceAudio voiceAudio)> optionMappings;
@@ -37,7 +37,6 @@ public class RecordingLoader : MonoBehaviour
     {
         var playerId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
         GetRecordingByOwnerId(Guid.Parse(playerId));
-        //GetRecordingByOwnerId(Guid.Parse("4375037A-739D-45EF-8021-87EFFACD3FFE"));
     }
 
     public void GetPurchasedSongCoroutine(Guid purchasedSongId)
@@ -48,11 +47,6 @@ public class RecordingLoader : MonoBehaviour
                                             GetSongCoroutine,
                                             Test2
                                             );
-    }
-
-    private void Test(List<PurchasedSong> song)
-    {
-        Debug.Log(song[0]);
     }
 
     // Dont ask me about the song[0], fk api
@@ -92,7 +86,7 @@ public class RecordingLoader : MonoBehaviour
         Debug.Log(detail);
     }
 
-    private void PopulateTMPDropdown(List<Recording> recordings)
+    /*private void PopulateTMPDropdown(List<Recording> recordings)
     {
         // Clear existing options
         tmpDropdown.ClearOptions();
@@ -113,7 +107,7 @@ public class RecordingLoader : MonoBehaviour
         }
 
         tmpDropdown.AddOptions(options);
-    }
+    }*/
 
     void RecordingsGenerate(List<Recording> recordingList)
     {
@@ -134,8 +128,8 @@ public class RecordingLoader : MonoBehaviour
                 recordingObj.transform.Find("Label 1").GetComponent<TMP_Text>().text = recording.RecordingName;
                 recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text = voiceAudio.VoiceUrl;
                 var purchasedSongId = recording.PurchasedSongId;
-                var startTimeRecording = recording.StartTime;
-                var startTimeVoiceAudio = voiceAudio.StartTime;
+                var startTimeRecording = voiceAudio.StartTime;
+                var startTimeSong = recording.StartTime;
                 recordingObj.transform.Find("EditButton").GetComponent<Button>().onClick.AddListener(delegate ()
                 {
                     OnEditButtonClicked(purchasedSongId, voiceAudio.VoiceUrl);
@@ -143,7 +137,7 @@ public class RecordingLoader : MonoBehaviour
 
                 recordingObj.transform.Find("PlayButton").GetComponent<Button>().onClick.AddListener(delegate ()
                 {
-                    OnPlayButtonClicked(purchasedSongId, voiceAudio.VoiceUrl, startTimeRecording, startTimeVoiceAudio);
+                    OnPlayButtonClicked(purchasedSongId, voiceAudio.VoiceUrl, startTimeRecording, startTimeSong);
                 });
             }
         }
@@ -164,39 +158,44 @@ public class RecordingLoader : MonoBehaviour
         }*/
         GetPurchasedSongCoroutine(purchasedSongId);
         recordingUrl = voiceUrl;
-        StartCoroutine(test2());
+        StartCoroutine(EditVideo());
     }
 
     // chua down
-    public void OnPlayButtonClicked(Guid purchasedSongId, string voiceUrl, float startTimeRecording, float startTimeVoiceAudio)
+    public async void OnPlayButtonClicked(Guid purchasedSongId, string voiceUrl, float startTimeRecording, float startTimeSong)
     {
         GetPurchasedSongCoroutine(purchasedSongId);
         recordingUrl = voiceUrl;
         string voiceFolderPath = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingUrl + ".wav");
-        StartCoroutine(test(voiceFolderPath, startTimeRecording, startTimeVoiceAudio, recordingUrl));
+
+        var recordingName = recordingUrl + ".zip";
+        string folderPath = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingName);
+        await ffmpeg.DownloadFile2(recordingName, folderPath);
+
+        StartCoroutine(PlayVideo(voiceFolderPath, startTimeRecording, startTimeSong, recordingUrl));
     }
 
-    public IEnumerator test(string voiceFolderPath, float startTimeRecording, float startTimeVoiceAudio,string recordingUrl)
+    public IEnumerator PlayVideo(string voiceFolderPath, float startTimeRecording, float startTimeSong, string recordingUrl)
     {
         yield return new WaitForSeconds(0.1f);
         if(songUrl.IsNullOrEmpty())
         {
-            StartCoroutine(test(voiceFolderPath, startTimeRecording, startTimeVoiceAudio, recordingUrl));
+            StartCoroutine(PlayVideo(voiceFolderPath, startTimeRecording, startTimeSong, recordingUrl));
         }
         else
         {
-            string voiceFolderPath2 = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingUrl + ".wav");
-            videoLoader.ShowPopup(songUrl, voiceFolderPath2, startTimeRecording, startTimeVoiceAudio);
+            //string voiceFolderPath2 = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingUrl + ".wav");
+            videoLoader.ShowPopup(songUrl, voiceFolderPath, startTimeRecording, startTimeSong);
             gameObject.SetActive(false);
         }
     }
 
-    public IEnumerator test2()
+    public IEnumerator EditVideo()
     {
         yield return new WaitForSeconds(0.1f);
         if (songUrl.IsNullOrEmpty())
         {
-            StartCoroutine(test2());
+            StartCoroutine(EditVideo());
         }
         else
         {

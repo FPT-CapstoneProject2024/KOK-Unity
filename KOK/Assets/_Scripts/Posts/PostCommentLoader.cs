@@ -84,7 +84,7 @@ namespace KOK
 
             foreach (PostComment postComment in postCommentList)
             {
-                if (postComment.CommentType.Equals(PostCommentType.PARENT))
+                if (postComment.CommentType.Equals(PostCommentType.PARENT) && postComment.Status.Equals(PostCommentStatus.ACTIVE))
                 {
                     GameObject parentCommentObj = Instantiate(parentCommentPrefab, displayPanel.transform);
                     parentCommentObj.transform.GetChild(1).GetComponent<TMP_Text>().text = postComment.MemberId.ToString();
@@ -102,7 +102,7 @@ namespace KOK
         {
             foreach (PostComment postComment in postCommentList)
             {
-                if (postComment.CommentType.Equals(PostCommentType.CHILD))
+                if (postComment.CommentType.Equals(PostCommentType.CHILD) && postComment.Status.Equals(PostCommentStatus.ACTIVE))
                 {
                     GenerateFullComment(postComment.MemberId, postComment.Comment, childCommentDisplayContent, true, replyPrefab);             
                 }

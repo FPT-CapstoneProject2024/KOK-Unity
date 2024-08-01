@@ -116,6 +116,8 @@ namespace KOK.Assets._Scripts.FileManager
         private AudioSource audioSource;
         public Slider progressSlider; // Slider to display and control video progress
         private bool isDraggingSlider = false; // To track if the user is dragging the slider
+        private string filePathLocalWav;
+        private string filePathLocalZip;
 
         void Start()
         {
@@ -132,14 +134,23 @@ namespace KOK.Assets._Scripts.FileManager
             }
         }
 
-        public void ShowPopup(string videoUrl, string filePath, float startTimeRecording, float startTimeVoiceAudio)
+        public void ShowPopup(string videoUrl, string filePath, float startTimeRecording, float startTimeSong)
         {
+            filePathLocalWav = filePath;
+            filePathLocalZip = filePath.Replace(".wav", ".zip");
             gameObject.SetActive(true);
             AudioClip audioClip = ffmpeg.LoadAudioClip(filePath);
-            Display(videoUrl, audioClip, startTimeRecording, startTimeVoiceAudio);
+            Display(videoUrl, audioClip, startTimeRecording, startTimeSong);
         }
 
-        private void Display(string videoUrl, AudioClip audioClip, float startTimeRecording, float startTimeVoiceAudio)
+        public void Load(string videoUrl, string filePath, float startTimeRecording, float startTimeSong)
+        {
+            //gameObject.SetActive(true);
+            AudioClip audioClip = ffmpeg.LoadAudioClip(filePath);
+            Display(videoUrl, audioClip, startTimeRecording, startTimeSong);
+        }
+
+        private void Display(string videoUrl, AudioClip audioClip, float startTimeRecording, float startTimeSong)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
             audioSource.clip = audioClip;
@@ -149,18 +160,18 @@ namespace KOK.Assets._Scripts.FileManager
             videoPlayer.url = videoUrl;
 
             videoPlayer.Prepare();
-            StartCoroutine(SyncStart(startTimeRecording, startTimeVoiceAudio));
+            StartCoroutine(SyncStart(startTimeRecording, startTimeSong));
         }
 
-        private IEnumerator SyncStart(float startTimeRecording, float startTimeVoiceAudio)
+        private IEnumerator SyncStart(float startTimeRecording, float startTimeSong)
         {
             yield return new WaitForSeconds(0.1f);
             if (videoPlayer.isPrepared && audioSource != null)
             {
                 videoPlayer.Play();
                 //audioSource.Play();
-                StartCoroutine(SyncStart2(startTimeVoiceAudio));
-                videoPlayer.time = startTimeRecording;
+                StartCoroutine(SyncStart2(startTimeRecording));
+                videoPlayer.time = startTimeSong;
 
                 // Initialize the slider only once
                 if (progressSlider.minValue != 0 || progressSlider.maxValue != (float)videoPlayer.length)
@@ -173,22 +184,22 @@ namespace KOK.Assets._Scripts.FileManager
             }
             else
             {
-                StartCoroutine(SyncStart(startTimeRecording, startTimeVoiceAudio));
+                StartCoroutine(SyncStart(startTimeRecording, startTimeSong));
             }
         }
 
         //it works, dont ask
-        private IEnumerator SyncStart2(float startTimeVoiceAudio)
+        private IEnumerator SyncStart2(float startTimeRecording)
         {
             yield return new WaitForSeconds(0.02f);
             if (videoPlayer.time > 0)
             {
                 audioSource.Play();
-                audioSource.time = startTimeVoiceAudio;
+                audioSource.time = startTimeRecording;
             }
             else
             {
-                StartCoroutine(SyncStart2(startTimeVoiceAudio));
+                StartCoroutine(SyncStart2(startTimeRecording));
             }
         }
 
@@ -215,6 +226,10 @@ namespace KOK.Assets._Scripts.FileManager
 
         public void Hide()
         {
+            AudioSource audioSource = gameObject.GetComponent<AudioSource>();
+            Destroy(audioSource);
+            ffmpeg.CleanUp(filePathLocalWav);
+            ffmpeg.CleanUp(filePathLocalZip);
             gameObject.SetActive(false);
             recordingLoader.Show();
         }

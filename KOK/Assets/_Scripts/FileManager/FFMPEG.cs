@@ -305,6 +305,31 @@ public class FFMPEG : MonoBehaviour
         {
             Debug.LogError("Failed to extract zipped voice recording file");
             return;
+        }       
+    }
+
+    // Cleanup 
+    public void CleanUp(string localZipFilePath)
+    {
+        string folderPath = Path.Combine(Application.persistentDataPath, "AudioProcess");
+        string wavFilePath = FileCompressionHelper.ExtractWavFileFromZip(localZipFilePath, folderPath);
+        try
+        {
+            if (File.Exists(localZipFilePath))
+            {
+                File.Delete(localZipFilePath);
+                Debug.Log($"Deleted local zip file: {localZipFilePath}");
+            }
+
+            if (File.Exists(wavFilePath))
+            {
+                File.Delete(wavFilePath);
+                Debug.Log($"Deleted local wav file: {wavFilePath}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to clean up files: {ex}");
         }
     }
 
