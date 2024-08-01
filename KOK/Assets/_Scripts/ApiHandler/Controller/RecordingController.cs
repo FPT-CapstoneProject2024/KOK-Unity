@@ -51,12 +51,35 @@ namespace KOK.ApiHandler.Controller
                 });
         }
 
+        public void GetRecordingsByIdCoroutine2(Guid recordingId, Action<List<Recording>> onSuccess, Action<string> onError)
+        {
+            // Validate Recording ID
+            if (recordingId == null)
+            {
+                Debug.Log("Failed to get Recording by ID. Recording ID is null!");
+                return;
+            }
+
+            // Prepare and send api request
+            var url = recordingResourceUrl + "?RecordingId=" + recordingId.ToString();
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<Recording>>(successValue);
+                    onSuccess?.Invoke(result.Results);
+                },
+                (errorValue) =>
+                {
+                    onError?.Invoke(errorValue);
+                });
+        }
+
         public void GetRecordingsByOwnerIdCoroutine(Guid accountId, Action<List<Recording>> onSuccess, Action<string> onError)
         {
             // Validate Account ID
             if (accountId == null)
             {
-                Debug.Log("Failed to get Account by ID. Recording ID is null!");
+                Debug.Log("Failed to get Account by ID. Account ID is null!");
                 return;
             }
 

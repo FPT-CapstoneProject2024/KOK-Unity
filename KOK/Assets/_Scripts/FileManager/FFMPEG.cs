@@ -229,9 +229,11 @@
 //}
 
 
+using KOK;
 using System;
 using System.Collections;
 using System.IO;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -267,6 +269,68 @@ public class FFMPEG : MonoBehaviour
 
         //yield return StartCoroutine(ExtractAudioFromVideo(videoPath));
         //yield return StartCoroutine(CombineAudioAndVideo(audioPath, videoPath));
+    }
+
+    public async Task DownloadFile2(string cloudFileName, string localZipFilePath)
+    {
+        string folderPath = Path.Combine(Application.persistentDataPath, "AudioProcess");
+        //string filePath = Path.Combine(folderPath, fileName);
+
+        if (!Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+        }
+
+        // Get download url
+        string downloadUrl = await FirebaseStorageManager.Instance.GetRecordingDownloadUrl(cloudFileName);
+        if (string.IsNullOrEmpty(downloadUrl))
+        {
+            Debug.LogError("Failed to retrieve voice recording download url");
+            return;
+        }
+
+        // Download .zip file
+        await FirebaseStorageManager.Instance.DownloadVoiceRecordingFile(downloadUrl, localZipFilePath);
+        
+        if (!File.Exists(localZipFilePath))
+        {
+            Debug.LogError("Failed to download voice recording with given download url");
+            return;
+        }
+
+        // Extract .zip file
+        string wavFilePath = FileCompressionHelper.ExtractWavFileFromZip(localZipFilePath, folderPath);
+
+        if (string.IsNullOrEmpty(wavFilePath))
+        {
+            Debug.LogError("Failed to extract zipped voice recording file");
+            return;
+        }       
+    }
+
+    // Cleanup 
+    public void CleanUp(string localZipFilePath)
+    {
+        string folderPath = Path.Combine(Application.persistentDataPath, "AudioProcess");
+        string wavFilePath = FileCompressionHelper.ExtractWavFileFromZip(localZipFilePath, folderPath);
+        try
+        {
+            if (File.Exists(localZipFilePath))
+            {
+                File.Delete(localZipFilePath);
+                Debug.Log($"Deleted local zip file: {localZipFilePath}");
+            }
+
+            if (File.Exists(wavFilePath))
+            {
+                File.Delete(wavFilePath);
+                Debug.Log($"Deleted local wav file: {wavFilePath}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to clean up files: {ex}");
+        }
     }
 
     public IEnumerator DownloadFile(string url, string fileName, string folderName)
@@ -411,8 +475,8 @@ public class FFMPEG : MonoBehaviour
 
     public IEnumerator ExtractAudioFromVideo(string videoPath)
     {
-        string extractedAudioPath = Path.Combine(Application.persistentDataPath, "extractedAudio.wav");
-
+        string extractedAudioPath = Path.Combine(Application.persistentDataPath, "AudioProcess", "extractedAudio.wav");
+        Debug.Log(videoPath);
         string arguments = $"-i \"{videoPath}\" -q:a 0 -map a \"{extractedAudioPath}\"";
 
         yield return RunFFmpeg(arguments);
@@ -431,8 +495,8 @@ public class FFMPEG : MonoBehaviour
 
     public IEnumerator AddSilenceAndTrimAudio(string audioPath, float startTimeInSeconds, int index)
     {
-        string tempAudioPath = Path.Combine(Application.persistentDataPath, $"{index}temp_silence.wav");
-        string finalAudioPath = Path.Combine(Application.persistentDataPath, $"{index}temp_audio.wav");
+        string tempAudioPath = Path.Combine(Application.persistentDataPath, "AudioProcess", $"{index}temp_silence.wav");
+        string finalAudioPath = Path.Combine(Application.persistentDataPath, "AudioProcess", $"{index}temp_audio.wav");
 
         if (startTimeInSeconds < 0)
         {

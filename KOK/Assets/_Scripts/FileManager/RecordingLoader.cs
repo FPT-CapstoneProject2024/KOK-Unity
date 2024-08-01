@@ -11,21 +11,32 @@ using KOK.ApiHandler.DTOModels;
 using Photon.Voice;
 using System.IO;
 using KOK;
+using System.Reflection;
+using KOK.Assets._Scripts.FileManager;
+using System.Collections;
+using WebSocketSharp;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PostComment;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 
 public class RecordingLoader : MonoBehaviour
 {
-    public TMP_Dropdown tmpDropdown; 
+    //public TMP_Dropdown tmpDropdown; 
 
     // List to store the mappings between dropdown options and Recording/VoiceAudio objects
     private List<(Recording recording, VoiceAudio voiceAudio)> optionMappings;
     private string songUrl;
     private string recordingUrl;
     public WaveformDisplay waveformDisplay;
+    public VideoLoader videoLoader;
+    public GameObject recordingPrefab;
+    public GameObject displayPanel;
+
+    FFMPEG ffmpeg = new FFMPEG();
 
     private void Start()
     {
-        GetRecordingByOwnerId(Guid.Parse("4375037A-739D-45EF-8021-87EFFACD3FFE"));
+        var playerId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
+        GetRecordingByOwnerId(Guid.Parse(playerId));
     }
 
     public void GetPurchasedSongCoroutine(Guid purchasedSongId)
@@ -36,11 +47,6 @@ public class RecordingLoader : MonoBehaviour
                                             GetSongCoroutine,
                                             Test2
                                             );
-    }
-
-    private void Test(List<PurchasedSong> song)
-    {
-        Debug.Log(song[0]);
     }
 
     // Dont ask me about the song[0], fk api
@@ -57,7 +63,7 @@ public class RecordingLoader : MonoBehaviour
     private void SetSongUrl(ResponseResult<SongDetail> song)
     {
         songUrl = song.Value.SongUrl;
-        Process(songUrl, recordingUrl);
+        //Process(songUrl, recordingUrl);
     }
 
     public void GetRecordingByOwnerId(Guid ownerId)
@@ -65,7 +71,7 @@ public class RecordingLoader : MonoBehaviour
         FindAnyObjectByType<ApiHelper>().gameObject
             .GetComponent<RecordingController>()
             .GetRecordingsByOwnerIdCoroutine(   ownerId, 
-                                                PopulateTMPDropdown, 
+                                                RecordingsGenerate, 
                                                 Test2
                                                 );
     }
@@ -80,7 +86,7 @@ public class RecordingLoader : MonoBehaviour
         Debug.Log(detail);
     }
 
-    private void PopulateTMPDropdown(List<Recording> recordings)
+    /*private void PopulateTMPDropdown(List<Recording> recordings)
     {
         // Clear existing options
         tmpDropdown.ClearOptions();
@@ -101,11 +107,45 @@ public class RecordingLoader : MonoBehaviour
         }
 
         tmpDropdown.AddOptions(options);
+    }*/
+
+    void RecordingsGenerate(List<Recording> recordingList)
+    {
+        optionMappings = new List<(Recording recording, VoiceAudio voiceAudio)>();
+
+        foreach (Transform child in displayPanel.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        foreach (var recording in recordingList)
+        {
+            foreach (var voiceAudio in recording.VoiceAudios)
+            {
+                //string optionText = $"{recording.RecordingName} - {voiceAudio.VoiceUrl}";
+                optionMappings.Add((recording, voiceAudio));
+                GameObject recordingObj = Instantiate(recordingPrefab, displayPanel.transform);
+                recordingObj.transform.Find("Label 1").GetComponent<TMP_Text>().text = recording.RecordingName;
+                recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text = voiceAudio.VoiceUrl;
+                var purchasedSongId = recording.PurchasedSongId;
+                var startTimeRecording = voiceAudio.StartTime;
+                var startTimeSong = recording.StartTime;
+                recordingObj.transform.Find("EditButton").GetComponent<Button>().onClick.AddListener(delegate ()
+                {
+                    OnEditButtonClicked(purchasedSongId, voiceAudio.VoiceUrl);
+                });
+
+                recordingObj.transform.Find("PlayButton").GetComponent<Button>().onClick.AddListener(delegate ()
+                {
+                    OnPlayButtonClicked(purchasedSongId, voiceAudio.VoiceUrl, startTimeRecording, startTimeSong);
+                });
+            }
+        }
     }
 
-    public void OnGetButtonClicked()
+    public void OnEditButtonClicked(Guid purchasedSongId, string voiceUrl)
     {
-        int index = tmpDropdown.value;
+        /*int index = tmpDropdown.value;
         if (index >= 0 && index < optionMappings.Count)
         {
             var selectedMapping = optionMappings[index];
@@ -113,20 +153,78 @@ public class RecordingLoader : MonoBehaviour
             Guid purchasedSongId = selectedMapping.recording.PurchasedSongId;
             GetPurchasedSongCoroutine(purchasedSongId);
             recordingUrl = selectedMapping.voiceAudio.VoiceUrl;
+            //Process(songUrl, recordingUrl);
+            StartCoroutine(test2());
+        }*/
+        GetPurchasedSongCoroutine(purchasedSongId);
+        recordingUrl = voiceUrl;
+        StartCoroutine(EditVideo());
+    }
+
+    // chua down
+    public async void OnPlayButtonClicked(Guid purchasedSongId, string voiceUrl, float startTimeRecording, float startTimeSong)
+    {
+        GetPurchasedSongCoroutine(purchasedSongId);
+        recordingUrl = voiceUrl;
+        string voiceFolderPath = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingUrl + ".wav");
+
+        var recordingName = recordingUrl + ".zip";
+        string folderPath = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingName);
+        await ffmpeg.DownloadFile2(recordingName, folderPath);
+
+        StartCoroutine(PlayVideo(voiceFolderPath, startTimeRecording, startTimeSong, recordingUrl));
+    }
+
+    public IEnumerator PlayVideo(string voiceFolderPath, float startTimeRecording, float startTimeSong, string recordingUrl)
+    {
+        yield return new WaitForSeconds(0.1f);
+        if(songUrl.IsNullOrEmpty())
+        {
+            StartCoroutine(PlayVideo(voiceFolderPath, startTimeRecording, startTimeSong, recordingUrl));
+        }
+        else
+        {
+            //string voiceFolderPath2 = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingUrl + ".wav");
+            videoLoader.ShowPopup(songUrl, voiceFolderPath, startTimeRecording, startTimeSong);
+            gameObject.SetActive(false);
         }
     }
 
-    private void Process(string songUrl, string voiceUrl)
+    public IEnumerator EditVideo()
+    {
+        yield return new WaitForSeconds(0.1f);
+        if (songUrl.IsNullOrEmpty())
+        {
+            StartCoroutine(EditVideo());
+        }
+        else
+        {
+            Process(songUrl, recordingUrl);
+        }
+    }
+
+    private async void Process(string songUrl, string voiceUrl)
     {
         Debug.Log($"SongUrl: {songUrl}, VoiceUrl: {voiceUrl}");
+        
+        var recordingName = recordingUrl + ".zip";
+        string folderPath = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingName);
+        await ffmpeg.DownloadFile2(recordingName, folderPath);
+        //StartCoroutine(ffmpeg.DownloadFile(voiceUrl, "recordedVoice.wav", "AudioProcess"));
+        try { StartCoroutine(ffmpeg.DownloadFile(songUrl, "downloadedVideo.mp4", "AudioProcess")); }
+        catch { }
+        
 
-        FFMPEG ffmpeg = new FFMPEG();
-        StartCoroutine(ffmpeg.DownloadFile(voiceUrl, "recordedVoice.wav", "AudioProcess"));
-        StartCoroutine(ffmpeg.DownloadFile(songUrl, "Tuý Âm.mp4", "AudioProcess"));
+        string videoFolderPath = Path.Combine(Application.persistentDataPath, "AudioProcess", "downloadedVideo.mp4");
+        try { StartCoroutine(ffmpeg.ExtractAudioFromVideo(videoFolderPath)); }
+        catch { }
 
-        string videoFolderPath = Path.Combine(Application.persistentDataPath, "AudioProcess", "Tuý Âm.mp4");
-        StartCoroutine(ffmpeg.ExtractAudioFromVideo(videoFolderPath));
+        waveformDisplay.ShowPopup(Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingUrl + ".wav"));
+        gameObject.SetActive(false);
+    }
 
-        waveformDisplay.ShowPopup();
+    public void Show()
+    {
+        gameObject.SetActive(true);
     }
 }

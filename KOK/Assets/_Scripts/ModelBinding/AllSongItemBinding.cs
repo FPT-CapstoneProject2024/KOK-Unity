@@ -73,6 +73,7 @@ namespace KOK
                     SongName = SongDetail.SongName,
                     Price = SongDetail.Price,
                     IsPurchased = SongDetail.isPurchased,
+                    SongItem = gameObject
                 };
                 BuySongButton.AddEventListener(songParam, OnBuySongClick);
             }
