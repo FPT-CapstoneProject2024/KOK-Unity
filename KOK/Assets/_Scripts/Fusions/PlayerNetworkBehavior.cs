@@ -71,55 +71,69 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     private void Start()
     {
-        if (this.HasStateAuthority)
+        StartCoroutine(InitRoom());
+
+    }
+
+    IEnumerator InitRoom()
+    {
+        try
         {
-            //Debug.LogError(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName));
-            LoadSongList();
-            ClearSongQueue();
-            NetworkRunner runner = NetworkRunner.Instances[0];
-            //PlayerName = FusionManager.Instance._playerName;
-            //PlayerColor = FusionManager.Instance._playerColor;
-
-            AccountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
-            PlayerName = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
-            if (runner.ActivePlayers.Count() > 1)
+            if (this.HasStateAuthority)
             {
-                PlayerRole = 1;
-                StartCoroutine(SyncSongQueueWithHost());
-                StartCoroutine(SyncRoomLogWithHost());
+                //Debug.LogError(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName));
+                LoadSongList();
+                ClearSongQueue();
+                NetworkRunner runner = NetworkRunner.Instances[0];
+                //PlayerName = FusionManager.Instance._playerName;
+                //PlayerColor = FusionManager.Instance._playerColor;
+
+                AccountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
+                PlayerName = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
+                if (runner.ActivePlayers.Count() > 1)
+                {
+                    PlayerRole = 1;
+                    StartCoroutine(SyncSongQueueWithHost());
+                    StartCoroutine(SyncRoomLogWithHost());
+                }
+                else
+                {
+                    PlayerRole = 0;
+                    string recordingName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now + ".txt";
+                    recordingName = recordingName.Replace(" ", "");
+                    recordingName = recordingName.Replace(":", "");
+                    recordingName = recordingName.Replace("/", "");
+                    RoomLogManager.Instance.CreateRoomLog(recordingName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
+                }
+
+                CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
+                AvatarCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
+
+
+                videoPlayer = FindAnyObjectByType<VideoPlayer>();
+
+                //RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
+
+                SetSinger();
+
+                StartCoroutine(UpdateTime());
+                StartCoroutine(UpdateSearchSongUI());
+                StartCoroutine(NotiJoinRoom());
+                RoomLogString = "";
+                voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
+                loadingManager = FindAnyObjectByType<LoadingManager>();
             }
-            else
-            {
-                PlayerRole = 0;
-                string recordingName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now + ".txt";
-                recordingName = recordingName.Replace(" ", "");
-                recordingName = recordingName.Replace(":", "");
-                recordingName = recordingName.Replace("/", "");
-                RoomLogManager.Instance.CreateRoomLog(recordingName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
-            }
-
-            CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
-            AvatarCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
-
-
-            videoPlayer = FindAnyObjectByType<VideoPlayer>();
-
-            //RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
-
-            SetSinger();
-
-            StartCoroutine(UpdateTime());
-            StartCoroutine(UpdateSearchSongUI());
-            StartCoroutine(NotiJoinRoom());
-            RoomLogString = "";
-            voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
-            loadingManager = FindAnyObjectByType<LoadingManager>(); 
+            Debug.Log(PlayerName + " HasStateAuthority: " + HasStateAuthority);
+            this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
+            playerNameLabel.color = PlayerColor;
+            playerRenderer.color = PlayerColor;
         }
-        Debug.Log(PlayerName + " HasStateAuthority: " + HasStateAuthority);
-        this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
-        playerNameLabel.color = PlayerColor;
-        playerRenderer.color = PlayerColor;
-        
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+            StartCoroutine(InitRoom());
+        }
+        yield return new WaitForSeconds(1f);
     }
 
     IEnumerator NotiJoinRoom()
@@ -185,10 +199,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     private void Rpc_SyncVideoTime()
     {
-        if (this.HasStateAuthority)
-        {
-            videoTime = videoPlayer.time;
-        }
+        videoTime = videoPlayer.time;
+
     }
     IEnumerator UpdateTime()
     {
@@ -199,46 +211,40 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     public void Rpc_SetVideoPlayerSyncTime()
     {
-        if (this.HasStateAuthority)
+        if (videoPlayer != null)
         {
-            if (videoPlayer != null)
-            {
-                videoPlayer.time = videoTime;
-            }
-            else
-            {
-                videoPlayer = FindAnyObjectByType<VideoPlayer>();
-                videoPlayer.time = videoTime;
-            }
+            videoPlayer.time = videoTime;
         }
+        else
+        {
+            videoPlayer = FindAnyObjectByType<VideoPlayer>();
+            videoPlayer.time = videoTime;
+        }
+
     }
 
     public void Rpc_PrepareVideo()
     {
-        if (this.HasStateAuthority)
+        if (videoPlayer != null)
         {
-            if (videoPlayer != null)
-            {
-                videoPlayer.Prepare();
-            }
-            else
-            {
-                videoPlayer = FindAnyObjectByType<VideoPlayer>();
-                videoPlayer.Prepare();
-            }
+            videoPlayer.Prepare();
         }
+        else
+        {
+            videoPlayer = FindAnyObjectByType<VideoPlayer>();
+            videoPlayer.Prepare();
+        }
+
     }
 
     public void Rpc_PlayVideo()
     {
-        if (this.HasStateAuthority)
+        if (videoPlayer != null)
         {
-            if (videoPlayer != null)
-            {
-                videoPlayer.Play();
-                StartCoroutine(RecordingAndRemoveSongFromQueue());
-            }
+            videoPlayer.Play();
+            StartCoroutine(RecordingAndRemoveSongFromQueue());
         }
+
     }
 
     IEnumerator RecordingAndRemoveSongFromQueue()
@@ -263,13 +269,11 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     public void Rpc_StopVideo()
     {
-        if (this.HasStateAuthority)
+        if (videoPlayer != null)
         {
-            if (videoPlayer != null)
-            {
-                videoPlayer.Stop();
-            }
+            videoPlayer.Stop();
         }
+
     }
 
     public string GetSongURLToPlay()
