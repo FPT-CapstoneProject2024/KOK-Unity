@@ -54,6 +54,7 @@ namespace KOK
 
         public void SpawnPopupSingle()
         {
+            if (_parent == null) { _parent = GameObject.Find("PopUpCanvas").transform; }
             if (transform.childCount > 0)
             {
                 foreach (Transform child in _parent.transform)

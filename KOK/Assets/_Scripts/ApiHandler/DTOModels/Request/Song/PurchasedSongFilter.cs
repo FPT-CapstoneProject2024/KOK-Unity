@@ -6,5 +6,6 @@ namespace KOK.ApiHandler.DTOModels
     {
         public string SongName { get; set; } = string.Empty;
         public Guid MemberId { get; set; }
+        public Guid SongId { get; set; }
     }
 }

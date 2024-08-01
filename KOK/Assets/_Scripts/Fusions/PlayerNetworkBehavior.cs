@@ -67,6 +67,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     private bool isRecording = false;
 
+    [SerializeField] private LoadingManager loadingManager { get; set; }
+
     private void Start()
     {
         if (this.HasStateAuthority)
@@ -89,11 +91,11 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             else
             {
                 PlayerRole = 0;
-                string logFileName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now + ".txt";
-                logFileName = logFileName.Replace(" ", "");
-                logFileName = logFileName.Replace(":", "");
-                logFileName = logFileName.Replace("/", "");
-                RoomLogManager.Instance.CreateRoomLog(logFileName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
+                string recordingName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now + ".txt";
+                recordingName = recordingName.Replace(" ", "");
+                recordingName = recordingName.Replace(":", "");
+                recordingName = recordingName.Replace("/", "");
+                RoomLogManager.Instance.CreateRoomLog(recordingName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
             }
 
             CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
@@ -111,12 +113,13 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             StartCoroutine(NotiJoinRoom());
             RoomLogString = "";
             voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
+            loadingManager = FindAnyObjectByType<LoadingManager>(); 
         }
         Debug.Log(PlayerName + " HasStateAuthority: " + HasStateAuthority);
         this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
         playerNameLabel.color = PlayerColor;
         playerRenderer.color = PlayerColor;
-
+        
     }
 
     IEnumerator NotiJoinRoom()
@@ -150,6 +153,9 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     {
         if (this.HasStateAuthority)
         {
+            if (loadingManager == null) loadingManager = FindAnyObjectByType<LoadingManager>();
+            loadingManager.DisableUIElement();
+            FindAnyObjectByType<SongItemManager>().ClearSongList();
             SongList = new();
             FindAnyObjectByType<ApiHelper>().gameObject
                     .GetComponent<SongController>()
@@ -618,7 +624,10 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             else
             {
                 Debug.Log("Room recording is ready: " + singerAudioUrls.Count);
-                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
+                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now;
+                recordingName = recordingName.Replace(" ", "");
+                recordingName = recordingName.Replace(":", "");
+                recordingName = recordingName.Replace("/", "");
 
                 RecordingManager.Instance.CreateRecording(
                         recordingName,

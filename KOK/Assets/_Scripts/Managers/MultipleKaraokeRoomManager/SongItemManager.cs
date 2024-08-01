@@ -23,20 +23,31 @@ namespace KOK
         [SerializeField] TMP_InputField _searchSongInput;
         [SerializeField] Toggle _favToggle;
         [SerializeField] Toggle _purToggle;
+        [SerializeField] LoadingManager _loadingManager;
 
         private NetworkRunner _runner;
 
+        private void OnEnable()
+        {
+            if (_loadingManager == null) _loadingManager = FindAnyObjectByType<LoadingManager>();
+        }
+        public void ClearSongList()
+        {
+            foreach (Transform child in _viewportContent.transform)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
         public void UpdateSongList()
         {
+            List<SongDetail> searchSongList = new List<SongDetail>();
             try
             {
-                List<SongDetail> searchSongList = new List<SongDetail>();
+                ClearSongList();
                 if (_viewportContent == null) { return; }
                 if (_runner == null) { _runner = NetworkRunner.Instances[0]; }
-                foreach (Transform child in _viewportContent.transform)
-                {
-                    Destroy(child.gameObject);
-                }
+
 
                 //List<SongDetail> songList = SongManager.songs;
                 Debug.Log(_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>());
@@ -89,7 +100,18 @@ namespace KOK
                     }
                     catch (Exception ex) { Debug.LogError(ex); }
                 }
-            } catch { }
+                
+            }
+            catch { }
+            if (_loadingManager == null) _loadingManager = FindAnyObjectByType<LoadingManager>();
+            if (searchSongList.Count > 0)
+            {
+                _loadingManager.EnableUIElement();
+            }
+            else
+            {
+                _loadingManager.DisableUIElement();
+            }
         }
 
         public void UpdateQueueSongList()
