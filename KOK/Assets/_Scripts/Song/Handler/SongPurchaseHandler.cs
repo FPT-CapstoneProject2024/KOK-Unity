@@ -15,6 +15,8 @@ namespace KOK
         [Header("Notify Components")]
         [SerializeField] public GameObject NotifyComponent;
         [SerializeField] public TMP_Text NotifyMessage;
+        [Header("Loading Components")]
+        [SerializeField] public GameObject LoadingComponent;
 
         private BuySongParam SongParam;
 
@@ -28,12 +30,21 @@ namespace KOK
         {
             PurchaseComponent.SetActive(true);
             NotifyComponent.SetActive(false);
+            LoadingComponent.SetActive(false);
         }
 
         private void DisplayNotification()
         {
             NotifyComponent.SetActive(true);
             PurchaseComponent.SetActive(false);
+            LoadingComponent.SetActive(false);
+        }
+
+        private void DisplayLoading()
+        {
+            LoadingComponent.SetActive(true);
+            PurchaseComponent.SetActive(false);
+            NotifyComponent.SetActive(false);
         }
 
         private void SetNotifyMessage(string text)
@@ -59,6 +70,7 @@ namespace KOK
 
         public void OnConfirmPurchaseSong()
         {
+            DisplayLoading();
             Debug.Log("Confirm Purchase Song");
             string accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
             if (string.IsNullOrEmpty(accountId))

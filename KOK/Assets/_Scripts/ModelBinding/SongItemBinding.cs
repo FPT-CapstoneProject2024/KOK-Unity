@@ -41,5 +41,17 @@ namespace KOK
             BuySongButton.interactable = false;
             BuySongButton.gameObject.GetComponent<Image>().color = Color.gray;
         }
+
+        public void DisableFavoriteToggle()
+        {
+            FavoriteSongToggle.interactable = false;
+            FavoriteSongToggle.GetComponentInChildren<Image>().color = Color.gray;
+        }
+
+        public void EnableFavoriteToggle()
+        {
+            FavoriteSongToggle.interactable = true;
+            FavoriteSongToggle.GetComponentInChildren<Image>().color = Color.white;
+        }
     }
 }

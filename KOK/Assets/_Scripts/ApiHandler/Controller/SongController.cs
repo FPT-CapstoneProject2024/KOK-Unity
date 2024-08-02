@@ -34,6 +34,14 @@ namespace KOK.ApiHandler.Controller
             return result;
         }
 
+        /// <summary>
+        /// OLD METHOD, PLEASE DO NOT USE!
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="orderFilter"></param>
+        /// <param name="paging"></param>
+        /// <param name="onSuccess"></param>
+        /// <param name="onError"></param>
         public void GetSongsFilterPagingCoroutine(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging, Action<List<SongDetail>> onSuccess, Action<string> onError)
         {
             var queryParams = GenerateSongQueryParams(filter, orderFilter, paging);
@@ -62,6 +70,21 @@ namespace KOK.ApiHandler.Controller
             if (!string.IsNullOrEmpty(filter.SongCode))
             {
                 queryParams.Add(nameof(filter.SongCode), filter.SongCode);
+            }
+
+            if (!string.IsNullOrEmpty(filter.GenreName))
+            {
+                queryParams.Add(nameof(filter.GenreName), filter.GenreName);
+            }
+
+            if (!string.IsNullOrEmpty(filter.SingerName))
+            {
+                queryParams.Add(nameof(filter.SingerName), filter.SingerName);
+            }
+
+            if (!string.IsNullOrEmpty(filter.ArtistName))
+            {
+                queryParams.Add(nameof(filter.ArtistName), filter.ArtistName);
             }
 
             queryParams.Add(nameof(filter.SongStatus), filter.SongStatus.ToString());
