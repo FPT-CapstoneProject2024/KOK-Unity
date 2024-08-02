@@ -71,7 +71,7 @@ namespace KOK
             //    );
         }
 
-        public void CreateRecording(string recordingName, int score, string purchasedSongId, string hostId, string ownerId, string karaokeRoomId, List<string> audioFilePath, List<string> memberIds)
+        public void CreateRecording(string recordingName,int recordingType, int score, string purchasedSongId, string hostId, string ownerId, string karaokeRoomId, List<string> audioFilePath, List<string> memberIds)
         {
             //Get information
 

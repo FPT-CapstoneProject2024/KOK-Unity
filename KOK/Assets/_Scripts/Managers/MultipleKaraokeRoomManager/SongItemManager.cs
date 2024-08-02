@@ -27,10 +27,6 @@ namespace KOK
 
         private NetworkRunner _runner;
 
-        private void OnEnable()
-        {
-            if (_loadingManager == null) _loadingManager = FindAnyObjectByType<LoadingManager>();
-        }
         public void ClearSongList()
         {
             foreach (Transform child in _viewportContent.transform)
@@ -100,18 +96,19 @@ namespace KOK
                     }
                     catch (Exception ex) { Debug.LogError(ex); }
                 }
-                
+                if (searchSongList.Count > 0)
+                {
+                    _loadingManager.EnableUIElement();
+                }
+                else
+                {
+                    _loadingManager.DisableUIElement();
+                }
+
             }
             catch { }
-            if (_loadingManager == null) _loadingManager = FindAnyObjectByType<LoadingManager>();
-            if (searchSongList.Count > 0)
-            {
-                _loadingManager.EnableUIElement();
-            }
-            else
-            {
-                _loadingManager.DisableUIElement();
-            }
+            
+            
         }
 
         public void UpdateQueueSongList()
