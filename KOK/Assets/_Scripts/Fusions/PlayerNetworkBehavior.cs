@@ -349,7 +349,6 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             if (PlayerRole == 0)
             {
                 NetworkString<_32> songCode = QueueSongCodeList[0];
-                DemoSong song = DemoSongManager.GetSongBySongCode(songCode.ToString());
 
                 NetworkString<_32>[] tmp = QueueSongCodeList.Where((source, i) => i != index).ToArray();
                 QueueSongCodeList.Clear();
@@ -637,20 +636,50 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 recordingName = recordingName.Replace("/", "");
 
 
-                RPCSongManager.Rpc_RemoveSong(NetworkRunner.Instances[0], 0);
 
-                RecordingManager.Instance.CreateRecording(
+                ApiHelper.Instance.GetComponent<PurchasedSongController>()
+                    .GetMemberPurchasedSongFilterCoroutine(
+                        new()
+                        {
+                            MemberId = Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
+                            SongId = (Guid)GetSongBySongCode(QueueSongCodeList[0].ToString()).SongId,
+                        },
+                        PurchasedSongOrderFilter.SongId,
+                        new()
+                        {
+                            pageSize = 1,
+                        },
+                        (successValue) =>
+                        {
+                            CreateRecording(recordingName,
+                            successValue.Results[0].PurchasedSongId.ToString(),
+                            singerAudioUrls,
+                            singerAccountIds
+                            );
+                            Debug.Log("Get purchased song success: " + successValue.Results[0].SongName.ToString());
+                        },
+                        (er) => { }
+                        ) ;
+
+
+                RPCSongManager.Rpc_RemoveSong(NetworkRunner.Instances[0], 0);
+            }
+        }
+    }
+
+    private void CreateRecording(string recordingName, string purchasedSongId, List<string> singerAudioUrls, List<string> singerAccountIds)
+    {
+        RecordingManager.Instance.CreateRecording(
                         recordingName,
+                        1,
                         UnityEngine.Random.Range(50, 100),
-                        "2265c487-8243-4547-b79b-baef95de50eb",
+                        purchasedSongId,
                         PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
                         PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
                         RoomLogManager.Instance.roomId.ToString(),
                         singerAudioUrls,
                         singerAccountIds
                         );
-            }
-        }
     }
 
     public void StopRecording()

@@ -285,6 +285,7 @@ namespace KOK
         {
             RecordingManager.Instance.CreateRecording(
                     recordingName,
+                    0,
                     UnityEngine.Random.Range(50, 100),
                     purSongId,
                     PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),

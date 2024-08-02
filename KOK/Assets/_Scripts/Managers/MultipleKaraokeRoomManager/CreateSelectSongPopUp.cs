@@ -13,44 +13,8 @@ namespace KOK
         [SerializeField] private GameObject _originalItem;
         private GameObject _popUp;
 
-        private void Start()
-        {
-            
-        }
+        private NetworkRunner _networkRunner;
 
-        public void SpawnPopUp()
-        {
-            if (_parent == null) { _parent = GameObject.Find("PopUpCanvas").transform; }
-            if (transform.childCount > 0) {
-                foreach (Transform child in _parent.transform)
-                {
-                    Destroy(child.gameObject);
-                }
-            }
-            _popUp = Instantiate(_popUpPrefab, _parent);
-            //Song code
-            _popUp.transform.GetChild(0).GetChild(0).name = _originalItem.transform.GetChild(0).name;
-            var song = _originalItem.GetComponentInChildren<SongBinding>().Song;
-            _popUp.GetComponentInChildren<SongBinding>().BindingData(song);
-            //Singer 1
-            if (IsHostOwnedSong())
-            {
-                var singer1Dropdown = _popUp.transform.GetChild(1).GetComponent<TMP_Dropdown>();
-                singer1Dropdown.ClearOptions();
-                singer1Dropdown.AddOptions(GetPlayerNameList());
-            }
-            else
-            {
-                var singer1Dropdown = _popUp.transform.GetChild(1).GetComponent<TMP_Dropdown>();
-                singer1Dropdown.ClearOptions();
-                singer1Dropdown.AddOptions(GetPlayerNameListThatOwnedSong());
-            }
-
-            var singer2Dropdown = _popUp.transform.GetChild(2).GetComponent<TMP_Dropdown>();
-            singer2Dropdown.ClearOptions();
-            singer2Dropdown.AddOptions(GetPlayerNameList());
-
-        }
 
         public void SpawnPopupSingle()
         {
@@ -68,6 +32,39 @@ namespace KOK
             var song = _originalItem.GetComponentInChildren<SongBinding>().Song;
             _popUp.GetComponentInChildren<SongBinding>().BindingData(song);
         }
+        public void SpawnPopUp()
+        {
+            if(_networkRunner == null) { _networkRunner = NetworkRunner.Instances[0]; }
+            if (IsHostOwnedSong(_originalItem.GetComponentInChildren<SongBinding>().Song.SongCode))
+            {
+                if (_parent == null) { _parent = GameObject.Find("PopUpCanvas").transform; }
+                if (transform.childCount > 0)
+                {
+                    foreach (Transform child in _parent.transform)
+                    {
+                        Destroy(child.gameObject);
+                    }
+                }
+                _popUp = Instantiate(_popUpPrefab, _parent);
+                //Song code
+                _popUp.transform.GetChild(0).GetChild(0).name = _originalItem.transform.GetChild(0).name;
+                var song = _originalItem.GetComponentInChildren<SongBinding>().Song;
+                _popUp.GetComponentInChildren<SongBinding>().BindingData(song);
+                //Singer 
+                var singer1Dropdown = _popUp.transform.GetChild(1).GetComponent<TMP_Dropdown>();
+                singer1Dropdown.ClearOptions();
+                singer1Dropdown.AddOptions(GetPlayerNameList());
+
+                var singer2Dropdown = _popUp.transform.GetChild(2).GetComponent<TMP_Dropdown>();
+                singer2Dropdown.ClearOptions();
+                singer2Dropdown.AddOptions(GetPlayerNameList());
+            }
+            else
+            {
+                Debug.Log("Song not purchased");
+            }
+        }
+
         private List<string> GetPlayerNameList()
         {
             NetworkRunner runner = FindAnyObjectByType<NetworkRunner>();
@@ -93,10 +90,9 @@ namespace KOK
             return runnerNames;
         }
 
-        private bool IsHostOwnedSong()
+        private bool IsHostOwnedSong(string songCode)
         {
-            //Add check host owned song here
-            return true;
+            return _networkRunner.GetPlayerObject(_networkRunner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().GetSongBySongCode(songCode).isPurchased;
         }
     }
 
