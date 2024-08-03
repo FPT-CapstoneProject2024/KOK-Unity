@@ -56,6 +56,7 @@ namespace KOK
             {
                 SetSongMessage("Không tìm thấy bài hát");
                 pagingDisplay.text = $"{0}/{0}";
+                loadingManager.EnableUIElement();
                 return;
             }
             SetSongMessage(string.Empty);
@@ -149,6 +150,7 @@ namespace KOK
 
         public void OnSearchSongClick()
         {
+            SetSongMessage(string.Empty);
             currentPage = 1;
             searchKeyword = searchInput.text;
             SetFilterKeyword();

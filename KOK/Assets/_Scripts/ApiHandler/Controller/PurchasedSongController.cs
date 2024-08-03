@@ -45,24 +45,24 @@ namespace KOK
                 });
         }
 
-    public void GetMemberPurchasedSongFilterCoroutine(PurchasedSongFilter filter, PurchasedSongOrderFilter orderFilter, PagingRequest paging, Action<DynamicResponseResult<PurchasedSong>> onSuccess, Action<DynamicResponseResult<PurchasedSong>> onError)
-    {
-        var queryParams = GeneratePurchasedSongQueryParams(filter, orderFilter, paging);
-        var url = QueryHelper.BuildUrl(purchasedSongsResourceUrl + "/filter", queryParams);
-        ApiHelper.Instance.GetCoroutine(url,
-            (successValue) =>
-            {
-                var result = JsonConvert.DeserializeObject<DynamicResponseResult<PurchasedSong>>(successValue);
-                onSuccess?.Invoke(result);
-            },
-            (errorValue) =>
-            {
-                var result = JsonConvert.DeserializeObject<DynamicResponseResult<PurchasedSong>>(errorValue);
-                onError?.Invoke(result);
-            });
-    }
+        public void GetMemberPurchasedSongFilterCoroutine(PurchasedSongFilter filter, PurchasedSongOrderFilter orderFilter, PagingRequest paging, Action<DynamicResponseResult<PurchasedSong>> onSuccess, Action<DynamicResponseResult<PurchasedSong>> onError)
+        {
+            var queryParams = GeneratePurchasedSongQueryParams(filter, orderFilter, paging);
+            var url = QueryHelper.BuildUrl(purchasedSongsResourceUrl + "/filter", queryParams);
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<PurchasedSong>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<PurchasedSong>>(errorValue);
+                    onError?.Invoke(result);
+                });
+        }
 
-    private NameValueCollection GeneratePurchasedSongQueryParams(PurchasedSongFilter filter, PurchasedSongOrderFilter orderFilter, PagingRequest paging)
+        private NameValueCollection GeneratePurchasedSongQueryParams(PurchasedSongFilter filter, PurchasedSongOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
             if (!string.IsNullOrEmpty(filter.SongName))
@@ -75,7 +75,7 @@ namespace KOK
                 queryParams.Add(nameof(filter.MemberId), filter.MemberId.ToString());
             }
 
-            if (!string.IsNullOrEmpty(filter.SongId.ToString()))
+            if (!string.IsNullOrEmpty(filter.SongId.ToString()) && filter.SongId != Guid.Empty)
             {
                 queryParams.Add(nameof(filter.SongId), filter.SongId.ToString());
             }
