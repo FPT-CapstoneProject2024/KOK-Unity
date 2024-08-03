@@ -37,16 +37,13 @@ namespace KOK
 
         public void UpdateSongList()
         {
-            List<SongDetail> searchSongList = new List<SongDetail>();
+            List<SongDetail> searchSongList = new List<SongDetail>(); 
+            ClearSongList();
+            if (_viewportContent == null) { return; }
+            if (_runner == null) { _runner = NetworkRunner.Instances[0]; }
             try
             {
-                ClearSongList();
-                if (_viewportContent == null) { return; }
-                if (_runner == null) { _runner = NetworkRunner.Instances[0]; }
-
-
                 //List<SongDetail> songList = SongManager.songs;
-                Debug.Log(_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>());
                 List<SongDetail> songList = _runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().SongList;
 
                 string searchKeyword = _searchSongInput.text;
@@ -107,8 +104,8 @@ namespace KOK
 
             }
             catch { }
-            
-            
+
+
         }
 
         public void UpdateQueueSongList()

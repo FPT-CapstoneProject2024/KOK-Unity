@@ -101,7 +101,11 @@ namespace KOK.Assets._Scripts.FileManager
 */
 
 using KOK.ApiHandler.DTOModels;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.VoiceAudios;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
@@ -142,6 +146,25 @@ namespace KOK.Assets._Scripts.FileManager
             AudioClip audioClip = ffmpeg.LoadAudioClip(filePath);
             Display(videoUrl, audioClip, startTimeRecording, startTimeSong);
         }
+        
+        public void ShowPopup(string videoSongUrl, List<string> voiceAudioUrls)
+        {
+            List<string> filePathLocalWavs = new();
+            List<string> filePathLocalZips = new();
+
+            List<AudioClip> audioClipList = new();
+            foreach (var voiceAudioUrl in voiceAudioUrls)
+            {
+                filePathLocalWavs.Add(voiceAudioUrl.Replace(".zip", ".wav"));
+                filePathLocalZips.Add(voiceAudioUrl);
+                var audioClip = ffmpeg.LoadAudioClip(voiceAudioUrl.Replace(".zip", ".wav"));
+                audioClipList.Add(audioClip);
+            }
+
+            gameObject.SetActive(true);
+
+            Display(videoSongUrl, audioClipList, 50, new() {});
+        }
 
         public void Load(string videoUrl, string filePath, float startTimeRecording, float startTimeSong)
         {
@@ -162,6 +185,68 @@ namespace KOK.Assets._Scripts.FileManager
             videoPlayer.Prepare();
             StartCoroutine(SyncStart(startTimeRecording, startTimeSong));
         }
+        
+        private void Display(string videoUrl, List<AudioClip> audioClips, float videoStartTime, List<float> audioStartTime)
+        {
+            
+
+            List<AudioSource> audioSources = new List<AudioSource>();
+            foreach (var audioClip in audioClips)
+            {
+                var audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.clip = audioClip;
+                audioSource.loop = false;
+                audioSources.Add(audioSource);
+            }
+
+            videoPlayer.Stop();
+            videoPlayer.url = videoUrl;
+            videoPlayer.Prepare();
+            videoPlayer.Play();
+            StartCoroutine(SyncStart(videoStartTime, audioStartTime, audioSources));
+        }
+
+        IEnumerator SyncStart(float videoStartTime, List<float> audioStartTime, List<AudioSource> audioSources)
+        {
+            yield return new WaitForSeconds(0.1f);
+            if (videoPlayer.time > 0)
+            {
+                foreach(AudioSource audioSource in audioSources)
+                {
+                    audioSource.Play();
+                }
+                if (progressSlider.minValue != 0 || progressSlider.maxValue != (float)videoPlayer.length)
+                {
+                    progressSlider.minValue = 0;
+                    progressSlider.maxValue = (float)videoPlayer.length;
+
+                    StartCoroutine(SliderFollowVideo());
+                }
+            } else
+            {
+                StartCoroutine(SyncStart(videoStartTime, audioStartTime, audioSources));
+            }
+        }
+
+        IEnumerator SliderFollowVideo()
+        {
+            yield return new WaitForSeconds(0.1f);
+            progressSlider.value = (float)videoPlayer.time;
+        }
+
+        public void StopPlaying()
+        {
+            //Clean up audio source
+            List<AudioSource> oldAudioSources = GetComponents<AudioSource>().ToArray().ToList();
+            foreach (var audioSource in oldAudioSources)
+            {
+                Destroy(audioSource);
+            }
+
+
+        }
+
+
 
         private IEnumerator SyncStart(float startTimeRecording, float startTimeSong)
         {
@@ -232,6 +317,12 @@ namespace KOK.Assets._Scripts.FileManager
             ffmpeg.CleanUp(filePathLocalZip);
             gameObject.SetActive(false);
             recordingLoader.Show();
+        }
+
+        private void OnDestroy()
+        {
+            //Xoá toàn bộ file tạm trong folder 
+
         }
     }
 }
