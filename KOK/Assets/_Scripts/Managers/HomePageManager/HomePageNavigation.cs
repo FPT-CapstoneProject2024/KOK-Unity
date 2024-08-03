@@ -26,5 +26,10 @@ namespace KOK
         {
             SceneManager.LoadScene(sceneName: "Song");
         }
+
+        public void ToShopScene()
+        {
+            SceneManager.LoadScene(sceneName: "Shop");
+        }
     }
 }
