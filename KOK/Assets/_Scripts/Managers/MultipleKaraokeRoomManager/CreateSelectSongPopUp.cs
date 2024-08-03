@@ -1,4 +1,7 @@
 using Fusion;
+using KOK.ApiHandler.DTOModels;
+using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -8,12 +11,13 @@ namespace KOK
 {
     public class CreateSelectSongPopUp : MonoBehaviour
     {
-        [SerializeField] private GameObject _popUpPrefab;
+        [SerializeField] private GameObject _selectSongPopUpPrefab;
+        [SerializeField] private GameObject _buySongPopUpPrefab;
         private Transform _parent;
         [SerializeField] private GameObject _originalItem;
         private GameObject _popUp;
 
-        private NetworkRunner _networkRunner;
+        private NetworkRunner _runner;
 
 
         public void SpawnPopupSingle()
@@ -26,26 +30,46 @@ namespace KOK
                     Destroy(child.gameObject);
                 }
             }
-            _popUp = Instantiate(_popUpPrefab, _parent);
-            //Song code
-            _popUp.transform.GetChild(0).GetChild(0).name = _originalItem.transform.GetChild(0).name;
-            var song = _originalItem.GetComponentInChildren<SongBinding>().Song;
-            _popUp.GetComponentInChildren<SongBinding>().BindingData(song);
+            if (_originalItem.GetComponentInChildren<SongBinding>().Song.isPurchased)
+            {
+                
+                _popUp = Instantiate(_selectSongPopUpPrefab, _parent);
+                //Song code
+                _popUp.transform.GetChild(0).GetChild(0).name = _originalItem.transform.GetChild(0).name;
+                var song = _originalItem.GetComponentInChildren<SongBinding>().Song;
+                _popUp.GetComponentInChildren<SongBinding>().BindingData(song);
+            } else
+            {
+                Debug.Log("Song not purchased");
+                var song = _originalItem.GetComponentInChildren<SongBinding>().Song;
+                var songParam = new BuySongParam()
+                {
+                    SongId = (Guid)song.SongId,
+                    SongName = song.SongName,
+                    Price = song.Price,
+                    IsPurchased = song.isPurchased,
+                    SongItem = _originalItem
+                };
+
+                _popUp = Instantiate(_buySongPopUpPrefab, _parent);
+                _popUp.GetComponentInChildren<PurchasedSongPopup>().InitParam(songParam, 0);
+            }
         }
         public void SpawnPopUp()
         {
-            if(_networkRunner == null) { _networkRunner = NetworkRunner.Instances[0]; }
-            if (IsHostOwnedSong(_originalItem.GetComponentInChildren<SongBinding>().Song.SongCode))
+            if(_runner == null) { _runner = NetworkRunner.Instances[0]; }
+            if (_parent == null) { _parent = GameObject.Find("PopUpCanvas").transform; }
+            if (transform.childCount > 0)
             {
-                if (_parent == null) { _parent = GameObject.Find("PopUpCanvas").transform; }
-                if (transform.childCount > 0)
+                foreach (Transform child in _parent.transform)
                 {
-                    foreach (Transform child in _parent.transform)
-                    {
-                        Destroy(child.gameObject);
-                    }
+                    Destroy(child.gameObject);
                 }
-                _popUp = Instantiate(_popUpPrefab, _parent);
+            }
+            if (IsHostOwnedSong(_originalItem.GetComponentInChildren<SongBinding>().Song.SongCode))
+            {                
+                
+                _popUp = Instantiate(_selectSongPopUpPrefab, _parent);
                 //Song code
                 _popUp.transform.GetChild(0).GetChild(0).name = _originalItem.transform.GetChild(0).name;
                 var song = _originalItem.GetComponentInChildren<SongBinding>().Song;
@@ -62,8 +86,21 @@ namespace KOK
             else
             {
                 Debug.Log("Song not purchased");
+                var song = _originalItem.GetComponentInChildren<SongBinding>().Song;
+                var songParam = new BuySongParam()
+                {
+                    SongId = (Guid)song.SongId,
+                    SongName = song.SongName,
+                    Price = song.Price,
+                    IsPurchased = song.isPurchased,
+                    SongItem = _originalItem
+                };
+                _popUp = Instantiate(_buySongPopUpPrefab, _parent);
+                _popUp.GetComponentInChildren<PurchasedSongPopup>().InitParam(songParam, 1);
             }
         }
+
+
 
         private List<string> GetPlayerNameList()
         {
@@ -92,7 +129,7 @@ namespace KOK
 
         private bool IsHostOwnedSong(string songCode)
         {
-            return _networkRunner.GetPlayerObject(_networkRunner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().GetSongBySongCode(songCode).isPurchased;
+            return _runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().GetSongBySongCode(songCode).isPurchased;
         }
     }
 

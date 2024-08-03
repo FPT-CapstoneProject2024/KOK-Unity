@@ -547,7 +547,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb2371f84b6bc9b47ac5a4c5fe072699, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _popUpPrefab: {fileID: 6140844574200421352, guid: a6c311bacd05fa34d8ae3643bec7a01e, type: 3}
+  _selectSongPopUpPrefab: {fileID: 6140844574200421352, guid: a6c311bacd05fa34d8ae3643bec7a01e, type: 3}
+  _buySongPopUpPrefab: {fileID: 1542775554962005651, guid: bf519bd49a31fa34b835075e3dd3826b, type: 3}
   _originalItem: {fileID: 4590974471881372752}
 --- !u!114 &1142305134725260703
 MonoBehaviour:
@@ -579,6 +580,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   favToggle: {fileID: 8544897682020970980}
   songCode: {fileID: 4707384923573620131}
+  singlePlayerManager: {fileID: 0}
 --- !u!1 &4707384923573620131
 GameObject:
   m_ObjectHideFlags: 0
