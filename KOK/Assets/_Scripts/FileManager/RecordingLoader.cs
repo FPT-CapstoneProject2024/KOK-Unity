@@ -195,14 +195,20 @@ public class RecordingLoader : MonoBehaviour
                                                                                   localFilePaths.Add(localFilePath);
                                                                               }
 
-                                                                              PlayVideo(songVideoUrl, localFilePaths);
-                                                                              Debug.Log("Success: " + songVideoUrl);
+                                                                              StartCoroutine(LoadRecording(songVideoUrl, localFilePaths));
 
                                                                           },
                                                                           (ex) => Debug.LogError(ex));
                                             },
                                             (ex) => Debug.LogError(ex)
             );
+    }
+
+    IEnumerator LoadRecording(string songVideoUrl, List<string> localFilePaths)
+    {
+        yield return new WaitForSeconds(2);
+        PlayVideo(songVideoUrl, localFilePaths);
+        Debug.Log("Success: " + songVideoUrl);
     }
 
     //private void OnGetPurchasedSongSuccess(List<PurchasedSong> purchasedSongs, Recording recording)
