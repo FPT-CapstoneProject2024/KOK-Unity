@@ -23,5 +23,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Song.unity
     guid: 5d8e10d9cc5b97644bf2842ab45766a5
+  - enabled: 1
+    path: Assets/Scenes/Shop.unity
+    guid: cecf10df9fd82644ca18f713cba013e2
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 61ed0d596bf25db4f80291b5d9f5e798, type: 2}
