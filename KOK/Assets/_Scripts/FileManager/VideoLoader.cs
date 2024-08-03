@@ -1,110 +1,10 @@
-﻿/*using KOK.ApiHandler.DTOModels;
-using System.Collections;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Video;
-
-namespace KOK.Assets._Scripts.FileManager
-{
-    public class VideoLoader : MonoBehaviour
-    {
-        private FFMPEG ffmpeg = new FFMPEG();
-        public VideoPlayer videoPlayer;
-        public RecordingLoader recordingLoader;
-        private AudioSource audioSource;
-        public Slider progressSlider; // Slider to display and control video progress
-        private bool isDraggingSlider = false; // To track if the user is dragging the slider
-
-        void Update()
-        {
-            Debug.Log(videoPlayer.time);
-            if (!isDraggingSlider && videoPlayer.isPlaying)
-            {
-                progressSlider.value = (float)videoPlayer.time;
-            }
-        }
-
-        public void ShowPopup(string videoUrl, string filePath, float startTime)
-        {
-            gameObject.SetActive(true);
-            AudioClip audioClip = ffmpeg.LoadAudioClip(filePath);
-            Display(videoUrl, audioClip, startTime);
-        }
-
-        private void Display(string videoUrl, AudioClip audioClip, float startTime)
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.clip = audioClip;
-            audioSource.loop = false;
-
-            videoPlayer.Stop();
-            videoPlayer.url = videoUrl;
-
-            videoPlayer.Prepare();
-            StartCoroutine(SyncStart(startTime));           
-        }       
-
-        public IEnumerator SyncStart(float startTime)
-        {
-            yield return new WaitForSeconds(0.1f);
-            if (videoPlayer.isPrepared && audioSource != null)
-            {
-                videoPlayer.Play();
-                audioSource.Play();
-                videoPlayer.time = startTime;
-                // Initialize the slider
-                progressSlider.minValue = 0;
-                progressSlider.maxValue = (float)videoPlayer.length;
-                progressSlider.onValueChanged.AddListener(OnSliderValueChanged);
-            }
-            else
-            {
-                StartCoroutine(SyncStart(startTime));
-            }
-        }
-
-        private void OnSliderValueChanged(float value)
-        {
-            if (isDraggingSlider)
-            {
-                videoPlayer.time = value;
-                audioSource.time = value;
-            }
-        }
-
-        public void OnSliderDragStart()
-        {
-            isDraggingSlider = true;
-        }
-
-        public void OnSliderDragEnd()
-        {
-            isDraggingSlider = false;
-            videoPlayer.time = progressSlider.value;
-            audioSource.time = (float)progressSlider.value;
-            videoPlayer.Play();
-            audioSource.Play();
-        }
-
-        public void Tua()
-        {
-            videoPlayer.time = 20f;
-        }
-
-        public void Hide()
-        {
-            gameObject.SetActive(false);
-            recordingLoader.Show();
-        }
-    }
-}
-*/
-
+﻿
 using KOK.ApiHandler.DTOModels;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.VoiceAudios;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -114,7 +14,7 @@ namespace KOK.Assets._Scripts.FileManager
 {
     public class VideoLoader : MonoBehaviour
     {
-        private FFMPEG ffmpeg = new FFMPEG();
+        private FFMPEG ffmpeg;
         public VideoPlayer videoPlayer;
         public RecordingLoader recordingLoader;
         private AudioSource audioSource;
@@ -127,7 +27,9 @@ namespace KOK.Assets._Scripts.FileManager
         {
             // Ensure the slider is interactive
             progressSlider.interactable = true;
-            
+            ffmpeg = GetComponent<FFMPEG>();
+            if (ffmpeg == null) ffmpeg = gameObject.AddComponent<FFMPEG>();
+
         }
 
         void Update()
@@ -155,15 +57,39 @@ namespace KOK.Assets._Scripts.FileManager
             List<AudioClip> audioClipList = new();
             foreach (var voiceAudioUrl in voiceAudioUrls)
             {
-                filePathLocalWavs.Add(voiceAudioUrl.Replace(".zip", ".wav"));
+                filePathLocalWav = voiceAudioUrl.Replace(".zip", ".wav");
+                filePathLocalWavs.Add(filePathLocalWav);
                 filePathLocalZips.Add(voiceAudioUrl);
-                var audioClip = ffmpeg.LoadAudioClip(voiceAudioUrl.Replace(".zip", ".wav"));
-                audioClipList.Add(audioClip);
+                var audioClip = ffmpeg.LoadAudioClipWavHelper(voiceAudioUrl.Replace(".zip", ".wav"));
+                if (audioClip != null)
+                {
+                    audioClipList.Add(audioClip);
+                }
+                else
+                {
+                    Debug.LogError("Can not load audio clip!");
+                    return;
+                }
+
+                if (File.Exists(voiceAudioUrl))
+                {
+                    //File.Delete(voiceAudioUrl);
+                    Debug.Log($"Deleted local zip file: {voiceAudioUrl}");
+                }
+
+                if (File.Exists(filePathLocalWav))
+                {
+                    //File.Delete(filePathLocalWav);
+                    Debug.Log($"Deleted local wav file: {filePathLocalWav}");
+                }
             }
 
             gameObject.SetActive(true);
 
             Display(videoSongUrl, audioClipList, 50, new() {});
+
+
+           
         }
 
         public void Load(string videoUrl, string filePath, float startTimeRecording, float startTimeSong)

@@ -116,11 +116,11 @@ namespace KOK
 
         }
 
-        [ContextMenu("Prepare audio")]
-        private void PrepareAudioSource()
-        {
-            LoadVoiceRecordingToAudioSource(cloudFileName1, recordingsTempLocation + "/test.zip", 0);
-        }
+        //[ContextMenu("Prepare audio")]
+        //private void PrepareAudioSource()
+        //{
+        //    LoadVoiceRecordingToAudioSource(cloudFileName1, recordingsTempLocation + "/test.zip", 0);
+        //}
 
         [ContextMenu("Play audio")]
         private void PlayAudio()
@@ -145,76 +145,76 @@ namespace KOK
 
         }
 
-        public async void LoadVoiceRecordingToAudioSource(string cloudFileName, string localZipFilePath, int audioSourceIndex)
-        {
-            AudioClip clip = await LoadWavToAudioClip(cloudFileName, localZipFilePath);
-            if (clip == null)
-            {
-                Debug.LogError("Failed to load voice recording to audio source. Cannot download and load wav file to audio clip!");
-                return;
-            }
-            audioSource.clip = clip;
-            Debug.Log("Voice recording successfully loaded to audio source!");
-        }
+        //public async void LoadVoiceRecordingToAudioSource(string cloudFileName, string localZipFilePath, int audioSourceIndex)
+        //{
+        //    AudioClip clip = await LoadWavToAudioClip(cloudFileName, localZipFilePath);
+        //    if (clip == null)
+        //    {
+        //        Debug.LogError("Failed to load voice recording to audio source. Cannot download and load wav file to audio clip!");
+        //        return;
+        //    }
+        //    audioSource.clip = clip;
+        //    Debug.Log("Voice recording successfully loaded to audio source!");
+        //}
 
-        private async Task<AudioClip> LoadWavToAudioClip(string cloudFileName, string localZipFilePath)
-        {
-            // Get download url
-            string downloadUrl = await FirebaseStorageManager.Instance.GetRecordingDownloadUrl(cloudFileName);
-            if (string.IsNullOrEmpty(downloadUrl))
-            {
-                Debug.LogError("Failed to retrieve voice recording download url");
-                return null;
-            }
+        //private async Task<AudioClip> LoadWavToAudioClip(string cloudFileName, string localZipFilePath)
+        //{
+        //    // Get download url
+        //    string downloadUrl = await FirebaseStorageManager.Instance.GetRecordingDownloadUrl(cloudFileName);
+        //    if (string.IsNullOrEmpty(downloadUrl))
+        //    {
+        //        Debug.LogError("Failed to retrieve voice recording download url");
+        //        return null;
+        //    }
 
-            // Download .zip file
-            await FirebaseStorageManager.Instance.DownloadVoiceRecordingFile(downloadUrl, localZipFilePath);
+        //    // Download .zip file
+        //    await FirebaseStorageManager.Instance.DownloadVoiceRecordingFile(downloadUrl, localZipFilePath);
 
-            if (!File.Exists(localZipFilePath))
-            {
-                Debug.LogError("Failed to download voice recording with given download url");
-                return null;
-            }
+        //    if (!File.Exists(localZipFilePath))
+        //    {
+        //        Debug.LogError("Failed to download voice recording with given download url");
+        //        return null;
+        //    }
 
-            // Extract .zip file
-            string wavFilePath = FileCompressionHelper.ExtractWavFileFromZip(localZipFilePath, recordingsTempLocation);
+        //    // Extract .zip file
+        //    string wavFilePath = FileCompressionHelper.ExtractWavFileFromZip(localZipFilePath, recordingsTempLocation);
 
-            if (string.IsNullOrEmpty(wavFilePath))
-            {
-                Debug.LogError("Failed to extract zipped voice recording file");
-                return null;
-            }
+        //    if (string.IsNullOrEmpty(wavFilePath))
+        //    {
+        //        Debug.LogError("Failed to extract zipped voice recording file");
+        //        return null;
+        //    }
 
-            // Load wav file to audio clip
-            AudioClip audioClip = WavHelper.WavFileToAudioClip(wavFilePath);
-            if (audioClip == null)
-            {
-                Debug.LogError("Failed to load wav file to audio clip");
-                return null;
-            }
+        //    // Load wav file to audio clip
+        //    AudioClip audioClip = WavHelper.WavFileToAudioClip(wavFilePath);
+        //    if (audioClip == null)
+        //    {
+        //        Debug.LogError("Failed to load wav file to audio clip");
+        //        return null;
+        //    }
 
-            // Clean up logic
-            try
-            {
-                if (File.Exists(localZipFilePath))
-                {
-                    File.Delete(localZipFilePath);
-                    Debug.Log($"Deleted local zip file: {localZipFilePath}");
-                }
+        //    // Clean up logic
+        //    try
+        //    {
+        //        if (File.Exists(localZipFilePath))
+        //        {
+        //            File.Delete(localZipFilePath);
+        //            Debug.Log($"Deleted local zip file: {localZipFilePath}");
+        //        }
 
-                if (File.Exists(wavFilePath))
-                {
-                    File.Delete(wavFilePath);
-                    Debug.Log($"Deleted local wav file: {wavFilePath}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Failed to clean up files: {ex}");
-            }
+        //        if (File.Exists(wavFilePath))
+        //        {
+        //            File.Delete(wavFilePath);
+        //            Debug.Log($"Deleted local wav file: {wavFilePath}");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.LogError($"Failed to clean up files: {ex}");
+        //    }
 
-            return audioClip;
-        }
+        //    return audioClip;
+        //}
 
         #region AudioSourcesManupilation
 
