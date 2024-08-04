@@ -293,6 +293,7 @@ RectTransform:
   m_Children:
   - {fileID: 1171691934}
   - {fileID: 1710795159}
+  - {fileID: 1361240476}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -551,6 +552,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 157051923}
   m_CullTransparentMesh: 1
+--- !u!1 &300676559
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 300676561}
+  - component: {fileID: 300676560}
+  m_Layer: 0
+  m_Name: '[SystemNavigation]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &300676560
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300676559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 971e15cacc462c44386cd5c89059004d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &300676561
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300676559}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &324769009
 GameObject:
   m_ObjectHideFlags: 0
@@ -1281,7 +1326,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1181720022}
-  - {fileID: 1361240476}
   m_Father: {fileID: 80043851}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1738,16 +1782,16 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1361240475}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.6577, y: 1.6577, z: 1.6577}
+  m_LocalPosition: {x: 0, y: 0, z: 37.500004}
+  m_LocalScale: {x: 1.7015389, y: 1.7015389, z: 1.7015389}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 997469715}
-  m_Father: {fileID: 1171691934}
+  m_Father: {fileID: 80043851}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 35.400024, y: -33.099976}
+  m_AnchoredPosition: {x: 26.070068, y: -26.114624}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1361240477
@@ -1794,9 +1838,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1710795160}
-        m_TargetAssemblyTypeName: KOK.Assets._Scripts.FileManager.VideoLoader, Assembly-CSharp
-        m_MethodName: Hide
+      - m_Target: {fileID: 300676560}
+        m_TargetAssemblyTypeName: KOK.SystemNavigation, Assembly-CSharp
+        m_MethodName: ToHome
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1826,7 +1870,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 35970d6e2857974479909044f71b7ea6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 08786f2bbeb6cb049bdf5d59b1a5fc86, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3140,3 +3184,4 @@ SceneRoots:
   - {fileID: 80043851}
   - {fileID: 1519262036}
   - {fileID: 1884965933}
+  - {fileID: 300676561}

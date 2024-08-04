@@ -73,13 +73,13 @@ namespace KOK.Assets._Scripts.FileManager
 
                 if (File.Exists(voiceAudioUrl))
                 {
-                    //File.Delete(voiceAudioUrl);
+                    File.Delete(voiceAudioUrl);
                     Debug.Log($"Deleted local zip file: {voiceAudioUrl}");
                 }
 
                 if (File.Exists(filePathLocalWav))
                 {
-                    //File.Delete(filePathLocalWav);
+                    File.Delete(filePathLocalWav);
                     Debug.Log($"Deleted local wav file: {filePathLocalWav}");
                 }
             }
@@ -168,7 +168,7 @@ namespace KOK.Assets._Scripts.FileManager
             {
                 Destroy(audioSource);
             }
-
+            videoPlayer.Stop();
 
         }
 
