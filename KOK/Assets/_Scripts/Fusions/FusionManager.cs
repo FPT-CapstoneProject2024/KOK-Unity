@@ -59,7 +59,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -86,6 +86,11 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         createButton.interactable = false;
         roomNameInput.interactable = false;
         randomJoinButton.interactable = false;
+    }
+
+    private void OnDestroy()
+    {
+        runner.Shutdown();
     }
 
     public void OnLoginSuccess()

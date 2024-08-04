@@ -86,7 +86,7 @@ namespace KOK.Assets._Scripts.FileManager
 
             gameObject.SetActive(true);
 
-            Display(videoSongUrl, audioClipList, 50, new() {});
+            Display(videoSongUrl, audioClipList, 0, new() {});
 
 
            
@@ -129,6 +129,7 @@ namespace KOK.Assets._Scripts.FileManager
             videoPlayer.url = videoUrl;
             videoPlayer.Prepare();
             videoPlayer.Play();
+            videoPlayer.SetDirectAudioVolume(0, 0.5f);
             StartCoroutine(SyncStart(videoStartTime, audioStartTime, audioSources));
         }
 
