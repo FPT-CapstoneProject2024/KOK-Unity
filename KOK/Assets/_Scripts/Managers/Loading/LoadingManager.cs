@@ -16,17 +16,25 @@ namespace KOK
 
         public void DisableUIElement()
         {
-            loadingSymbol.SetActive(true);
-            foreach (Selectable u in uiElementsNeedToDisable)
+            try
             {
-                u.interactable = false;
+                loadingSymbol.SetActive(true);
+                foreach (Selectable u in uiElementsNeedToDisable)
+                {
+                    u.interactable = false;
+                }
             }
+            catch { }
         }
 
         public void EnableUIElement()
         {
-            loadingSymbol.SetActive(false);
-            foreach (Selectable u in uiElementsNeedToDisable) { u.interactable = true; }
+            try
+            {
+                loadingSymbol.SetActive(false);
+                foreach (Selectable u in uiElementsNeedToDisable) { u.interactable = true; }
+            }
+            catch { }
         }
 
         public void EnableLoadingSymbol()

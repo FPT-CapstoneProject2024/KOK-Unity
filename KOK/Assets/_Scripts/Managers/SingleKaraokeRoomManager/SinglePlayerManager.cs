@@ -114,10 +114,14 @@ namespace KOK
         }
         public void ClearSearchSongList()
         {
-            foreach (Transform child in searchSongPanelContent.transform)
+            try
             {
-                Destroy(child.gameObject);
+                foreach (Transform child in searchSongPanelContent.transform)
+                {
+                    Destroy(child.gameObject);
+                }
             }
+            catch { }
         }
         public void UpdateSearchSongUI()
         {
