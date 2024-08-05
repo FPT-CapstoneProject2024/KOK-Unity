@@ -1,115 +1,4 @@
-﻿//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
-//using UnityEngine.Networking;
-//using Newtonsoft.Json;
-//using TMPro;
-//using KOK.ApiHandler.DTOModels;
-//using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post;
-//using KOK.ApiHandler.Context;
-
-//namespace KOK
-//{
-//    public class PostController : MonoBehaviour
-//    {
-//        private string postResourceUrl = string.Empty;
-
-//        public GameObject displayPanel;
-//        public GameObject captionDisplayPanel;
-//        public GameObject displayPrefab;
-
-//        public PostTransition postTransition;
-//        private int currentPostIndex = 0;
-//        private List<Post> loadedPosts = new List<Post>(); // Store loaded posts
-
-//        void Start()
-//        {
-//            postResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Posts_Resource;
-//            StartCoroutine(GetPosts());
-//        }
-
-//        IEnumerator GetPosts()
-//        {
-//            UnityWebRequest request = UnityWebRequest.Get(postResourceUrl);
-
-//            yield return request.SendWebRequest();
-
-//            if (request.result == UnityWebRequest.Result.Success)
-//            {
-//                string response = request.downloadHandler.text;
-//                var responseObject = JsonConvert.DeserializeObject<DynamicResponseResult<Post>>(response);
-//                var posts = responseObject.Results;
-
-//                if (postTransition != null)
-//                {
-//                    GeneratePosts(posts); // Pass loaded posts to the method
-//                }
-
-//                Debug.Log(response);
-//            }
-//            else
-//            {
-//                Debug.LogError(request.error);
-//            }
-//        }
-
-//        /*   IEnumerator GetMemberInfo(Post post)
-//           {
-//               string url = $"https://localhost:7017/api/accounts/{post.MemberId}";
-
-//               UnityWebRequest request = UnityWebRequest.Get(url);
-
-//               yield return request.SendWebRequest();
-
-//               if (request.result == UnityWebRequest.Result.Success)
-//               {
-//                   string response = request.downloadHandler.text;
-//                   var member = JsonConvert.DeserializeObject<Account>(response);
-//                   post.Member = member;
-//               }
-//               else
-//               {
-//                   Debug.LogError($"Failed to fetch member info for post {post.PostId}: {request.error}");
-//               }
-//           }*/
-
-//        void GeneratePosts(List<Post> posts)
-//        {
-//            if (postTransition != null)
-//            {
-//                postTransition.SetInitialPosts(posts); // Call method in PostTransition to set posts
-//            }
-//        }
-
-//        // Method to get current post ID based on currentPostIndex
-//        public string GetCurrentPostId()
-//        {
-//            if (currentPostIndex >= 0 && currentPostIndex < loadedPosts.Count)
-//            {
-//                return loadedPosts[currentPostIndex].PostId.ToString();
-//            }
-//            return string.Empty; // Return empty string if index is out of bounds
-//        }
-//    }
-
-//    public class PostResponseObject
-//    {
-//        public string Code { get; set; }
-//        public string Message { get; set; }
-//        public Metadata Metadata { get; set; }
-//        public List<Post> Results { get; set; }
-//    }
-
-//    public class Metadata
-//    {
-//        public int Page { get; set; }
-//        public int Size { get; set; }
-//        public int Total { get; set; }
-//    }
-//}
-
-
-using KOK.ApiHandler.Context;
+﻿using KOK.ApiHandler.Context;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts;
@@ -197,24 +86,6 @@ namespace KOK
                 });
         }
 
-        /*public async Task<Post?> CreatePostAsync(CreatePostRequest createPost)
-        {
-            var jsonData = JsonConvert.SerializeObject(createPost);
-            var url = postResourceUrl;
-            var jsonResult = await ApiHelper.Instance.PostAsync(url, jsonData);
-
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            Debug.Log(jsonResult);
-
-            ResponseResult<Post> result = JsonConvert.DeserializeObject<ResponseResult<Post>>(jsonResult);
-
-            return result.Value;
-        }*/
-
         public async Task<DynamicResponseResult<Post>?> GetPostsFilterPagingAsync(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = GeneratePostQueryParams(filter, orderFilter, paging);
@@ -246,6 +117,41 @@ namespace KOK
             queryParams.Add(nameof(orderFilter), orderFilter.ToString());
 
             return queryParams;
+        }
+
+        public void CreatePostCoroutine(CreatePostRequest newPost, Action<Post> onSuccess, Action<string> onError)
+        {
+            var jsonData = JsonConvert.SerializeObject(newPost);
+            var url = postResourceUrl;
+
+            ApiHelper.Instance.PostCoroutine(url, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Post>>(successValue);
+                    onSuccess?.Invoke(result.Value);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to create new post: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
+        }
+
+        public void AddPostCoroutine(CreatePostRequest request, Action<ResponseResult<Post>> onSuccess, Action<ResponseResult<Post>> onError)
+        {
+            var jsonData = JsonConvert.SerializeObject(request);
+            Debug.Log(postResourceUrl + "  |  " + jsonData);
+            ApiHelper.Instance.PostCoroutine(postResourceUrl, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Post>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Post>>(errorValue);
+                    onError?.Invoke(result);
+                });
         }
     }
 }

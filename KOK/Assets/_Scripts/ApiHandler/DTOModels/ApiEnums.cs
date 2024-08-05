@@ -192,4 +192,18 @@ namespace KOK.ApiHandler.DTOModels
     }
 
     #endregion
+
+    #region Post
+    public enum PostType
+    {
+        POST,
+        SHARE,
+    }
+
+    public enum PostStatus
+    {
+        DEACTIVE,
+        ACTIVE,
+    }
+    #endregion
 }
