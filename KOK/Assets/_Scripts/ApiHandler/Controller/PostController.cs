@@ -118,6 +118,41 @@ namespace KOK
 
             return queryParams;
         }
+
+        public void CreatePostCoroutine(CreatePostRequest newPost, Action<Post> onSuccess, Action<string> onError)
+        {
+            var jsonData = JsonConvert.SerializeObject(newPost);
+            var url = postResourceUrl;
+
+            ApiHelper.Instance.PostCoroutine(url, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Post>>(successValue);
+                    onSuccess?.Invoke(result.Value);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to create new post: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
+        }
+
+        public void AddPostCoroutine(CreatePostRequest request, Action<ResponseResult<Post>> onSuccess, Action<ResponseResult<Post>> onError)
+        {
+            var jsonData = JsonConvert.SerializeObject(request);
+            Debug.Log(postResourceUrl + "  |  " + jsonData);
+            ApiHelper.Instance.PostCoroutine(postResourceUrl, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Post>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Post>>(errorValue);
+                    onError?.Invoke(result);
+                });
+        }
     }
 }
 
