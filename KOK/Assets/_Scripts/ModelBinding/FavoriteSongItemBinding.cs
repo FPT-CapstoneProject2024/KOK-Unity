@@ -16,7 +16,7 @@ namespace KOK
             FavoriteSong = favoriteSong;
 
             SongName.text = FavoriteSong.SongName;
-            SongPrice.text = FavoriteSong.Price.ToString();
+            SongPrice.text = String.Format("{0:0.00}", FavoriteSong.Price);
 
             string artist = string.Empty;
             foreach (var a in FavoriteSong.Artists)
@@ -81,6 +81,7 @@ namespace KOK
 
         public void OnFavoriteButtonToggle(FavoriteSongParam song, bool isOn)
         {
+            DisableFavoriteToggle();
             FindFirstObjectByType<FavoriteSongHandler>().OnFavoriteSongToggle(isOn, song);
         }
     }

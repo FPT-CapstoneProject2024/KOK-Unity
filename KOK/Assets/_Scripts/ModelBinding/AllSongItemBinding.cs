@@ -38,7 +38,8 @@ namespace KOK
             SongDetail = songDetail;
 
             SongName.text = SongDetail.SongName;
-            SongPrice.text = SongDetail.Price.ToString();
+            SongPrice.text = String.Format("{0:0.00}", SongDetail.Price);
+
             string artist = string.Empty;
             foreach (var a in SongDetail.Artist)
             {
@@ -73,6 +74,7 @@ namespace KOK
                     SongName = SongDetail.SongName,
                     Price = SongDetail.Price,
                     IsPurchased = SongDetail.isPurchased,
+                    SongItem = gameObject
                 };
                 BuySongButton.AddEventListener(songParam, OnBuySongClick);
             }
@@ -111,6 +113,7 @@ namespace KOK
 
         public void OnFavoriteButtonToggle(FavoriteSongParam song, bool isOn)
         {
+            DisableFavoriteToggle();
             FindFirstObjectByType<SongHandler>().OnFavoriteSongToggle(isOn, song);
         }
     }

@@ -36,6 +36,12 @@ namespace KOK
         [SerializeField] VoiceRecorder voiceRecorder;
         [SerializeField] TMP_Text playerNameText;
 
+
+        [SerializeField] Toggle songPanelFavouriteToggle;
+        [SerializeField] Toggle songPanelPurchasedToggle;
+
+        [SerializeField] LoadingManager _loadingManager;
+
         Guid karaokeRoomId;
 
         private void OnEnable()
@@ -62,77 +68,91 @@ namespace KOK
             StartCoroutine(LoadSong());
         }
 
+        public void ReloadSong()
+        {
+            StartCoroutine(LoadSong());
+        }
+
         IEnumerator LoadSong()
         {
-            yield return new WaitForSeconds(1);
+            ClearSearchSongList();
+            _loadingManager.DisableUIElement();
+            yield return new WaitForSeconds(0.5f);
+            Debug.Log("Start to load song");
+            if (songPanelFavouriteToggle == null)
+            {
+                songPanelFavouriteToggle = transform.Find("SongPanelFavouriteToggle").GetComponent<Toggle>();
+            }
+
             //Call api load song
             songList = new();
 
+
             FindAnyObjectByType<ApiHelper>().gameObject
-                        .GetComponent<SongController>()
-                        .GetSongsFilterPagingCoroutine(new SongFilter(),
-                                                        SongOrderFilter.SongName,
-                                                        new PagingRequest(),
-                                                        (list) => { songList = list; UpdateSearchSongUI(); },
-                                                        (ex) => Debug.LogError(ex));
+                    .GetComponent<SongController>()
+                    .GetSongsFilterPagingCoroutine(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
+                                                    new SongFilter(),
+                                                    SongOrderFilter.SongName,
+                                                    new PagingRequest()
+                                                    {
+                                                        pageSize = 100
+                                                    },
+                                                    (drr) => { songList = drr.Results.ToList(); UpdateSearchSongUI(); Debug.Log("Reload song success!"); },
+                                                    (ex) => Debug.LogError(ex)) ;
+            
 
             //Call api load purchased song
             purchasedSongList = new();
 
-            //favoriteSongList = new();
-            //FindAnyObjectByType<ApiHelper>().gameObject
-            //            .GetComponent<FavoriteSongController>()
-            //            .GetMemberFavoriteSongCoroutine(new FavoriteSongFilter() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)) },
-            //                                            FavoriteSongOrderFilter.SongId,
-            //                                            new PagingRequest(),
-            //                                            (list) => { favoriteSongList = list.Results; 
-            //                                                //UpdateSearchSongUI(); 
-            //                                            },
-            //                                            (ex) => Debug.LogError(ex));
 
             //Load song from devide
         }
 
-        IEnumerator LoadFavoriteSong()
+        public void DisableUIElement()
         {
-            yield return new WaitForSeconds(1);
-            purchasedSongList = new();
-
-            favoriteSongList = new();
-            FindAnyObjectByType<ApiHelper>().gameObject
-                        .GetComponent<FavoriteSongController>()
-                        .GetMemberFavoriteSongCoroutine(new FavoriteSongFilter() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)) },
-                                                        FavoriteSongOrderFilter.SongId,
-                                                        new PagingRequest(),
-                                                        (list) =>
-                                                        {
-                                                            favoriteSongList = list.Results;
-                                                            //UpdateSearchSongUI(); 
-                                                        },
-                                                        (ex) => Debug.LogError(ex));
+            _loadingManager.DisableUIElement();
         }
-
+        public void ClearSearchSongList()
+        {
+            try
+            {
+                foreach (Transform child in searchSongPanelContent.transform)
+                {
+                    Destroy(child.gameObject);
+                }
+            }
+            catch { }
+        }
         public void UpdateSearchSongUI()
         {
+            ClearSearchSongList();
+            DisableUIElement();
             string searchKeyword = searchSongInput.text;
             List<SongDetail> songListSearch = new();
             if (!searchKeyword.IsNullOrEmpty())
             {
                 songListSearch = songList.Where(s => s.SongName.ContainsInsensitive(searchKeyword)
-                                            || s.Artist.ToCommaSeparatedString().ContainsInsensitive(searchKeyword)).ToList();
+                                                || s.Artist.ToCommaSeparatedString().ContainsInsensitive(searchKeyword)
+                                                || s.Singer.ToCommaSeparatedString().ContainsInsensitive(searchKeyword)
+                                                || s.Genre.ToCommaSeparatedString().ContainsInsensitive(searchKeyword)).ToList();
             }
             else
             {
                 songListSearch = songList;
             }
-            //if (favToggle.isOn)
-            //{
-            //    songListSearch = songListSearch.Where(s => favoriteSongList.FirstOrDefault(f => f.SongId == s.SongId) != null).ToList();
-            //}
-            foreach (Transform child in searchSongPanelContent.transform)
+
+            if (songPanelFavouriteToggle.isOn)
             {
-                Destroy(child.gameObject);
+                songListSearch = songListSearch.Where(s => s.isFavorite == true).ToList();
             }
+             
+            if (songPanelPurchasedToggle.isOn)
+            {
+                songListSearch = songListSearch.Where(s => s.isPurchased == true).ToList();
+            }
+
+            
+
             foreach (var song in songListSearch)
             {
                 try
@@ -141,18 +161,24 @@ namespace KOK
                     songHolder.name = song.SongName;
                     songHolder.GetComponentInChildren<SongBinding>().BindingData(song);
                     songHolder.transform.GetChild(0).name = song.SongId.ToString();
-                    //var favToggle = songHolder.transform.Find("FavouriteToggle").GetComponent<Toggle>();
-                    //if (favoriteSongList.FirstOrDefault(f => f.SongId == song.SongId) != null)
-                    //{
-                    //    favToggle.isOn = true;
-                    //}
-                    //else
-                    //{
-                    //    favToggle.isOn = false;
-                    //}
+                    var favToggle = songHolder.transform.Find("FavouriteToggle").GetComponent<Toggle>();
+                    if (song.isFavorite)
+                    {
+                        favToggle.isOn = true;
+                    }
+                    else
+                    {
+                        favToggle.isOn = false;
+                    }
+                    if (!song.isPurchased)
+                    {
+                        songHolder.GetComponentInChildren<Image>().color = Color.grey;
+                    }
                 }
                 catch { }
             }
+
+            _loadingManager.EnableUIElement();
         }
         public void UpdateQueueSongUI()
         {
@@ -169,9 +195,12 @@ namespace KOK
                     songHolder.name = song.SongName;
                     songHolder.GetComponentInChildren<SongBinding>().BindingData(song);
                     songHolder.transform.GetChild(0).name = song.SongId.ToString();
+
+
                 }
                 catch { }
             }
+
         }
 
 
@@ -186,7 +215,8 @@ namespace KOK
         }
         public void AddSongToQueue(string songCode)
         {
-            queueSongList.Add(GetSongBySongCode(songCode));
+            var song = GetSongBySongCode(songCode);
+            queueSongList.Add(song);
         }
 
 
@@ -217,19 +247,52 @@ namespace KOK
                 videoPlayer.url = queueSongList[0].SongUrl;
                 videoPlayer.Play();
 
-                var audioFile = queueSongList[0].SongCode + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString();
-                audioFile = audioFile.Replace(" ", "");
-                audioFile = audioFile.Replace(":", "");
-                audioFile = audioFile.Replace("/", "");
+                var audioFile = queueSongList[0].SongCode + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
+                //audioFile = audioFile.Replace(" ", "");
+                //audioFile = audioFile.Replace(":", "");
+                //audioFile = audioFile.Replace("/", "");
 
                 voiceRecorder.StartRecording(audioFile);
 
+                Guid songId = (Guid)queueSongList[0].SongId;
+
                 queueSongList.RemoveAt(0);
 
-                RecordingManager.Instance.CreateRecording(
-                    "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName),
+                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName)+"_"+ DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
+
+
+                PurchasedSongFilter filter = new()
+                {
+                    MemberId = Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
+                    SongId = songId,
+                };
+                Debug.Log(filter);
+                ApiHelper.Instance.GetComponent<PurchasedSongController>()
+                    .GetMemberPurchasedSongFilterCoroutine(
+                        filter,
+                        PurchasedSongOrderFilter.SongId,
+                        new()
+                        {
+                            pageSize = 1,
+                        },
+                        (successValue) => { CreateRecording(recordingName, 
+                            audioFile, 
+                            successValue.Results[0].PurchasedSongId.ToString());
+                            Debug.Log("Get purchased song success: "+ successValue.Results[0].SongName.ToString()); },
+                        (er) => { }
+                        );
+
+                
+            }
+        }
+
+        public void CreateRecording(string recordingName, string audioFile, string purSongId)
+        {
+            RecordingManager.Instance.CreateRecording(
+                    recordingName,
+                    0,
                     UnityEngine.Random.Range(50, 100),
-                    "2265c487-8243-4547-b79b-baef95de50eb",
+                    purSongId,
                     PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
                     PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
                     karaokeRoomId.ToString(),
@@ -242,7 +305,6 @@ namespace KOK
                         PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)
                     }
                     );
-            }
         }
 
         public void OnPlayNextSongVideoButtonClick()
@@ -259,18 +321,18 @@ namespace KOK
         public void RefreshFavSongList()
         {
             //StartCoroutine(LoadFavoriteSong());
-            //favoriteSongList = new();
-            //FindAnyObjectByType<ApiHelper>().gameObject
-            //            .GetComponent<FavoriteSongController>()
-            //            .GetMemberFavoriteSongCoroutine(new FavoriteSongFilter() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)) },
-            //                                            FavoriteSongOrderFilter.SongId,
-            //                                            new PagingRequest(),
-            //                                            (list) => {
-            //                                                favoriteSongList = list.Results;
-            //                                                UpdateSearchSongUI();
-            //                                            },
-            //                                            (ex) => Debug.LogError(ex));
+            favoriteSongList = new();
+            FindAnyObjectByType<ApiHelper>().gameObject
+                        .GetComponent<SongController>()
+                        .GetSongsFilterPagingCoroutine(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
+                                                        new SongFilter(),
+                                                        SongOrderFilter.SongName,
+                                                        new PagingRequest(),
+                                                        (drr) => { songList = drr.Results.ToList().Where(s => s.isFavorite == true).ToList(); UpdateSearchSongUI(); },
+                                                        (ex) => Debug.LogError(ex));
         }
+
+
         private void CreateRecording()
         {
         }

@@ -25,6 +25,7 @@ namespace KOK
         [SerializeField] public GameObject songPreviewCanvas;
         [Header("Purchase Components")]
         [SerializeField] public GameObject songPurchaseCanvas;
+        [SerializeField] LoadingManager loadingManager;
 
         private SongFilter filter;
         private int currentPage = 1;
@@ -39,6 +40,8 @@ namespace KOK
 
         public void LoadSongs()
         {
+            loadingManager.DisableUIElement();
+            ClearContainer();
             string accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
             ApiHelper.Instance.GetComponent<SongController>().GetSongsFilterPagingCoroutine(!string.IsNullOrEmpty(accountId) ? accountId : Guid.Empty.ToString(), filter, SongOrderFilter.SongName, new PagingRequest()
             {
@@ -53,11 +56,13 @@ namespace KOK
             {
                 SetSongMessage("Không tìm thấy bài hát");
                 pagingDisplay.text = $"{0}/{0}";
+                loadingManager.EnableUIElement();
                 return;
             }
             SetSongMessage(string.Empty);
             SetPagingData(responseResult);
             SpawnSongItem(responseResult.Results);
+            loadingManager.EnableUIElement();
         }
 
         public void OnLoadSongError(DynamicResponseResult<SongDetail> responseResult)
@@ -65,6 +70,7 @@ namespace KOK
             ClearContainer();
             SetSongMessage("Không tìm thấy bài hát");
             pagingDisplay.text = $"{0}/{0}";
+            loadingManager.EnableUIElement();
         }
 
         private void SetSongMessage(string message)
@@ -144,9 +150,10 @@ namespace KOK
 
         public void OnSearchSongClick()
         {
+            SetSongMessage(string.Empty);
             currentPage = 1;
             searchKeyword = searchInput.text;
-            filter.SongName = searchKeyword;
+            SetFilterKeyword();
             LoadSongs();
         }
 
@@ -203,10 +210,14 @@ namespace KOK
                 (successValue) =>
                 {
                     Debug.Log("[All Songs] Successfully add favorite song");
+                    favoriteSongParam.IsFavorited = true;
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().EnableFavoriteToggle();
                 },
                 (errorValue) =>
                 {
                     Debug.Log("[All Songs] Failed to add favorite song - Error api call");
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().TurnFavoriteToggleOff();
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().EnableFavoriteToggle();
                 });
         }
 
@@ -232,16 +243,29 @@ namespace KOK
                 (successValue) =>
                 {
                     Debug.Log("[All Songs] Successfully delete favorite song");
+                    favoriteSongParam.IsFavorited = false;
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().EnableFavoriteToggle();
                 },
                 (errorValue) =>
                 {
                     Debug.Log("[All Songs] Failed to delete favorite song - Error api call");
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().TurnFavoriteToggleOn();
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().EnableFavoriteToggle();
                 });
         }
 
         public void StartPurchaseSong(BuySongParam buySongParam)
         {
             songPurchaseCanvas.GetComponent<SongPurchaseHandler>().ShowPurchaseSongDialog(buySongParam);
+        }
+
+        private void SetFilterKeyword()
+        {
+            filter.SongName = searchKeyword;
+            filter.SongCode = searchKeyword;
+            filter.GenreName = searchKeyword;
+            filter.ArtistName = searchKeyword;
+            filter.SingerName = searchKeyword;
         }
     }
 }

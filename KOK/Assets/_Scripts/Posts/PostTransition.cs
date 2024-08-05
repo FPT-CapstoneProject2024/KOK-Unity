@@ -12,6 +12,7 @@ using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Post;
 using System;
 using KOK.Assets._Scripts.Posts;
+using KOK.Assets._Scripts.FileManager;
 
 namespace KOK
 {
@@ -19,12 +20,10 @@ namespace KOK
     {
         public GameObject postPrefab;
         public Transform postParent;
-        public float transitionDuration = 0.5f;
 
-        private List<GameObject> posts = new List<GameObject>();
+        private List<GameObject> postGameObjList = new List<GameObject>();
         private int currentPostIndex = 0;
 
-        private SwipeDetector swipeDetector;
         public PostCommentLoader postCommentLoader;
         public MemberLoader memberLoader;
         public PostLoader postLoader;
@@ -32,31 +31,15 @@ namespace KOK
         public TMP_Text captionText;
         public TMP_Text memberText;
 
-        private Camera mainCamera;
-        public VideoPlayer videoPlayer;
+        private List<Post> postDataList = new List<Post>();
 
         private void Start()
         {
             GetPostsFilterPaging();
         }
 
-        void OnEnable()
-        {
-            swipeDetector = FindObjectOfType<SwipeDetector>();
-            swipeDetector.OnSwipeUp.AddListener(SwipeUp);
-            swipeDetector.OnSwipeDown.AddListener(SwipeDown);
-
-            mainCamera = Camera.main; // Reference to the main camera   
-        }
-
-        void OnDisable()
-        {
-            swipeDetector.OnSwipeUp.RemoveListener(SwipeUp);
-            swipeDetector.OnSwipeDown.RemoveListener(SwipeDown);
-        }
-
         public void GetPostsFilterPaging()
-        {            
+        {
             FindAnyObjectByType<ApiHelper>().gameObject
                 .GetComponent<PostController>()
                 .GetPostsFilterPagingCoroutine(new PostFilter(),
@@ -67,24 +50,9 @@ namespace KOK
                 );
         }
 
-        public void GetPost(Guid postId)
-        {
-            FindAnyObjectByType<ApiHelper>().gameObject
-                .GetComponent<PostController>()
-                .GetPostByIdCoroutine(  postId,
-                                        PlayVideo,
-                                        OnError
-                );
-        }
-
-        // dont ask about list
-        void PlayVideo(List<Post> post)
-        {
-            postLoader.GetRecordingById(post[0].RecordingId.Value);
-        }
-
         public void SetInitialPosts(List<Post> postsData)
         {
+            postDataList = new List<Post>();
             foreach (var postData in postsData)
             {
                 GameObject post = Instantiate(postPrefab, postParent);
@@ -96,186 +64,105 @@ namespace KOK
                 RectTransform postRectTransform = post.GetComponent<RectTransform>();
                 postRectTransform.anchoredPosition = Vector2.zero;
 
-                posts.Add(post);
-                post.SetActive(posts.Count == 1); // Activate only the first post initially
+                postDataList.Add(postData);
+                postGameObjList.Add(post);
+                post.SetActive(postGameObjList.Count == 1); // Activate only the first post initially
             }
 
             // Adjust currentPostIndex based on the initial setup
             currentPostIndex = 0;
 
-            // Load comments for the initial post
-            LoadCommentsForCurrentPost();
-            LoadMemberForCurrentPost();
-            LoadVideoForCurrentPost();
-
-            // Update caption and member display initially
-            UpdateCaptionDisplay();
-            UpdateMemberDisplay();
+            LoadPost();
         }
 
-        void SwipeUp()
+        public void SwipeUp()
         {
-            if (currentPostIndex < posts.Count - 1)
+            if (currentPostIndex < postGameObjList.Count - 1)
             {
-                StartCoroutine(TransitionPost(currentPostIndex + 1, true)); // true for swipe up
-                //PlayVideo();
+                TransitionPost(currentPostIndex + 1);
             }
             else
             {
-                ResetPostPositions(false); // Reset to current post position without transitioning
+
             }
         }
 
-        void SwipeDown()
+        public void SwipeDown()
         {
             if (currentPostIndex > 0)
             {
-                //PlayVideo();
-                StartCoroutine(TransitionPost(currentPostIndex - 1, false)); // false for swipe down
+                TransitionPost(currentPostIndex - 1);
             }
             else
             {
-                ResetPostPositions(true); // Reset to current post position without transitioning
+
             }
         }
 
-        IEnumerator TransitionPost(int newPostIndex, bool isSwipeUp)
+        void TransitionPost(int newPostIndex)
         {
-            float elapsedTime = 0;
-            float screenHeight = mainCamera.orthographicSize * 2;
+            postGameObjList[newPostIndex].SetActive(true);
 
-            Vector3 startPostPosition = posts[currentPostIndex].transform.localPosition;
-            Vector3 endPostPosition = isSwipeUp ? new Vector3(0, startPostPosition.y + screenHeight, startPostPosition.z)
-                                                 : new Vector3(0, startPostPosition.y - screenHeight, startPostPosition.z);
-            Vector3 newPostStartPosition = isSwipeUp ? new Vector3(0, startPostPosition.y - screenHeight, startPostPosition.z)
-                                                      : new Vector3(0, startPostPosition.y + screenHeight, startPostPosition.z);
-
-            posts[newPostIndex].SetActive(true);
-            posts[newPostIndex].transform.localPosition = newPostStartPosition;
-
-            while (elapsedTime < transitionDuration)
-            {
-                posts[currentPostIndex].transform.localPosition = Vector3.Lerp(startPostPosition, endPostPosition, elapsedTime / transitionDuration);
-                posts[newPostIndex].transform.localPosition = Vector3.Lerp(newPostStartPosition, startPostPosition, elapsedTime / transitionDuration);
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
-
-            posts[currentPostIndex].SetActive(false);
+            postGameObjList[currentPostIndex].SetActive(false);
             currentPostIndex = newPostIndex;
 
-            swipeDetector.ResetSwipeState(); // Reset swipe state after transition
+            LoadPost();
+        }
+
+        void LoadPost()
+        {
+            Post currentPost = postDataList[currentPostIndex];
+
+            // Stop current video
+            StopVideo();
 
             // Load comments and member details for the new current post
-            LoadCommentsForCurrentPost();
-            LoadMemberForCurrentPost();
-            LoadVideoForCurrentPost();
+            LoadCommentsForCurrentPost(currentPost);
+            LoadVideoForCurrentPost(currentPost);
 
             // Update caption and member display after transition
-            UpdateCaptionDisplay();
-            UpdateMemberDisplay();
+            UpdateCaptionDisplay(currentPost);
+            UpdateMemberDisplay(currentPost);
         }
 
-        void ResetPostPositions(bool toCurrentPosition)
-        {
-            StartCoroutine(ResetPostPositionsCoroutine(toCurrentPosition));
-        }
-
-        IEnumerator ResetPostPositionsCoroutine(bool toCurrentPosition)
-        {
-            float elapsedTime = 0;
-            float screenHeight = mainCamera.orthographicSize * 2;
-
-            Vector3 startPostPosition = posts[currentPostIndex].transform.localPosition;
-            Vector3 endPostPosition = new Vector3(0, startPostPosition.y - screenHeight, startPostPosition.z);
-
-            while (elapsedTime < transitionDuration)
-            {
-                posts[currentPostIndex].transform.localPosition = Vector3.Lerp(startPostPosition, endPostPosition, elapsedTime / transitionDuration);
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
-
-            // Reset to current post position without transitioning further
-            if (toCurrentPosition)
-            {
-                posts[currentPostIndex].transform.localPosition = startPostPosition;
-            }
-
-            swipeDetector.ResetSwipeState(); // Reset swipe state after resetting positions
-
-            // Load comments and member details for the current post after resetting positions
-            LoadCommentsForCurrentPost();
-            LoadMemberForCurrentPost();
-            LoadVideoForCurrentPost();
-
-            // Update caption and member display after resetting positions
-            UpdateCaptionDisplay();
-            UpdateMemberDisplay();
-        }
-
-        private void LoadCommentsForCurrentPost()
+        private void LoadCommentsForCurrentPost(Post post)
         {
             if (postCommentLoader != null)
             {
-                string currentPostId = GetCurrentPostId();
-                if (!string.IsNullOrEmpty(currentPostId))
-                {
-                    postCommentLoader.GetPostComment(Guid.Parse(currentPostId));
-                }
+                postCommentLoader.GetPostComment(post.PostId.Value);
             }
         }
 
-        private void LoadVideoForCurrentPost()
+        private void LoadVideoForCurrentPost(Post post)
         {
             if (postLoader != null)
             {
-                string currentPostId = GetCurrentPostId();
-
-                if (!string.IsNullOrEmpty(currentPostId))
-                {
-                    GetPost(Guid.Parse(currentPostId));
-                }
+                postLoader.GetRecordingById(post.RecordingId.Value);
             }
         }
 
-        private async Task LoadMemberForCurrentPost()
+        void StopVideo()
         {
-            if (memberLoader != null)
-            {
-                string currentPostId = GetCurrentPostId();
-                if (!string.IsNullOrEmpty(currentPostId))
-                {
-                    await memberLoader.GetPostMemberAsync(currentPostId);
-                }
-            }
+            var videoLoader = GetComponentInChildren<VideoLoader>();
+            videoLoader.StopPlaying();
         }
 
-        string GetCurrentPostId()
+        void UpdateCaptionDisplay(Post post)
         {
-            if (currentPostIndex >= 0 && currentPostIndex < posts.Count)
-            {
-                // Retrieve PostId from the stored custom data (gameObject.name)
-                return posts[currentPostIndex].name;
-            }
-            return string.Empty; // Return empty string if index is out of bounds
+            captionText.text = post.Caption;
         }
 
-        void UpdateCaptionDisplay()
+        void UpdateMemberDisplay(Post post)
         {
-            if (captionText != null && currentPostIndex >= 0 && currentPostIndex < posts.Count)
-            {
-                // Update the UI Text with the caption of the current post
-                captionText.text = posts[currentPostIndex].GetComponentInChildren<TMP_Text>().text;
-            }
-        }
-
-        void UpdateMemberDisplay()
-        {
-            if (memberText != null && currentPostIndex >= 0 && currentPostIndex < posts.Count)
-            {
-                //memberText.text = memberLoader.GetMemberName(posts[currentPostIndex].name);
-            }
+            FindAnyObjectByType<ApiHelper>().gameObject
+                .GetComponent<AccountController>()
+                .GetAccountByIdCoroutine(post.MemberId.Value,
+                      (member) =>
+                      {
+                          memberText.text = member.UserName;
+                      },
+                      OnError
+                      );
         }
 
         private void OnError(string error)

@@ -26,7 +26,7 @@ namespace KOK
             if (Instance == null)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
+                //DontDestroyOnLoad(gameObject);
             }
             else
             {
@@ -39,8 +39,8 @@ namespace KOK
         {
             FileName = fileLogName;
             FullPath = string.Empty;
-            FullPath = Path.Combine(Application.persistentDataPath, FolderPath);
-            FullPath = Path.Combine(FullPath, FileName);
+            FolderPath = Path.Combine(Application.persistentDataPath, FolderPath);
+            FullPath = Path.Combine(FolderPath, FileName);
             ResetRoomLogFile();
             allowAppendLog = true;
             StartPushLogToFirebase();
@@ -103,7 +103,11 @@ namespace KOK
         public void UploadRoomLogFile()
         {
             FirebaseStorageManager.Instance.UploadRoomLogFile(FullPath,
-                                                              (sm) => { Debug.Log("Upload Success " + sm); },
+                                                              (sm) => { 
+                                                                  Debug.Log("Upload Success " + sm);
+                                                                 //Delete local room log here
+
+                                                              },
                                                               (ex) => { });
         }
 

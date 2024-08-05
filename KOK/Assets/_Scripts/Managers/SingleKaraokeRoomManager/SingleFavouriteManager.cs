@@ -13,6 +13,7 @@ namespace KOK
     {
         [SerializeField] Toggle favToggle;
         [SerializeField] GameObject songCode;
+        [SerializeField] SinglePlayerManager singlePlayerManager;
 
         bool isFirstLoad = true;
 
@@ -23,39 +24,50 @@ namespace KOK
         }
         public void OnToggleValueChange()
         {
-            //if (isFirstLoad)
-            //{
-            //    return;
-            //}
-            //Guid songId = Guid.Parse(songCode.name.ToString());
-            //if (favToggle.isOn)
-            //{
-            //    FindAnyObjectByType<ApiHelper>().gameObject
-            //            .GetComponent<FavoriteSongController>()
-            //            .AddFavoriteSongCoroutine(new AddFavoriteSongRequest() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)), SongId = songId },
-            //                                            (fsr) => { 
-            //                                                Debug.Log(fsr);
-            //                                                FindAnyObjectByType<SinglePlayerManager>().RefreshFavSongList();
-            //                                            },
-            //                                            (ex) => Debug.LogError(ex));
-            //}
-            //else
-            //{
-            //    FindAnyObjectByType<ApiHelper>().gameObject
-            //            .GetComponent<FavoriteSongController>()
-            //            .RemoveFavoriteSongCoroutine(new RemoveFavoriteSongRequest() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)), SongId = songId },
-            //                                            (fsr) => { 
-            //                                                Debug.Log(fsr);
-            //                                                FindAnyObjectByType<SinglePlayerManager>().RefreshFavSongList();
-            //                                            },
-            //                                            (ex) => Debug.LogError(ex));
-            //}
+            if (isFirstLoad)
+            {
+                return;
+            }
+
+            if (singlePlayerManager == null) {
+                singlePlayerManager = FindAnyObjectByType<SinglePlayerManager>();
+            }
+
+            singlePlayerManager.DisableUIElement();
+            singlePlayerManager.ClearSearchSongList();
+
+            Guid songId = Guid.Parse(songCode.name.ToString());
+            if (favToggle.isOn)
+            {
+                FindAnyObjectByType<ApiHelper>().gameObject
+                        .GetComponent<FavoriteSongController>()
+                        .AddFavoriteSongCoroutine(new AddFavoriteSongRequest() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)), SongId = songId },
+                                                        (fsr) =>
+                                                        {
+                                                            Debug.Log(fsr);
+                                                            singlePlayerManager.ReloadSong();
+                                                        },
+                                                        (ex) => Debug.LogError(ex));
+            }
+            else
+            {
+                FindAnyObjectByType<ApiHelper>().gameObject
+                        .GetComponent<FavoriteSongController>()
+                        .RemoveFavoriteSongCoroutine(new RemoveFavoriteSongRequest() { MemberId = new(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)), SongId = songId },
+                                                        (fsr) =>
+                                                        {
+                                                            Debug.Log(fsr);
+                                                            singlePlayerManager.ReloadSong();
+                                                        },
+                                                        (ex) => Debug.LogError(ex));
+            }
         }
 
         IEnumerator FirstLoadCooldown()
         {
             yield return new WaitForSeconds(1f);
             isFirstLoad = false;
+            singlePlayerManager = FindAnyObjectByType<SinglePlayerManager>();
         }
 
     }

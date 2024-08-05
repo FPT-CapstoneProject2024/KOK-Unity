@@ -547,7 +547,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb2371f84b6bc9b47ac5a4c5fe072699, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _popUpPrefab: {fileID: 6140844574200421352, guid: b2bbcb52fe4d5df40ad17f819469c9cf, type: 3}
+  _selectSongPopUpPrefab: {fileID: 6140844574200421352, guid: b2bbcb52fe4d5df40ad17f819469c9cf, type: 3}
+  _buySongPopUpPrefab: {fileID: 1542775554962005651, guid: bf519bd49a31fa34b835075e3dd3826b, type: 3}
   _originalItem: {fileID: 4590974471881372752}
 --- !u!114 &1142305134725260703
 MonoBehaviour:

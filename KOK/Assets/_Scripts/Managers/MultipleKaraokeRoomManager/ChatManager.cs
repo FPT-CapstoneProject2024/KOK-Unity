@@ -100,14 +100,14 @@ namespace KOK
         {
             //Debug.LogError(message);
             messageTMP.text += $"{message}";
-            runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().UpdateRoomLog($"[{DateTime.Now}] {message}");
+            runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().UpdateRoomLog($"[{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss")}] {message}");
         }
 
         [Rpc(RpcSources.All, RpcTargets.All)]
         public static void RPC_SendMessage(NetworkRunner runner, string message)
         {
             messageTMPP.text += $"{message}";
-            runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().UpdateRoomLog($"{message}");
+            runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().UpdateRoomLog($"[{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss")}] {message}");
         }
     }
 }

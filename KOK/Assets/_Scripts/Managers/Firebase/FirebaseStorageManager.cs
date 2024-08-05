@@ -94,6 +94,24 @@ namespace KOK
                 });
         }
 
+        public void GetRecordingDownloadUrl(string localFilePath, Action<Uri> onSuccess, Action<Uri> onError)
+        {
+            string fileName = Path.GetFileName(localFilePath);
+            StorageReference fileRef = voiceRecordingReference.Child(fileName);
+            fileRef.GetDownloadUrlAsync().ContinueWith(task => {
+                if (task.IsFaulted || task.IsCanceled)
+                {
+                    Debug.Log(task.Exception.ToString());
+                    onError?.Invoke(task.Result);
+                }
+                else
+                {
+                    Debug.Log("File downloaded successfully.");
+                    onSuccess?.Invoke(task.Result);
+                }
+            });
+        }
+
         public async Task<string> GetRecordingDownloadUrl(string cloudFileName)
         {
             StorageReference fileRef = voiceRecordingReference.Child(cloudFileName);
@@ -109,26 +127,44 @@ namespace KOK
             }
         }
 
-        public async Task DownloadVoiceRecordingFile(string downloadUrl, string localFilePath)
+        public void DownloadVoiceRecordingFile(string localFilePath, Action onSuccess, Action onError)
         {
-            UnityWebRequest request = UnityWebRequest.Get(downloadUrl);
-            var operation = request.SendWebRequest();
-
-            while (!operation.isDone)
-            {
-                await Task.Yield();
-            }
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                File.WriteAllBytes(localFilePath, request.downloadHandler.data);
-                Debug.Log($"File successfully downloaded to: {localFilePath}");
-            }
-            else
-            {
-                Debug.LogError($"Failed to download file: {request.error}");
-            }
+            string fileName = Path.GetFileName(localFilePath);
+            StorageReference fileRef = voiceRecordingReference.Child(fileName);
+            fileRef.GetFileAsync(localFilePath).ContinueWith(task => {
+                if (task.IsFaulted || task.IsCanceled)
+                {
+                    Debug.Log(task.Exception.ToString());
+                    onError?.Invoke();
+                }
+                else
+                {
+                    Debug.Log("File downloaded successfully.");
+                    onSuccess?.Invoke();
+                }
+            });
         }
+
+        //public async Task DownloadVoiceRecordingFile(string downloadUrl, string localFilePath)
+        //{
+        //    UnityWebRequest request = UnityWebRequest.Get(downloadUrl);
+        //    var operation = request.SendWebRequest();
+
+        //    while (!operation.isDone)
+        //    {
+        //        await Task.Yield();
+        //    }
+
+        //    if (request.result == UnityWebRequest.Result.Success)
+        //    {
+        //        File.WriteAllBytes(localFilePath, request.downloadHandler.data);
+        //        Debug.Log($"File successfully downloaded to: {localFilePath}");
+        //    }
+        //    else
+        //    {
+        //        Debug.LogError($"Failed to download file: {request.error}");
+        //    }
+        //}
 
         private void LogFileMetadata(StorageMetadata metadata)
         {

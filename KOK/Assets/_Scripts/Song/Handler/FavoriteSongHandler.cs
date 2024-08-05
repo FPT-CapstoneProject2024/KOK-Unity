@@ -25,6 +25,7 @@ namespace KOK
         [SerializeField] public GameObject songPreviewCanvas;
         [Header("Purchase Components")]
         [SerializeField] public GameObject songPurchaseCanvas;
+        [SerializeField] LoadingManager loadingManager;
 
         private FavoriteSongFilter filter;
         private int currentPage = 1;
@@ -44,21 +45,13 @@ namespace KOK
 
         public void LoadFavoriteSongs()
         {
-            try
+            loadingManager.DisableUIElement();
+            ClearContainer();
+            var controller = ApiHelper.Instance.gameObject.GetComponent<FavoriteSongController>();
+            controller.GetMemberFavoriteSongFilterCoroutine(filter, FavoriteSongOrderFilter.SongId, new PagingRequest()
             {
-                var controller = ApiHelper.Instance.gameObject.GetComponent<FavoriteSongController>();
-                controller.GetMemberFavoriteSongFilterCoroutine(filter, FavoriteSongOrderFilter.SongId, new PagingRequest()
-                {
-                    page = currentPage,
-                }, OnLoadSongSuccess, OnLoadSongError);
-
-            }
-            catch (Exception ex)
-            {
-                Debug.Log(ex.Message);
-                throw;
-            }
-            
+                page = currentPage,
+            }, OnLoadSongSuccess, OnLoadSongError);
         }
 
         public void OnLoadSongSuccess(DynamicResponseResult<FavoriteSong> responseResult)
@@ -68,11 +61,13 @@ namespace KOK
             {
                 SetSongMessage("Không tìm thấy bài hát yêu thích");
                 pagingDisplay.text = $"{0}/{0}";
+                loadingManager.EnableUIElement();
                 return;
             }
             SetSongMessage(string.Empty);
             SetPagingData(responseResult);
             SpawnSongItem(responseResult.Results);
+            loadingManager.EnableUIElement();
         }
 
         public void OnLoadSongError(DynamicResponseResult<FavoriteSong> responseResult)
@@ -80,6 +75,7 @@ namespace KOK
             ClearContainer();
             SetSongMessage("Không tìm thấy bài hát yêu thích");
             pagingDisplay.text = $"{0}/{0}";
+            loadingManager.EnableUIElement();
         }
 
         private void SetSongMessage(string message)
@@ -159,6 +155,7 @@ namespace KOK
 
         public void OnSearchSongClick()
         {
+            SetSongMessage(string.Empty);
             currentPage = 1;
             searchKeyword = searchInput.text;
             filter.SongName = searchKeyword;
@@ -224,6 +221,7 @@ namespace KOK
                 {
                     Debug.Log("[Favorite Songs] Failed to delete favorite song - Error api call");
                     favoriteSongParam.SongItem.GetComponent<SongItemBinding>().TurnFavoriteToggleOn();
+                    favoriteSongParam.SongItem.GetComponent<SongItemBinding>().EnableFavoriteToggle();
                 });
         }
 

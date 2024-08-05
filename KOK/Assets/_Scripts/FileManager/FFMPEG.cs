@@ -240,9 +240,6 @@ using UnityEngine.Networking;
 
 public class FFMPEG : MonoBehaviour
 {
-    private string audioUrl = "https://firebasestorage.googleapis.com/v0/b/kok-unity.appspot.com/o/VoiceRecordings%2Ftest.wav?alt=media&token=1c69358a-d7d3-427d-8527-8e3e04623bc4";
-    private string videoUrl = "https://firebasestorage.googleapis.com/v0/b/kok-unity.appspot.com/o/KaraokeVideos%2FTúy%20Âm.mp4?alt=media&token=77cd5236-39e2-4120-95dd-ec64ed64cc3e";
-
     public float startTimeInSeconds;
     public TMP_Text text;
     public TMP_Text text2;
@@ -259,19 +256,19 @@ public class FFMPEG : MonoBehaviour
         //StartCoroutine(DownloadAndProcess());
     }
 
-    IEnumerator DownloadAndProcess()
-    {
-        yield return StartCoroutine(DownloadFile(audioUrl, "test.wav", "AudioProcess"));
-        yield return StartCoroutine(DownloadFile(videoUrl, "Tuý Âm.mp4", "AudioProcess"));
+    //IEnumerator DownloadAndProcess()
+    //{
+    //    yield return StartCoroutine(DownloadFile(audioUrl, "test.wav", "AudioProcess"));
+    //    yield return StartCoroutine(DownloadFile(videoUrl, "Tuý Âm.mp4", "AudioProcess"));
 
-        string audioPath = Path.Combine(Application.persistentDataPath, "test.wav");
-        string videoPath = Path.Combine(Application.persistentDataPath, "Tuý Âm.mp4");
+    //    string audioPath = Path.Combine(Application.persistentDataPath, "test.wav");
+    //    string videoPath = Path.Combine(Application.persistentDataPath, "Tuý Âm.mp4");
 
-        //yield return StartCoroutine(ExtractAudioFromVideo(videoPath));
-        //yield return StartCoroutine(CombineAudioAndVideo(audioPath, videoPath));
-    }
+    //    //yield return StartCoroutine(ExtractAudioFromVideo(videoPath));
+    //    //yield return StartCoroutine(CombineAudioAndVideo(audioPath, videoPath));
+    //}
 
-    public async Task DownloadFile2(string cloudFileName, string localZipFilePath)
+    public void DownloadFile2(string localZipFilePath)
     {
         string folderPath = Path.Combine(Application.persistentDataPath, "AudioProcess");
         //string filePath = Path.Combine(folderPath, fileName);
@@ -282,30 +279,27 @@ public class FFMPEG : MonoBehaviour
         }
 
         // Get download url
-        string downloadUrl = await FirebaseStorageManager.Instance.GetRecordingDownloadUrl(cloudFileName);
-        if (string.IsNullOrEmpty(downloadUrl))
-        {
-            Debug.LogError("Failed to retrieve voice recording download url");
-            return;
-        }
+        string downloadUrl = String.Empty;
 
         // Download .zip file
-        await FirebaseStorageManager.Instance.DownloadVoiceRecordingFile(downloadUrl, localZipFilePath);
-        
-        if (!File.Exists(localZipFilePath))
-        {
-            Debug.LogError("Failed to download voice recording with given download url");
-            return;
-        }
+        string wavFilePath = string.Empty;
+        FirebaseStorageManager.Instance
+            .DownloadVoiceRecordingFile(localZipFilePath,
+                                        () =>
+                                        {
+                                            wavFilePath = FileCompressionHelper.ExtractWavFileFromZip(localZipFilePath, folderPath);
+                                          
+                                        },
+                                        () =>
+                                        {
+                                            Debug.LogError("Failed to extract zipped voice recording file");
+                                           
+                                        }
+            );
 
-        // Extract .zip file
-        string wavFilePath = FileCompressionHelper.ExtractWavFileFromZip(localZipFilePath, folderPath);
 
-        if (string.IsNullOrEmpty(wavFilePath))
-        {
-            Debug.LogError("Failed to extract zipped voice recording file");
-            return;
-        }       
+
+
     }
 
     // Cleanup 
@@ -412,6 +406,11 @@ public class FFMPEG : MonoBehaviour
                 text2.text = "Exception: " + e.Message;
             }
         }
+    }
+
+    public AudioClip LoadAudioClipWavHelper(string path)
+    {
+        return WavHelper.WavFileToAudioClip(path);
     }
 
     public AudioClip LoadAudioClip(string path)

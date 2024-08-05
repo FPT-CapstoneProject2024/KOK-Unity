@@ -175,4 +175,35 @@ namespace KOK.ApiHandler.DTOModels
     }
 
     #endregion
+
+    #region UpPackage
+
+    public enum PackageStatus
+    {
+        INACTIVE = 0,
+        ACTIVE = 1,
+    }
+
+    public enum PackageOrderFilter
+    {
+        PackageName = 1,
+        MoneyAmount = 3,
+        StarNumber = 4,
+    }
+
+    #endregion
+
+    #region Post
+    public enum PostType
+    {
+        POST,
+        SHARE,
+    }
+
+    public enum PostStatus
+    {
+        DEACTIVE,
+        ACTIVE,
+    }
+    #endregion
 }
