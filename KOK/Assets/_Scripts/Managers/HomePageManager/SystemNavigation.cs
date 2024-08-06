@@ -25,7 +25,7 @@ namespace KOK
         {
             SceneManager.LoadScene(sceneName: "MultipleRoom");
         }
-        
+
         public void ToViewRecordingMenuScene()
         {
             SceneManager.LoadScene(sceneName: "RecordingMenuScene");
@@ -44,6 +44,15 @@ namespace KOK
         public void ToShopScene()
         {
             SceneManager.LoadScene(sceneName: "Shop");
+        }
+
+        public void ToLogin()
+        {
+            SceneManager.LoadScene(sceneName: "Login");
+        }
+        public void ToProfile()
+        {
+            SceneManager.LoadScene(sceneName: "Profile");
         }
 
     }
