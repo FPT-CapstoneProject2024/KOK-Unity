@@ -9,7 +9,7 @@ namespace KOK.ApiHandler.DTOModels
         public string Email { get; set; } = string.Empty;
         public int? Gender { get; set; } = (int)AccountGender.OTHERS;
         public int Role { get; set; } = (int)AccountRole.MEMBER;
-        public decimal Star { get; set; } = 0;
+        public decimal UpBalance { get; set; } = 0;
         public string Fullname { get; set; } = null;
         public int? Yob { get; set; } = 2000;
         public string IdentityCardNumber { get; set; } = null;

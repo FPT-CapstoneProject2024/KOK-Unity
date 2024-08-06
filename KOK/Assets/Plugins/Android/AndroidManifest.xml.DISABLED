@@ -1,36 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.CapstoneProject2024.KOK"
+          package="com.capstoneproject2024.kok"
           xmlns:tools="http://schemas.android.com/tools"
-          android:installLocation="preferExternal">
+          >
 
-	<application
+<application
         android:label="@string/app_name"
         android:icon="@mipmap/app_icon"
         android:allowBackup="true"
         android:theme="@style/UnityThemeSelector"
         android:supportsRtl="true">
 
-		<activity android:name="com.unity3d.player.UnityPlayerActivity"
+<activity android:name="com.unity3d.player.UnityPlayerActivity"
                   android:screenOrientation="landscape"
                   android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|smallestScreenSize"
                   android:launchMode="singleTask"
                   android:clearTaskOnLaunch="true"
                   android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
 
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-		</activity>
-	</application>
+<intent-filter>
+<action android:name="android.intent.action.MAIN" />
+<category android:name="android.intent.category.LAUNCHER" />
+</intent-filter>
+</activity>
+</application>
 
-	<!-- Permissions -->
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<!-- Permissions -->
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-	<!-- Supports various screen sizes -->
-	<supports-screens
+<!-- Supports various screen sizes -->
+<supports-screens
         android:smallScreens="true"
         android:normalScreens="true"
         android:largeScreens="true"
