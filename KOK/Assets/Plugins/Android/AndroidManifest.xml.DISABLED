@@ -4,35 +4,42 @@
           xmlns:tools="http://schemas.android.com/tools"
           >
 
-	<application
+<application
         android:label="@string/app_name"
         android:icon="@mipmap/app_icon"
         android:allowBackup="true"
         android:theme="@style/UnityThemeSelector"
         android:supportsRtl="true">
 
-		<activity android:name="com.unity3d.player.UnityPlayerActivity"
+<activity android:name="com.unity3d.player.UnityPlayerActivity"
                   android:screenOrientation="landscape"
                   android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|smallestScreenSize"
                   android:launchMode="singleTask"
                   android:clearTaskOnLaunch="true"
                   android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
 
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-		</activity>
-	</application>
+<intent-filter>
+<action android:name="android.intent.action.MAIN" />
+<category android:name="android.intent.category.LAUNCHER" />
+</intent-filter>
+</activity>
+</application>
 
+<<<<<<< HEAD:KOK/Assets/Plugins/Android/AndroidManifest.xml
 	<!-- Permissions -->
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.INTERNET" />
+=======
+<!-- Permissions -->
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.INTERNET" />
+>>>>>>> 6bfb0834339cb97dfcf819dcb93cf17b92764222:KOK/Assets/Plugins/Android/AndroidManifest.xml.DISABLED
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-	<!-- Supports various screen sizes -->
-	<supports-screens
+<!-- Supports various screen sizes -->
+<supports-screens
         android:smallScreens="true"
         android:normalScreens="true"
         android:largeScreens="true"

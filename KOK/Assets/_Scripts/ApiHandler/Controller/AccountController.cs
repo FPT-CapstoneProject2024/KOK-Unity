@@ -13,7 +13,7 @@ namespace KOK.ApiHandler.Controller
 {
     public class AccountController : MonoBehaviour
     {
-        private string accountResourceUrl = string.Empty;
+        private string accountResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Accounts_Resource;
 
         private void Start()
         {
@@ -101,20 +101,7 @@ namespace KOK.ApiHandler.Controller
                 });
         }
 
-        public async Task<Account?> GetAccountByIdAsync(Guid accountId)
-        {
-            var url = accountResourceUrl + "/" + accountId.ToString();
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
-
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            ResponseResult<Account> result = JsonConvert.DeserializeObject<ResponseResult<Account>>(jsonResult);
-
-            return result.Value;
-        }
+       
 
         /// <summary>
         /// Async method to create new member account.
@@ -213,6 +200,24 @@ namespace KOK.ApiHandler.Controller
                 {
                     Debug.LogError($"Error when trying to retrieve account list: {errorValue}");
                     onError?.Invoke(errorValue);
+                });
+        }
+
+        public void UpdateAccountCoroutine(string email, UpdateAccountRequest updateAccountRequest, Action<ResponseResult<Account>> onSuccess, Action<ResponseResult<Account>> onError)
+        {
+            var jsonData = JsonConvert.SerializeObject(updateAccountRequest);
+            var url = accountResourceUrl + "/" + email;
+
+            ApiHelper.Instance.PutCoroutine(url, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Account>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Account>>(errorValue);
+                    onError?.Invoke(result);
                 });
         }
     }

@@ -286,6 +286,9 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
         //_playerName = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
 
+        roomNameInput.interactable = false;
+        randomJoinButton.interactable = false;
+
         playerObject = runner.Spawn(playerPrefab, Vector3.zero, Quaternion.identity);
 
         if (runner.ActivePlayers.Count() > 1)
@@ -298,8 +301,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
         runner.SetPlayerObject(runner.LocalPlayer, playerObject);
 
-        roomNameInput.interactable = false;
-        randomJoinButton.interactable = false;
+        
         lobbyCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(true);
         popUpCanvas.gameObject.SetActive(true);
