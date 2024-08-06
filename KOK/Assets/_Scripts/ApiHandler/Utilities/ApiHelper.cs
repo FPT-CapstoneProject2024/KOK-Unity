@@ -23,6 +23,7 @@ namespace KOK.ApiHandler.Utilities
     [RequireComponent(typeof(ShopItemController))]
     [RequireComponent(typeof(SongController))]
     [RequireComponent (typeof(UpPackageController))]
+    [RequireComponent(typeof(MoMoController))]
     /// <summary>
     /// A singleton helper class to handle API calls in Unity.
     /// </summary>

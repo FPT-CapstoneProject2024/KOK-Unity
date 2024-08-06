@@ -38,6 +38,8 @@ namespace KOK.ApiHandler.Controller
         {
             var queryParams = new NameValueCollection();
 
+            queryParams.Add(nameof(filter.Status), filter.Status.ToString());
+
             queryParams.Add(nameof(paging.page), paging.page.ToString());
             queryParams.Add(nameof(paging.pageSize), paging.pageSize.ToString());
             queryParams.Add(nameof(paging.OrderType), paging.OrderType.ToString());

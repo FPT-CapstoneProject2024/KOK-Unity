@@ -19,6 +19,8 @@ namespace KOK
         [Header("Paging Components")]
         [SerializeField] public Button previousButton;
         [SerializeField] public Button nextButton;
+        [Header("Package Purchase Component")]
+        [SerializeField] public GameObject packagePurchaseCanvas;
 
         private int currentPage = 1;
         private int totalPage = 1;
@@ -137,6 +139,11 @@ namespace KOK
         {
             currentPage++;
             LoadPackages();
+        }
+
+        public void OpenPackagePurchaseDialog(PurchasePackageParam param)
+        {
+            packagePurchaseCanvas.GetComponent<PackagePurchaseHandler>().ShowPurchasePackageDialog(param);
         }
     }
 }

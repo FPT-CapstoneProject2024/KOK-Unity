@@ -1,4 +1,5 @@
 using KOK.ApiHandler.DTOModels;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Song;
 using System;
 using TMPro;
 using UnityEngine;
@@ -39,6 +40,7 @@ namespace KOK
         private void OnPackageClick(PurchasePackageParam param)
         {
             Debug.Log($"User purchase UP package: {param.PackageId} - {param.PackageName} - {param.StarNumber} - {param.MoneyAmount}");
+            FindFirstObjectByType<UpPackageHandler>().OpenPackagePurchaseDialog(param);
         }
     }
 

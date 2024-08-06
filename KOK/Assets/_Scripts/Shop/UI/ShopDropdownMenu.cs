@@ -8,6 +8,7 @@ namespace KOK
     {
         [Header("Canvases")]
         [SerializeField] private GameObject upPackagesCanvas;
+        [SerializeField] private GameObject shopCanvas;
 
         private TMP_Dropdown dropdownMenu;
 
@@ -20,6 +21,7 @@ namespace KOK
         {
             upPackagesCanvas.SetActive(true);
             upPackagesCanvas.GetComponentInChildren<UpPackageHandler>().SetInitialState();
+            shopCanvas.SetActive(false);
         }
 
         private void SwitchToHome()
@@ -32,12 +34,22 @@ namespace KOK
             switch (dropdownMenu.value)
             {
                 case 0:
-                    SwitchToUpPackages();
+                    SwitchToShop();
                     break;
                 case 1:
+                    SwitchToUpPackages();
+                    break;
+                case 2:
                     SwitchToHome();
                     break;
             }
+        }
+
+        private void SwitchToShop()
+        {
+            shopCanvas.SetActive(true);
+            //upPackagesCanvas.GetComponentInChildren<UpPackageHandler>().SetInitialState();
+            upPackagesCanvas.SetActive(false);
         }
     }
 }

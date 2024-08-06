@@ -22,21 +22,21 @@
 <action android:name="android.intent.action.MAIN" />
 <category android:name="android.intent.category.LAUNCHER" />
 </intent-filter>
+<intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="kok" android:host="com.capstoneproject2024.kok" />
+      </intent-filter>
 </activity>
 </application>
 
-<<<<<<< HEAD:KOK/Assets/Plugins/Android/AndroidManifest.xml
-	<!-- Permissions -->
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-	<uses-permission android:name="android.permission.INTERNET" />
-=======
+
 <!-- Permissions -->
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 <uses-permission android:name="android.permission.INTERNET" />
->>>>>>> 6bfb0834339cb97dfcf819dcb93cf17b92764222:KOK/Assets/Plugins/Android/AndroidManifest.xml.DISABLED
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 <!-- Supports various screen sizes -->
 <supports-screens

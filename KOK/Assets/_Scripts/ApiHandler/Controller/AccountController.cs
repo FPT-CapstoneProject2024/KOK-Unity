@@ -220,5 +220,21 @@ namespace KOK.ApiHandler.Controller
                     onError?.Invoke(result);
                 });
         }
+
+        public void GetAccountCoroutine(Guid accountId, Action<ResponseResult<Account>> onSuccess, Action<ResponseResult<Account>> onError)
+        {
+            var url = accountResourceUrl + $"/{accountId.ToString()}";
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Account>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Account>>(errorValue);
+                    onError?.Invoke(result);
+                });
+        }
     }
 }
