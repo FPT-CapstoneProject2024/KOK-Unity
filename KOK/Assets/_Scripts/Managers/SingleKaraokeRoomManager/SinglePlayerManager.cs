@@ -260,11 +260,11 @@ namespace KOK
 
                 Guid songId = (Guid)queueSongList[0].SongId;
 
+                
+
+                string recordingName = queueSongList[0].SongName;
+
                 queueSongList.RemoveAt(0);
-
-                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName)+"_"+ DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
-
-
                 PurchasedSongFilter filter = new()
                 {
                     MemberId = Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),

@@ -2,6 +2,7 @@ using Fusion;
 using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.InAppTransaction;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,12 +18,21 @@ namespace KOK
         [SerializeField] List<TMP_InputField> inputFieldForm = new List<TMP_InputField>();
         [SerializeField] ProfileBinding profileBinding;
 
+        [SerializeField] Transform inAppTransactionPanel;
+        [SerializeField] Transform inAppTransactionContentViewPort;
+        [SerializeField] GameObject inAppTransactionItemPrefab;
+
+
+        [SerializeField] public InAppTransactionBinding InAppTransactionDetailPanel;
+
+
         public void Awake()
         {
             if (Instance == null)
             {
                 Instance = this;
             }
+            else { Destroy(gameObject); }
         }
 
         public void Start()
@@ -42,7 +52,7 @@ namespace KOK
                         profileBinding.UpdateUI();
                         PlayerPrefsHelper.SetProfileData(account);
                     },
-                    (ex) => {}
+                    (ex) => { }
                 );
         }
 
@@ -59,7 +69,7 @@ namespace KOK
                 //Yob = account.Yob,
                 PhoneNumber = account.PhoneNumber,
                 CharacterItemId = account.CharacterItemId,
-                RoomItemId = account.RoomItemId,    
+                RoomItemId = account.RoomItemId,
 
             };
             ApiHelper.Instance.GetComponent<AccountController>()
@@ -78,6 +88,40 @@ namespace KOK
 
                 );
         }
+
+        public void GetInAppTransactionList()
+        {
+            List<InAppTransaction> inAppTransactions = new();
+            ApiHelper.Instance.GetComponent<InAppTransactionController>()
+                .GetInAppTransactionsByMemberIdCoroutine(
+                    Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
+                    (result) =>
+                    {
+                        inAppTransactions = result;
+                        Debug.Log(inAppTransactions.Count);
+                        ShowInAppTransactionPanel(inAppTransactions);
+                    },
+                    (ex) => { Debug.LogError(ex); }
+                );
+        }
+
+        private void ShowInAppTransactionPanel(List<InAppTransaction> inAppTransactions)
+        {
+            inAppTransactionPanel.gameObject.SetActive(true);
+            foreach (Transform child in inAppTransactionContentViewPort)
+            {
+                Destroy(child.gameObject);
+            }
+            Debug.Log(inAppTransactions.Count);
+            foreach (InAppTransaction transaction in inAppTransactions)
+            {
+                var inAppTransactionItem = Instantiate(inAppTransactionItemPrefab, inAppTransactionContentViewPort);
+                inAppTransactionItem.GetComponentInChildren<InAppTransactionBinding>().InAppTransaction = transaction;
+                inAppTransactionItem.GetComponentInChildren<InAppTransactionBinding>().UpdateUI();
+
+            }
+        }
+
 
         public void PopUpCharacterSelect()
         {

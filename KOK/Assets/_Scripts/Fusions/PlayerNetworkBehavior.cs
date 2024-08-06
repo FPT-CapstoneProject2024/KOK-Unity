@@ -179,10 +179,40 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                                                     },
                                                     (drr) => { SongList = drr.Results.ToList(); StartCoroutine(UpdateSearchSongUI()); Debug.Log("Reload song success!"); },
                                                     (ex) => Debug.LogError(ex));
+        }
 
-            //Load purchased song list here
+    }
 
-            PurchasedSongList = new();
+    private void LoadSongList(Action onSuccess, Action onError)
+    {
+        if (this.HasStateAuthority)
+        {
+            if (loadingManager == null) loadingManager = FindAnyObjectByType<LoadingManager>();
+            loadingManager.DisableUIElement();
+            FindAnyObjectByType<SongItemManager>().ClearSongList();
+            SongList = new();
+            FindAnyObjectByType<ApiHelper>().gameObject
+                    .GetComponent<SongController>()
+                    .GetSongsFilterPagingCoroutine(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
+                                                    new SongFilter(),
+                                                    SongOrderFilter.SongName,
+                                                    new PagingRequest()
+                                                    {
+                                                        pageSize = 100
+                                                    },
+                                                    (songDetail) =>
+                                                    {
+                                                        SongList = songDetail.Results.ToList();
+                                                        StartCoroutine(UpdateSearchSongUI());
+                                                        Debug.Log("Reload song success!");
+                                                        onSuccess.Invoke();
+                                                    },
+                                                    (ex) =>
+                                                    {
+                                                        Debug.LogError(ex);
+                                                        onError.Invoke();
+                                                    });
+
         }
 
     }
@@ -573,9 +603,6 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             if (isSinger)
             {
                 var audioFile = QueueSongCodeList[0] + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
-                //audioFile = audioFile.Replace(" ", "");
-                //audioFile = audioFile.Replace(":", "");
-                //audioFile = audioFile.Replace("/", "");
 
                 if (voiceRecorder == null) voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
                 voiceRecorder.StartRecording(audioFile);
@@ -626,10 +653,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 if (isCreateRecording) yield break;
                 isCreateRecording = true;
                 Debug.Log("Room recording is ready: " + singerAudioUrls.Count);
-                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
-                recordingName = recordingName.Replace(" ", "");
-                recordingName = recordingName.Replace(":", "");
-                recordingName = recordingName.Replace("/", "");
+                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + GetSongBySongCode(QueueSongCodeList[0].ToString()).SongName;
 
 
 
@@ -655,7 +679,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                             Debug.Log("Get purchased song success: " + successValue.Results[0].SongName.ToString());
                         },
                         (er) => { }
-                        ) ;
+                        );
 
 
                 RPCSongManager.Rpc_RemoveSong(NetworkRunner.Instances[0], 0);
@@ -693,6 +717,19 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     public void GetAllPurchasedSongOfParticipant()
     {
+
+    }
+
+    public void SetupHostRole()
+    {
+        if (HasStateAuthority)
+        {
+            LoadSongList();
+            foreach (var songCode in QueueSongCodeList)
+            {
+                //if (GetSongBySongCode)
+            }
+        }
 
     }
 
