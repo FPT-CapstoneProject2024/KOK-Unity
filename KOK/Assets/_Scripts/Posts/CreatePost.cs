@@ -64,13 +64,13 @@ namespace KOK.Assets._Scripts.Posts
             TmpDropDown.AddOptions(options);
         }     
 
-        private void AddPost(ResponseResult<Recording> recording)
+        private void AddPost(Recording recording)
         {
             CreatePostRequest createPostRequest = new CreatePostRequest()
             {
                 Caption = CaptionText.text,
                 MemberId = Guid.Parse(playerId),
-                RecordingId = recording.Value.RecordingId,
+                RecordingId = recording.RecordingId,
                 Status = 1,
                 PostType = 0
             };
@@ -88,7 +88,7 @@ namespace KOK.Assets._Scripts.Posts
             if (index >= 0 && index < optionMappings.Count)
             {
                 var selectedRecording = optionMappings[index];
-
+                var recordingName = "Clone_" + selectedRecording.RecordingName;
                 List<string> voiceAudioList = new List<string>();
                 List<string> ownerList = new List<string>();
                 //Guid recordingId = selectedMapping.recording.RecordingId;
@@ -101,7 +101,7 @@ namespace KOK.Assets._Scripts.Posts
                 //Create Recording request
                 CreateRecordingRequest createRecordingRequest = new CreateRecordingRequest()
                 {
-                    RecordingName = "Clone_" + selectedRecording.RecordingName,
+                    RecordingName = recordingName,
                     RecordingType = 0,
                     Score = selectedRecording.Score,
                     PurchasedSongId = selectedRecording.PurchasedSongId,
@@ -129,7 +129,7 @@ namespace KOK.Assets._Scripts.Posts
                 // Add post with clone recording
                 ApiHelper.Instance.GetComponent<RecordingController>().AddRecordingCoroutine(
                     createRecordingRequest,
-                    (rr) => { AddPost(rr); },
+                    (rr) => { AddPost(rr.Value); },
                     (ex) => { Debug.LogError(ex.Message); }
                 );
             }

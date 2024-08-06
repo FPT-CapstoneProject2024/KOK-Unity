@@ -31,23 +31,54 @@ namespace KOK
         public TMP_Text captionText;
         public TMP_Text memberText;
 
+        private int currentPage = 0;
+        private int currentTotalPage = 0;
+        //private int totalPage = 0;
+
         private List<Post> postDataList = new List<Post>();
 
         private void Start()
         {
-            GetPostsFilterPaging();
+            LoadMorePages();
+            //GetPostsFilterPaging();
         }
 
-        public void GetPostsFilterPaging()
+        public void GetPostsFilterPaging(int currentPage)
         {
+            var pagingRequest = new PagingRequest
+            {
+                page = currentPage,     
+                pageSize = 5,           
+                OrderType = SortOrder.Ascending 
+            };
+
             FindAnyObjectByType<ApiHelper>().gameObject
                 .GetComponent<PostController>()
-                .GetPostsFilterPagingCoroutine(new PostFilter(),
+                .GetPostsFilterPagingCoroutine( new PostFilter(),
                                                 new PostOrderFilter(),
-                                                new PagingRequest(),
-                                                SetInitialPosts,
+                                                pagingRequest,
+                                                GetDynamicRR,
                                                 OnError
                 );
+        }
+
+        private void LoadMorePages()
+        {
+            currentPage += 1;
+            GetPostsFilterPaging(currentPage);
+        }
+
+        // This function exists so as SetInitialPosts's List<Post> does not have to change into DynamicResponseResult<Post>
+        private void GetDynamicRR(DynamicResponseResult<Post> dynamicResponseResult)
+        {
+            //totalPage = dynamicResponseResult.Metadata.Total;
+            currentTotalPage += dynamicResponseResult.Results.Count;
+            // if currentTotalPage % 5 = 0  =>  currentTotalPage - 1 = trigger page    else trigger page = 0
+
+            //Debug.Log(totalPage);
+
+            var postsData = dynamicResponseResult.Results;
+            SetInitialPosts(postsData);
         }
 
         public void SetInitialPosts(List<Post> postsData)

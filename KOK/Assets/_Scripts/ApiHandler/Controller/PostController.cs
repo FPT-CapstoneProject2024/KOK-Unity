@@ -68,7 +68,7 @@ namespace KOK
             return result.Value;
         }
 
-        public void GetPostsFilterPagingCoroutine(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging, Action<List<Post>> onSuccess, Action<string> onError)
+        public void GetPostsFilterPagingCoroutine(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging, Action<DynamicResponseResult<Post>> onSuccess /*Action<List<Post>> onSuccess*/, Action<string> onError)
         {
             var queryParams = GeneratePostQueryParams(filter, orderFilter, paging);
             var url = QueryHelper.BuildUrl(postResourceUrl, queryParams);
@@ -77,7 +77,8 @@ namespace KOK
                 (successValue) =>
                 {
                     var result = JsonConvert.DeserializeObject<DynamicResponseResult<Post>>(successValue);
-                    onSuccess?.Invoke(result.Results);
+                    //onSuccess?.Invoke(result.Results);
+                    onSuccess?.Invoke(result);
                 },
                 (errorValue) =>
                 {
