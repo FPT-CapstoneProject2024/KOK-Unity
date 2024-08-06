@@ -33,13 +33,14 @@ namespace KOK
 
         private int currentPage = 0;
         private int currentTotalPage = 0;
-        //private int totalPage = 0;
+        private int totalPage = 0;
+        private int triggerLoadPostIndex = 0;
 
         private List<Post> postDataList = new List<Post>();
 
         private void Start()
         {
-            LoadMorePages();
+            LoadMorePosts();
             //GetPostsFilterPaging();
         }
 
@@ -62,28 +63,37 @@ namespace KOK
                 );
         }
 
-        private void LoadMorePages()
+        private void LoadMorePosts()
         {
             currentPage += 1;
             GetPostsFilterPaging(currentPage);
         }
 
+        private void LoadPageTrigger()
+        {
+            if(currentTotalPage != totalPage)
+            {
+                triggerLoadPostIndex = currentTotalPage - 2;
+            }
+        }
+
         // This function exists so as SetInitialPosts's List<Post> does not have to change into DynamicResponseResult<Post>
         private void GetDynamicRR(DynamicResponseResult<Post> dynamicResponseResult)
         {
-            //totalPage = dynamicResponseResult.Metadata.Total;
+            totalPage = dynamicResponseResult.Metadata.Total;
             currentTotalPage += dynamicResponseResult.Results.Count;
             // if currentTotalPage % 5 = 0  =>  currentTotalPage - 1 = trigger page    else trigger page = 0
 
             //Debug.Log(totalPage);
 
             var postsData = dynamicResponseResult.Results;
+            LoadPageTrigger();
             SetInitialPosts(postsData);
         }
 
         public void SetInitialPosts(List<Post> postsData)
         {
-            postDataList = new List<Post>();
+            //postDataList = new List<Post>();
             foreach (var postData in postsData)
             {
                 GameObject post = Instantiate(postPrefab, postParent);
@@ -101,7 +111,7 @@ namespace KOK
             }
 
             // Adjust currentPostIndex based on the initial setup
-            currentPostIndex = 0;
+            //currentPostIndex = 0;
 
             LoadPost();
         }
@@ -110,7 +120,15 @@ namespace KOK
         {
             if (currentPostIndex < postGameObjList.Count - 1)
             {
+                var currentIndex = currentPostIndex + 1;
                 TransitionPost(currentPostIndex + 1);
+
+                // trigger load more posts
+                if (currentIndex == triggerLoadPostIndex)
+                {
+                    Debug.Log("trigger load posts");
+                    LoadMorePosts();
+                }
             }
             else
             {
