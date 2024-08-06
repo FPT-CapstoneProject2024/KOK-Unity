@@ -20,5 +20,6 @@
         public static readonly string KaraokeRooms_Resource = "karaoke-rooms";
         public static readonly string UpPackage_Resource = "packages";
         public static readonly string MoMo_Resource = "momo";
+        public static readonly string InAppTransaction_Resource = "in-app-transactions";
     }
 }

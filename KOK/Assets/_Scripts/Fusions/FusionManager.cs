@@ -454,6 +454,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
             if (random == i)
             {
                 runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole = 0;
+                runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().SetupHostRole();
             }
             else
             {

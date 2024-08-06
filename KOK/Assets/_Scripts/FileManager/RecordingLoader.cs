@@ -105,13 +105,13 @@ public class RecordingLoader : MonoBehaviour
 
             optionMappings.Add((recording, (List<VoiceAudio>)recording.VoiceAudios));
 
-            recordingObj.transform.Find("Label 1").GetComponent<TMP_Text>().text = recording.RecordingName;
-            recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text = "";
+            recordingObj.transform.Find("Label 1").GetComponent<TMP_Text>().text = recording.RecordingName + " - " + recording.RecordingType;
+            recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text = string.Empty;
 
             foreach (var voiceAudio in recording.VoiceAudios)
             {
                 //string optionText = $"{recording.RecordingName} - {voiceAudio.VoiceUrl}";
-                recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text += voiceAudio.VoiceUrl + "\n";
+                recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text += "Recording time: " + recording.CreatedDate.ToString("dd/MM/yyyy HH:mm:ss") + "\n";
 
             }
 
@@ -128,25 +128,6 @@ public class RecordingLoader : MonoBehaviour
         }
     }
 
-    //public void OnEditButtonClicked(Guid purchasedSongId, List<VoiceAudio> voiceAudios)
-    //{
-    //    /*int index = tmpDropdown.value;
-    //    if (index >= 0 && index < optionMappings.Count)
-    //    {
-    //        var selectedMapping = optionMappings[index];
-
-    //        Guid purchasedSongId = selectedMapping.recording.PurchasedSongId;
-    //        GetPurchasedSongCoroutine(purchasedSongId);
-    //        recordingUrl = selectedMapping.voiceAudio.VoiceUrl;
-    //        //Process(songUrl, recordingUrl);
-    //        StartCoroutine(test2());
-    //    }*/
-    //    GetPurchasedSongCoroutine(purchasedSongId);
-    //    recordingUrl = voiceUrl;
-    //    StartCoroutine(EditVideo());
-    //}
-
-    // chua down
     public void OnPlayButtonClicked(Recording recording)
     {
         ApiHelper.Instance.gameObject
@@ -188,36 +169,6 @@ public class RecordingLoader : MonoBehaviour
         Debug.Log("Success: " + songVideoUrl);
     }
 
-    //private void OnGetPurchasedSongSuccess(List<PurchasedSong> purchasedSongs, Recording recording)
-    //{
-    //    Guid songId = new();
-    //    string songVideoUrl = "";
-    //    songId = purchasedSongs[0].SongId;
-    //    ApiHelper.Instance.gameObject
-    //        .GetComponent<SongController>()
-    //        .GetSongByIdCoroutine(songId,
-    //                              (sd) =>
-    //                              {
-    //                                  songVideoUrl = sd.Value.SongUrl;
-    //                                  List<string> localFilePaths = new();
-    //                                  foreach (var audio in recording.VoiceAudios)
-    //                                  {
-    //                                      var cloudFilePath = audio.VoiceUrl + ".zip";
-    //                                      var localFilePath = Application.persistentDataPath + "/AudioProcess/" + audio.VoiceUrl + ".zip";
-    //                                      ffmpeg.DownloadFile2(localFilePath,
-    //                                          () =>
-    //                                          {
-    //                                              PlayVideo(songVideoUrl, localFilePaths);
-    //                                              Debug.Log("Success: " + songVideoUrl);
-    //                                          },
-    //                                          () => { });
-    //                                      localFilePaths.Add(localFilePath);
-    //                                  }
-
-
-    //                              },
-    //                              (ex) => Debug.LogError(ex));
-    //}
 
     public void PlayVideo(string videoSongUrl, List<string> voiceAudioUrls)
     {
@@ -240,26 +191,6 @@ public class RecordingLoader : MonoBehaviour
             //Process(songUrl, recordingUrl);
         }
     }
-
-    //private async void Process(string songUrl, string voiceUrl)
-    //{
-    //    Debug.Log($"SongUrl: {songUrl}, VoiceUrl: {voiceUrl}");
-
-    //    var recordingName = recordingUrl + ".zip";
-    //    string folderPath = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingName);
-    //    await ffmpeg.DownloadFile2(recordingName, folderPath);
-    //    //StartCoroutine(ffmpeg.DownloadFile(voiceUrl, "recordedVoice.wav", "AudioProcess"));
-    //    try { StartCoroutine(ffmpeg.DownloadFile(songUrl, "downloadedVideo.mp4", "AudioProcess")); }
-    //    catch { }
-
-
-    //    string videoFolderPath = Path.Combine(Application.persistentDataPath, "AudioProcess", "downloadedVideo.mp4");
-    //    try { StartCoroutine(ffmpeg.ExtractAudioFromVideo(videoFolderPath)); }
-    //    catch { }
-
-    //    waveformDisplay.ShowPopup(Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingUrl + ".wav"));
-    //    //gameObject.SetActive(false);
-    //}
 
     public void Show()
     {

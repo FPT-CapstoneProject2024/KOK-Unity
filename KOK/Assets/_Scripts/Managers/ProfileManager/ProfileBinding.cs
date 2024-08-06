@@ -10,6 +10,7 @@ namespace KOK
     public class ProfileBinding : MonoBehaviour
     {
         public Account Account { get; set; }
+        [SerializeField] TMP_Text UpLabel;
         [SerializeField] TMP_InputField UsernameInputField;
         [SerializeField] TMP_InputField EmailInputField;
         [SerializeField] TMP_Dropdown GenderDropdown;
@@ -18,12 +19,11 @@ namespace KOK
 
         public void UpdateUI()
         {
-            UsernameInputField.text = Account.UserName??string.Empty;
+            UsernameInputField.text = Account.UserName ?? string.Empty;
             EmailInputField.text = Account.Email ?? string.Empty;
             GenderDropdown.value = (int)Account.Gender;
             YearOfBirthInputField.text = Account.Yob.ToString() ?? string.Empty;
             PhoneNumberInputField.text = Account.PhoneNumber ?? string.Empty;
-
         }
 
         public void UpdateModel()
