@@ -206,4 +206,13 @@ namespace KOK.ApiHandler.DTOModels
         ACTIVE,
     }
     #endregion
+
+    #region Payment
+
+    public enum PaymentType
+    {
+        MOMO = 1,
+    }
+
+    #endregion
 }

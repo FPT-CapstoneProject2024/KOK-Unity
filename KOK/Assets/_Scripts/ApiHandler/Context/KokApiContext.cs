@@ -3,8 +3,8 @@
     public static class KokApiContext
     {
         //https://localhost:7017
-        //public static readonly string KOK_Host_Url = "https://kok-api.azurewebsites.net/api/";
-        public static readonly string KOK_Host_Url = "https://localhost:7017/api/";
+        public static readonly string KOK_Host_Url = "https://kok-api.azurewebsites.net/api/";
+        //public static readonly string KOK_Host_Url = "https://localhost:7017/api/";
         public static readonly string Accounts_Resource = "accounts";
         public static readonly string Authentication_Resource = "authentication";
         public static readonly string Items_Resource = "items";
@@ -19,5 +19,6 @@
         public static readonly string Shop_Resource = "shops";
         public static readonly string KaraokeRooms_Resource = "karaoke-rooms";
         public static readonly string UpPackage_Resource = "packages";
+        public static readonly string MoMo_Resource = "momo";
     }
 }
