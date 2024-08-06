@@ -98,13 +98,9 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 else
                 {
                     PlayerRole = 0;
-                    //string recordingName = "RoomLog_" + PlayerName.ToString() + "_" + DateTime.Now.ToString() + ".txt";
-                    //recordingName = recordingName.Replace(" ", "");
-                    //recordingName = recordingName.Replace(":", "");
-                    //recordingName = recordingName.Replace("/", "");
 
-                    string recordingName = $"RoomLog_{PlayerName}_{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss")}.txt";
-                    RoomLogManager.Instance.CreateRoomLog(recordingName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
+                    string roomName = $"RoomLog_{PlayerName}_{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss")}.txt";
+                    RoomLogManager.Instance.CreateRoomLog(roomName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
                 }
 
                 CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
@@ -113,7 +109,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
                 videoPlayer = FindAnyObjectByType<VideoPlayer>();
 
-                //RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
+                RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
 
                 SetSinger();
 
@@ -131,8 +127,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         }
         catch (Exception ex)
         {
-            Debug.LogException(ex);
-            StartCoroutine(InitRoom());
+            Debug.LogError(ex);
+            //StartCoroutine(InitRoom());
         }
         yield return new WaitForSeconds(1f);
     }

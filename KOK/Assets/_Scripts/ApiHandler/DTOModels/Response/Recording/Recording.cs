@@ -19,6 +19,7 @@ namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response
         public DateTime UpdatedDate { get; set; }
         public float StartTime { get; set; }
         public float EndTime { get; set; }
+        public float? Volume { get; set; }
         public int Score { get; set; }
         public Guid PurchasedSongId { get; set; }
         public Guid HostId { get; set; }

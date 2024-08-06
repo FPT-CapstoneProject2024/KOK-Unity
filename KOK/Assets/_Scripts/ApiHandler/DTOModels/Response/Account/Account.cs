@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 
 namespace KOK.ApiHandler.DTOModels
@@ -20,5 +21,9 @@ namespace KOK.ApiHandler.DTOModels
         public Guid? CharacterItemId { get; set; }
         public Guid? RoomItemId { get; set; }
         public AccountStatus? AccountStatus { get; set; }
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }
