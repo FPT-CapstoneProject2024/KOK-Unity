@@ -23,6 +23,7 @@ namespace KOK
         [SerializeField] public TMP_InputField searchInput;
         [Header("Preview Components")]
         [SerializeField] public GameObject songPreviewCanvas;
+        [SerializeField] LoadingManager loadingManager;
 
         private PurchasedSongFilter filter;
         private int currentPage = 1;
@@ -37,6 +38,8 @@ namespace KOK
 
         public void LoadPurchasedSongs()
         {
+            loadingManager.DisableUIElement();
+            ClearContainer();
             var controller = ApiHelper.Instance.gameObject.GetComponent<PurchasedSongController>();
             controller.GetMemberPurchasedSongFilterCoroutine(filter, PurchasedSongOrderFilter.PurchaseDate, new PagingRequest()
             {
@@ -52,11 +55,13 @@ namespace KOK
             {
                 SetSongMessage("Không tìm thấy bài hát đã mua");
                 pagingDisplay.text = $"{0}/{0}";
+                loadingManager.EnableUIElement();
                 return;
             }
             SetSongMessage(string.Empty);
             SetPagingData(responseResult);
             SpawnSongItem(responseResult.Results);
+            loadingManager.EnableUIElement();
         }
 
         public void OnLoadSongError(DynamicResponseResult<PurchasedSong> responseResult)
@@ -64,6 +69,7 @@ namespace KOK
             ClearContainer();
             SetSongMessage("Không tìm thấy bài hát đã mua");
             pagingDisplay.text = $"{0}/{0}";
+            loadingManager.EnableUIElement();
         }
 
         private void SetSongMessage(string message)
@@ -143,6 +149,7 @@ namespace KOK
 
         public void OnSearchSongClick()
         {
+            SetSongMessage(string.Empty);
             currentPage = 1;
             searchKeyword = searchInput.text;
             filter.SongName = searchKeyword;

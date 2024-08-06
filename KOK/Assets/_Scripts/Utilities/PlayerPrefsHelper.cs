@@ -1,5 +1,6 @@
 ﻿using KOK.ApiHandler.DTOModels;
 using UnityEngine;
+using WebSocketSharp;
 
 namespace KOK
 {
@@ -106,6 +107,17 @@ namespace KOK
             PlayerPrefs.SetString(LoginDataKeys[10], loginData.Value.AccountStatus.ToString());
             PlayerPrefs.Save();
         }
+
+        public static void SetProfileData(Account account)
+        {
+            PlayerPrefs.SetString(Key_UserName, account.UserName);
+            PlayerPrefs.SetString(Key_Email, account.Email);
+            PlayerPrefs.SetString(Key_Gender, account.Gender.ToString());
+            PlayerPrefs.SetString(Key_PhoneNumber, account.PhoneNumber);
+            PlayerPrefs.SetString(Key_CharacterItemId, account.CharacterItemId.ToString());
+            PlayerPrefs.SetString(Key_RoomItemId, account.RoomItemId.ToString());
+            PlayerPrefs.Save();
+        } 
 
         public static void DeleteLoginData()
         {

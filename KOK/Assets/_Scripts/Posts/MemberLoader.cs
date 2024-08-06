@@ -35,50 +35,21 @@ namespace KOK
             accountsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Accounts_Resource;
         }
 
-      /*  public void LoadPostMember(string postId)
-        {           
-            StartCoroutine(GetPostAsync(postId));
-        }*/
-
-        public async Task GetPostMemberAsync(string postId)
+        public void GetPostMemberCoroutine(Guid postId)
         {
-            PostController postController = FindAnyObjectByType<ApiHelper>().gameObject.GetComponent<PostController>();
-
-            Post post = await postController.GetPostByIdAsync(Guid.Parse(postId));
-
-            GetPostMember(post.MemberId.Value);
+            FindAnyObjectByType<ApiHelper>().gameObject
+                .GetComponent<PostController>()
+                .GetPostByIdCoroutine(  postId,
+                                        GetMemberCoroutine,
+                                        OnError
+                );
         }
-      /*  IEnumerator GetPostMember(string url, string id)
+
+        public void GetMemberCoroutine(List<Post> posts)
         {
-            string reqUrl = $"{url}/{id}";
-            UnityWebRequest request = UnityWebRequest.Get(reqUrl);
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                string response = request.downloadHandler.text;
-                var responseObject = JsonConvert.DeserializeObject<ResponseResult<Account>>(response);
-                var member = responseObject.Value;
-
-                memberList.Clear();
-                memberList.Add(member);
-
-                MemberGenerate();
-                Debug.Log(response);
-            }
-            else
-            {
-                Debug.LogError(request.error);
-            }
-        }*/
-
-        public void GetPostMember(Guid memberId)
-        {
-            member = new();
             FindAnyObjectByType<ApiHelper>().gameObject
                 .GetComponent<AccountController>()
-                .GetAccountByIdCoroutine(   memberId,
+                .GetAccountByIdCoroutine(   posts[0].MemberId.Value,
                                             MemberGenerate,
                                             OnError
                 );
@@ -95,6 +66,7 @@ namespace KOK
             gameObj.transform.GetComponent<TMP_Text>().text = member.UserName;
 
         }
+
         private void OnError(string error)
         {
             Debug.LogError(error);

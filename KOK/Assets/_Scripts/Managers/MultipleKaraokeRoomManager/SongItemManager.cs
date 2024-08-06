@@ -27,10 +27,6 @@ namespace KOK
 
         private NetworkRunner _runner;
 
-        private void OnEnable()
-        {
-            if (_loadingManager == null) _loadingManager = FindAnyObjectByType<LoadingManager>();
-        }
         public void ClearSongList()
         {
             foreach (Transform child in _viewportContent.transform)
@@ -41,16 +37,13 @@ namespace KOK
 
         public void UpdateSongList()
         {
-            List<SongDetail> searchSongList = new List<SongDetail>();
+            List<SongDetail> searchSongList = new List<SongDetail>(); 
+            ClearSongList();
+            if (_viewportContent == null) { return; }
+            if (_runner == null) { _runner = NetworkRunner.Instances[0]; }
             try
             {
-                ClearSongList();
-                if (_viewportContent == null) { return; }
-                if (_runner == null) { _runner = NetworkRunner.Instances[0]; }
-
-
                 //List<SongDetail> songList = SongManager.songs;
-                Debug.Log(_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>());
                 List<SongDetail> songList = _runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().SongList;
 
                 string searchKeyword = _searchSongInput.text;
@@ -100,18 +93,19 @@ namespace KOK
                     }
                     catch (Exception ex) { Debug.LogError(ex); }
                 }
-                
+                if (searchSongList.Count > 0)
+                {
+                    _loadingManager.EnableUIElement();
+                }
+                else
+                {
+                    _loadingManager.DisableUIElement();
+                }
+
             }
             catch { }
-            if (_loadingManager == null) _loadingManager = FindAnyObjectByType<LoadingManager>();
-            if (searchSongList.Count > 0)
-            {
-                _loadingManager.EnableUIElement();
-            }
-            else
-            {
-                _loadingManager.DisableUIElement();
-            }
+
+
         }
 
         public void UpdateQueueSongList()

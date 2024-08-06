@@ -1,6 +1,4 @@
-﻿using Fusion.Statistics;
-
-namespace KOK.ApiHandler.Context
+﻿namespace KOK.ApiHandler.Context
 {
     public static class KokApiContext
     {
@@ -20,5 +18,7 @@ namespace KOK.ApiHandler.Context
         public static readonly string PurchasedSongs_Resource = "purchased-songs";
         public static readonly string Shop_Resource = "shops";
         public static readonly string KaraokeRooms_Resource = "karaoke-rooms";
+        public static readonly string UpPackage_Resource = "packages";
+        public static readonly string MoMo_Resource = "momo";
     }
 }

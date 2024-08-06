@@ -59,7 +59,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -86,6 +86,11 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         createButton.interactable = false;
         roomNameInput.interactable = false;
         randomJoinButton.interactable = false;
+    }
+
+    private void OnDestroy()
+    {
+        runner.Shutdown();
     }
 
     public void OnLoginSuccess()
@@ -281,6 +286,9 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
         //_playerName = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
 
+        roomNameInput.interactable = false;
+        randomJoinButton.interactable = false;
+
         playerObject = runner.Spawn(playerPrefab, Vector3.zero, Quaternion.identity);
 
         if (runner.ActivePlayers.Count() > 1)
@@ -293,8 +301,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
         runner.SetPlayerObject(runner.LocalPlayer, playerObject);
 
-        roomNameInput.interactable = false;
-        randomJoinButton.interactable = false;
+        
         lobbyCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(true);
         popUpCanvas.gameObject.SetActive(true);

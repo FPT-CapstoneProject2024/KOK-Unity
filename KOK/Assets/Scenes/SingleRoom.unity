@@ -2533,6 +2533,7 @@ MonoBehaviour:
   songPanelFavouriteToggle: {fileID: 267158428}
   songPanelPurchasedToggle: {fileID: 1911888943}
   _loadingManager: {fileID: 154205444}
+  _roomDeco: {fileID: 0}
 --- !u!114 &620968360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2547,6 +2548,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   recorder: {fileID: 0}
   textMeshProUGUI: {fileID: 0}
+--- !u!1 &635951806
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 635951808}
+  - component: {fileID: 635951807}
+  m_Layer: 0
+  m_Name: '[SystemNavigation]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &635951807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 635951806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 971e15cacc462c44386cd5c89059004d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &635951808
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 635951806}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &665264116
 GameObject:
   m_ObjectHideFlags: 0
@@ -3408,9 +3453,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: FusionConnection, Assembly-CSharp
-        m_MethodName: DisconnectFromRoom
+      - m_Target: {fileID: 635951807}
+        m_TargetAssemblyTypeName: KOK.SystemNavigation, Assembly-CSharp
+        m_MethodName: ToHome
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4565,7 +4610,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1926037901}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.9999999
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -29089,6 +29134,7 @@ GameObject:
   - component: {fileID: 1682492869}
   - component: {fileID: 1682492868}
   - component: {fileID: 1682492867}
+  - component: {fileID: 1682492872}
   m_Layer: 0
   m_Name: ApiHelper
   m_TagString: Untagged
@@ -29277,6 +29323,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb8e919c4931e7c499e779a39306f768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1682492872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1682492856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4555db7426d7dd47a62d38d6f9a2cba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1692163159
@@ -32852,3 +32910,4 @@ SceneRoots:
   - {fileID: 1875089165}
   - {fileID: 417200371}
   - {fileID: 1703946565}
+  - {fileID: 635951808}

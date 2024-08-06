@@ -7,6 +7,7 @@ namespace KOK
 {
     public class HomePageNavigation : MonoBehaviour
     {
+
         public void ToSingleKaraokeRoomScene()
         {
             SceneManager.LoadScene(sceneName: "SingleRoom");
@@ -25,6 +26,11 @@ namespace KOK
         public void ToSongsScene()
         {
             SceneManager.LoadScene(sceneName: "Song");
+        }
+
+        public void ToShopScene()
+        {
+            SceneManager.LoadScene(sceneName: "Shop");
         }
     }
 }

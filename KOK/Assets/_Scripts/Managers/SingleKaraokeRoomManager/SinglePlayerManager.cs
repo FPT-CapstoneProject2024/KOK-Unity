@@ -42,6 +42,8 @@ namespace KOK
 
         [SerializeField] LoadingManager _loadingManager;
 
+        [SerializeField] GameObject _roomDeco;
+
         Guid karaokeRoomId;
 
         private void OnEnable()
@@ -61,11 +63,13 @@ namespace KOK
                 (kr) => { karaokeRoomId = kr.Value.RoomId; },
                 (er) => { Debug.LogError(er); }
                 );
+
         }
         void Start()
         {
             if (voiceRecorder == null) { voiceRecorder = FindAnyObjectByType<VoiceRecorder>(); }
             StartCoroutine(LoadSong());
+
         }
 
         public void ReloadSong()
@@ -114,10 +118,14 @@ namespace KOK
         }
         public void ClearSearchSongList()
         {
-            foreach (Transform child in searchSongPanelContent.transform)
+            try
             {
-                Destroy(child.gameObject);
+                foreach (Transform child in searchSongPanelContent.transform)
+                {
+                    Destroy(child.gameObject);
+                }
             }
+            catch { }
         }
         public void UpdateSearchSongUI()
         {
@@ -211,7 +219,8 @@ namespace KOK
         }
         public void AddSongToQueue(string songCode)
         {
-            queueSongList.Add(GetSongBySongCode(songCode));
+            var song = GetSongBySongCode(songCode);
+            queueSongList.Add(song);
         }
 
 
@@ -254,17 +263,17 @@ namespace KOK
                 queueSongList.RemoveAt(0);
 
                 string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName)+"_"+ DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
-                //recordingName = recordingName.Replace(" ", "");
-                //recordingName = recordingName.Replace(":", "");
-                //recordingName = recordingName.Replace("/", "");
 
+
+                PurchasedSongFilter filter = new()
+                {
+                    MemberId = Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
+                    SongId = songId,
+                };
+                Debug.Log(filter);
                 ApiHelper.Instance.GetComponent<PurchasedSongController>()
                     .GetMemberPurchasedSongFilterCoroutine(
-                        new()
-                        {
-                            MemberId = Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
-                            SongId = songId,
-                        },
+                        filter,
                         PurchasedSongOrderFilter.SongId,
                         new()
                         {
@@ -272,8 +281,8 @@ namespace KOK
                         },
                         (successValue) => { CreateRecording(recordingName, 
                             audioFile, 
-                            successValue.Results[0].PurchasedSongId.ToString()); 
-                            Debug.LogError("Get purchased song success: "+ successValue.Results[0].SongName.ToString()); },
+                            successValue.Results[0].PurchasedSongId.ToString());
+                            Debug.Log("Get purchased song success: "+ successValue.Results[0].SongName.ToString()); },
                         (er) => { }
                         );
 
@@ -285,6 +294,7 @@ namespace KOK
         {
             RecordingManager.Instance.CreateRecording(
                     recordingName,
+                    0,
                     UnityEngine.Random.Range(50, 100),
                     purSongId,
                     PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
