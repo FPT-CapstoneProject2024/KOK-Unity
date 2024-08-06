@@ -29,6 +29,11 @@ namespace KOK
             ApiHelper.Instance.GetComponent<AccountController>().GetAccountCoroutine(Guid.Parse(accountId), OnLoadAccountSuccess, OnLoadAccountError);
         }
 
+        public void ReloadUserUpBalance()
+        {
+            LoadUserUpBalance();
+        }
+
         private void SetUpBalanceText(string text)
         {
             UpBalanceText.text = text;
