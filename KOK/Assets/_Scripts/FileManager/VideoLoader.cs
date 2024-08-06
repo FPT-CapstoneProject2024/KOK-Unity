@@ -114,8 +114,6 @@ namespace KOK.Assets._Scripts.FileManager
         
         private void Display(string videoUrl, List<AudioClip> audioClips, float videoStartTime, List<float> audioStartTime)
         {
-            
-
             List<AudioSource> audioSources = new List<AudioSource>();
             foreach (var audioClip in audioClips)
             {
@@ -170,7 +168,6 @@ namespace KOK.Assets._Scripts.FileManager
                 Destroy(audioSource);
             }
             videoPlayer.Stop();
-
         }
 
 

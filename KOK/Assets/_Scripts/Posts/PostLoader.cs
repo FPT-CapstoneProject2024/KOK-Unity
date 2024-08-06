@@ -2,6 +2,7 @@
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.VoiceAudios;
 using KOK.Assets._Scripts.FileManager;
 using System;
 using System.Collections;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Video;
 using WebSocketSharp;
 
 namespace KOK.Assets._Scripts.Posts
@@ -19,6 +21,14 @@ namespace KOK.Assets._Scripts.Posts
     {
         private string songUrl;
         public VideoLoader videoLoader;
+        private List<VoiceAudio> voiceAudioList = new List<VoiceAudio>();
+        private FFMPEG ffmpeg;
+
+        void Start()
+        {
+            ffmpeg = GetComponent<FFMPEG>();
+            if (ffmpeg == null) ffmpeg = gameObject.AddComponent<FFMPEG>();
+        }
 
         public void GetRecordingById(Guid recordingId)
         {
@@ -57,34 +67,38 @@ namespace KOK.Assets._Scripts.Posts
             //Process(songUrl, recordingUrl);
         }
 
-        // chua down
         private void LoadVideo(List<Recording> recordings)
         {
             foreach (var recording in recordings)
             {
+                GetPurchasedSongCoroutine(recording.PurchasedSongId);
+                var startTimeSong = recording.StartTime;
+
+                Debug.Log(recording.VoiceAudios);
                 foreach (var voiceAudio in recording.VoiceAudios)
                 {
-                    GetPurchasedSongCoroutine(recording.PurchasedSongId);
-                    var startTimeSong = recording.StartTime;
                     var startTimeVoiceAudio = voiceAudio.StartTime;
-                    var voiceUrl = voiceAudio.VoiceUrl;
-                    string voiceFolderPath = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + voiceUrl + ".wav");
-                    StartCoroutine(PlayVideo(voiceFolderPath, startTimeVoiceAudio, startTimeSong, voiceUrl));
+                    string voiceFilePath = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + voiceAudio.VoiceUrl + ".zip");
+                    ffmpeg.DownloadFile2(voiceFilePath);
+                    StartCoroutine(PlayVideo(voiceFilePath, startTimeVoiceAudio, startTimeSong, voiceAudio.VoiceUrl));
                 }
             }
         }
 
-        public IEnumerator PlayVideo(string voiceFolderPath, float startTimeVoiceAudio, float startTimeSong, string voiceUrl)
+        public IEnumerator PlayVideo(string voiceFilePath, float startTimeVoiceAudio, float startTimeSong, string voiceUrl)
         {
-            yield return new WaitForSeconds(0.1f);
-            if (songUrl.IsNullOrEmpty())
+            string voiceFilePath2 = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + voiceUrl + ".wav");
+
+            //fk
+            yield return new WaitForSeconds(2f);
+
+            if (songUrl.IsNullOrEmpty() && !File.Exists(voiceFilePath2))
             {
-                StartCoroutine(PlayVideo(voiceFolderPath, startTimeVoiceAudio, startTimeSong, voiceUrl));
+                StartCoroutine(PlayVideo(voiceFilePath, startTimeVoiceAudio, startTimeSong, voiceUrl));
             }
             else
             {
-                string voiceFolderPath2 = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + voiceUrl + ".wav");
-                videoLoader.Load(songUrl, voiceFolderPath2, startTimeVoiceAudio, startTimeSong);
+                videoLoader.Load(songUrl, voiceFilePath2, startTimeVoiceAudio, startTimeSong);
             }
         }
 

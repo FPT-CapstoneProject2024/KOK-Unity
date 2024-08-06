@@ -90,29 +90,6 @@ public class RecordingLoader : MonoBehaviour
         Debug.Log(detail);
     }
 
-    /*private void PopulateTMPDropdown(List<Recording> recordings)
-    {
-        // Clear existing options
-        tmpDropdown.ClearOptions();
-        optionMappings = new List<(Recording recording, VoiceAudio voiceAudio)>();
-
-        // Create a list to store new options
-        List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
-
-        // Populate the options list
-        foreach (var recording in recordings)
-        {
-            foreach (var voiceAudio in recording.VoiceAudios)
-            {
-                string optionText = $"{recording.RecordingName} - {voiceAudio.VoiceUrl}";
-                options.Add(new TMP_Dropdown.OptionData(optionText));
-                optionMappings.Add((recording, voiceAudio));
-            }
-        }
-
-        tmpDropdown.AddOptions(options);
-    }*/
-
     void RecordingsGenerate(List<Recording> recordingList)
     {
         optionMappings = new List<(Recording recording, List<VoiceAudio> voiceAudio)>();

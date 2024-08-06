@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KOK.ApiHandler.DTOModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,8 +16,8 @@ namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post
         public DateTime? UpdateTime { get; set; }
         public Guid? MemberId { get; set; }
         public Guid? RecordingId { get; set; }
-        public int? Status { get; set; }
-        public int? PostType { get; set; }
+        public PostStatus? Status { get; set; }
+        public PostType? PostType { get; set; }
         public Guid? OriginPostId { get; set; }
     }
 }
