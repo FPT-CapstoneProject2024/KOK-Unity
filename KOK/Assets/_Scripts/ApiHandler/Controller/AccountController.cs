@@ -203,10 +203,10 @@ namespace KOK.ApiHandler.Controller
                 });
         }
 
-        public void UpdateAccountCoroutine(string email, UpdateAccountRequest updateAccountRequest, Action<ResponseResult<Account>> onSuccess, Action<ResponseResult<Account>> onError)
+        public void UpdateAccountCoroutine(Guid accountId, UpdateAccountRequest updateAccountRequest, Action<ResponseResult<Account>> onSuccess, Action<ResponseResult<Account>> onError)
         {
             var jsonData = JsonConvert.SerializeObject(updateAccountRequest);
-            var url = accountResourceUrl + "/" + email;
+            var url = accountResourceUrl + "/" + accountId;
 
             ApiHelper.Instance.PutCoroutine(url, jsonData,
                 (successValue) =>

@@ -42,6 +42,8 @@ namespace KOK
 
         [SerializeField] LoadingManager _loadingManager;
 
+        [SerializeField] GameObject _roomDeco;
+
         Guid karaokeRoomId;
 
         private void OnEnable()
@@ -61,11 +63,13 @@ namespace KOK
                 (kr) => { karaokeRoomId = kr.Value.RoomId; },
                 (er) => { Debug.LogError(er); }
                 );
+
         }
         void Start()
         {
             if (voiceRecorder == null) { voiceRecorder = FindAnyObjectByType<VoiceRecorder>(); }
             StartCoroutine(LoadSong());
+
         }
 
         public void ReloadSong()

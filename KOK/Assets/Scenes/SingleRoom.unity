@@ -2533,6 +2533,7 @@ MonoBehaviour:
   songPanelFavouriteToggle: {fileID: 267158428}
   songPanelPurchasedToggle: {fileID: 1911888943}
   _loadingManager: {fileID: 154205444}
+  _roomDeco: {fileID: 0}
 --- !u!114 &620968360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4609,7 +4610,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1926037901}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.9999999
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

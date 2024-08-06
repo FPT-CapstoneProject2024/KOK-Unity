@@ -38,6 +38,7 @@ namespace KOK
                     (account) =>
                     {
                         profileBinding.Account = account;
+                        Debug.Log("111" + account);
                         profileBinding.UpdateUI();
                         PlayerPrefsHelper.SetProfileData(account);
                     },
@@ -47,14 +48,15 @@ namespace KOK
 
         public void SaveMemberInformation()
         {
+            profileBinding.UpdateModel();
             var account = profileBinding.Account;
             UpdateAccountRequest updateAccountRequest = new UpdateAccountRequest()
             {
                 UserName = account.UserName,
-                Email = account.Email,
+                //Email = account.Email,
                 Gender = account.Gender.ToString(),
                 UpBalance = (decimal)account.UpBalance,
-                Yob = account.Yob,
+                //Yob = account.Yob,
                 PhoneNumber = account.PhoneNumber,
                 CharacterItemId = account.CharacterItemId,
                 RoomItemId = account.RoomItemId,    
@@ -62,7 +64,7 @@ namespace KOK
             };
             ApiHelper.Instance.GetComponent<AccountController>()
                 .UpdateAccountCoroutine(
-                    account.Email,
+                    (Guid)account.AccountId,
                     updateAccountRequest,
                     (result) =>
                     {

@@ -23,12 +23,15 @@ namespace KOK
             GenderDropdown.value = (int)Account.Gender;
             YearOfBirthInputField.text = Account.Yob.ToString() ?? string.Empty;
             PhoneNumberInputField.text = Account.PhoneNumber ?? string.Empty;
+
         }
 
         public void UpdateModel()
         {
             Account.UserName = UsernameInputField.text;
-            Account.Email = EmailInputField.text;
+            //Account.Email = EmailInputField.text;
+            Account.Gender = (AccountGender)GenderDropdown.value;
+            Account.PhoneNumber = PhoneNumberInputField.text;
         }
     }
 }
