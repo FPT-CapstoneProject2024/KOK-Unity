@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
@@ -17,7 +18,7 @@ namespace KOK.Assets._Scripts.FileManager
         private FFMPEG ffmpeg;
         public VideoPlayer videoPlayer;
         public RecordingLoader recordingLoader;
-        private AudioSource audioSource;
+        private List<AudioSource> audioSources = new();
         public Slider progressSlider; // Slider to display and control video progress
         private bool isDraggingSlider = false; // To track if the user is dragging the slider
         private string filePathLocalWav;
@@ -27,29 +28,34 @@ namespace KOK.Assets._Scripts.FileManager
         {
             // Ensure the slider is interactive
             progressSlider.interactable = true;
-            ffmpeg = GetComponent<FFMPEG>();
-            if (ffmpeg == null) ffmpeg = gameObject.AddComponent<FFMPEG>();
+            if (!TryGetComponent<FFMPEG>(out ffmpeg)) ffmpeg = gameObject.AddComponent<FFMPEG>();
 
         }
 
-        void Update()
-        {
-            if (!isDraggingSlider && videoPlayer.isPlaying)
-            {
-                progressSlider.value = (float)videoPlayer.time;
-            }
-        }
+        //void Update()
+        //{
+        //    if (!isDraggingSlider && videoPlayer.isPlaying)
+        //    {
+        //        progressSlider.value = (float)videoPlayer.time;
+        //    }
+        //}
 
-        public void ShowPopup(string videoUrl, string filePath, float startTimeRecording, float startTimeSong)
-        {
-            filePathLocalWav = filePath;
-            filePathLocalZip = filePath.Replace(".wav", ".zip");
-            gameObject.SetActive(true);
-            AudioClip audioClip = ffmpeg.LoadAudioClip(filePath);
-            Display(videoUrl, audioClip, startTimeRecording, startTimeSong);
-        }
+        //public void ShowPopup(string videoUrl, string filePath, float startTimeRecording, float startTimeSong)
+        //{
+        //    filePathLocalWav = filePath;
+        //    filePathLocalZip = filePath.Replace(".wav", ".zip");
+        //    gameObject.SetActive(true);
+        //    AudioClip audioClip = ffmpeg.LoadAudioClip(filePath);
+        //    Display(videoUrl, audioClip, startTimeRecording, startTimeSong);
+        //}
         
         public void ShowPopup(string videoSongUrl, List<string> voiceAudioUrls)
+        {
+            StartCoroutine(ShowPopUpCoroutine(videoSongUrl, voiceAudioUrls));
+           
+        }
+
+        private IEnumerator ShowPopUpCoroutine(string videoSongUrl, List<string> voiceAudioUrls)
         {
             List<string> filePathLocalWavs = new();
             List<string> filePathLocalZips = new();
@@ -60,7 +66,10 @@ namespace KOK.Assets._Scripts.FileManager
                 filePathLocalWav = voiceAudioUrl.Replace(".zip", ".wav");
                 filePathLocalWavs.Add(filePathLocalWav);
                 filePathLocalZips.Add(voiceAudioUrl);
+                if (!TryGetComponent<FFMPEG>(out ffmpeg)) ffmpeg = gameObject.AddComponent<FFMPEG>();
                 var audioClip = ffmpeg.LoadAudioClipWavHelper(voiceAudioUrl.Replace(".zip", ".wav"));
+                yield return new WaitUntil(() => audioClip != null);
+
                 if (audioClip != null)
                 {
                     audioClipList.Add(audioClip);
@@ -68,7 +77,7 @@ namespace KOK.Assets._Scripts.FileManager
                 else
                 {
                     Debug.LogError("Can not load audio clip!");
-                    return;
+                    yield break;
                 }
 
                 if (File.Exists(voiceAudioUrl))
@@ -86,10 +95,7 @@ namespace KOK.Assets._Scripts.FileManager
 
             gameObject.SetActive(true);
 
-            Display(videoSongUrl, audioClipList, 0, new() {});
-
-
-           
+            Display(videoSongUrl, audioClipList, 0, new() { });
         }
 
         public void Load(string videoUrl, string filePath, float startTimeRecording, float startTimeSong)
@@ -101,25 +107,26 @@ namespace KOK.Assets._Scripts.FileManager
 
         private void Display(string videoUrl, AudioClip audioClip, float startTimeRecording, float startTimeSong)
         {
-            audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.clip = audioClip;
-            audioSource.loop = false;
+            //audioSource = gameObject.AddComponent<AudioSource>();
+            //audioSource.clip = audioClip;
+            //audioSource.loop = false;
 
-            videoPlayer.Stop();
-            videoPlayer.url = videoUrl;
+            //videoPlayer.Stop();
+            //videoPlayer.url = videoUrl;
 
-            videoPlayer.Prepare();
-            StartCoroutine(SyncStart(startTimeRecording, startTimeSong));
+            //videoPlayer.Prepare();
+            //StartCoroutine(SyncStart(startTimeRecording, startTimeSong));
         }
         
         private void Display(string videoUrl, List<AudioClip> audioClips, float videoStartTime, List<float> audioStartTime)
         {
-            List<AudioSource> audioSources = new List<AudioSource>();
+            
             foreach (var audioClip in audioClips)
             {
                 var audioSource = gameObject.AddComponent<AudioSource>();
                 audioSource.clip = audioClip;
                 audioSource.loop = false;
+                audioSource.playOnAwake = false;
                 audioSources.Add(audioSource);
             }
 
@@ -155,8 +162,15 @@ namespace KOK.Assets._Scripts.FileManager
 
         IEnumerator SliderFollowVideo()
         {
-            yield return new WaitForSeconds(0.1f);
-            progressSlider.value = (float)videoPlayer.time;
+            yield return new WaitForSeconds(0.2f);
+            if (!isDraggingSlider)
+            {
+                progressSlider.value = (float)videoPlayer.time;
+            }else
+            {
+                videoPlayer.time = progressSlider.value;
+            }
+            StartCoroutine(SliderFollowVideo());
         }
 
         public void StopPlaying()
@@ -175,10 +189,13 @@ namespace KOK.Assets._Scripts.FileManager
         private IEnumerator SyncStart(float startTimeRecording, float startTimeSong)
         {
             yield return new WaitForSeconds(0.1f);
-            if (videoPlayer.isPrepared && audioSource != null)
+            if (videoPlayer.isPrepared && audioSources.Count > 0)
             {
                 videoPlayer.Play();
-                //audioSource.Play();
+                foreach (var audioSource in audioSources)
+                {
+                    audioSource.Play();
+                }
                 StartCoroutine(SyncStart2(startTimeRecording));
                 videoPlayer.time = startTimeSong;
 
@@ -188,7 +205,6 @@ namespace KOK.Assets._Scripts.FileManager
                     progressSlider.minValue = 0;
                     progressSlider.maxValue = (float)videoPlayer.length;
 
-                    progressSlider.onValueChanged.AddListener(OnSliderValueChanged);
                 }
             }
             else
@@ -203,8 +219,13 @@ namespace KOK.Assets._Scripts.FileManager
             yield return new WaitForSeconds(0.02f);
             if (videoPlayer.time > 0)
             {
-                audioSource.Play();
-                audioSource.time = startTimeRecording;
+                foreach(var audioSource in audioSources)
+                {
+                    audioSource.Play();
+                    audioSource.time = startTimeRecording;
+                    //need to change to voice audio start time
+                }
+                SyncVoiceAudioWithVideo();
             }
             else
             {
@@ -212,25 +233,62 @@ namespace KOK.Assets._Scripts.FileManager
             }
         }
 
-        public void OnSliderValueChanged(float value)
+        IEnumerable SyncVoiceAudioWithVideo()
+        {
+            yield return new WaitForSeconds(0.5f);
+            if (videoPlayer.isPlaying)
+            {
+
+                foreach (AudioSource audioSource in audioSources)
+                {
+                    //if (!audioSource.isPlaying) audioSource.Play();
+                    if (videoPlayer.time < audioSource.clip.length)
+                    {
+                        audioSource.time = (float)videoPlayer.time;
+                    }
+                    else
+                    {
+                        audioSource.time = audioSource.clip.length;
+                    }
+                }
+            }
+        }
+
+        public void OnSliderValueChanged()
         {
             if (isDraggingSlider)
             {
-                videoPlayer.time = value;
-                audioSource.time = value;
+                videoPlayer.time = progressSlider.value;
+                foreach(AudioSource audioSource in audioSources)
+                {
+                    audioSource.time = progressSlider.value;
+                }
             }
         }
 
         public void OnSliderDragStart()
         {
             isDraggingSlider = true;
+            videoPlayer.Pause();
         }
 
         public void OnSliderDragEnd()
         {
             isDraggingSlider = false;
+            videoPlayer.Play();
             videoPlayer.time = progressSlider.value;
-            audioSource.time = (float)progressSlider.value;
+            foreach (AudioSource audioSource in audioSources)
+            {
+                if (!audioSource.isPlaying) audioSource.Play();
+                if (progressSlider.value < audioSource.clip.length)
+                {
+                    audioSource.time = progressSlider.value;
+                    Debug.Log(audioSource.time);
+                }else
+                {
+                    audioSource.time = audioSource.clip.length;
+                }
+            }
         }
 
         public void Hide()
@@ -243,10 +301,9 @@ namespace KOK.Assets._Scripts.FileManager
             recordingLoader.Show();
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
-            //Xoá toàn bộ file tạm trong folder 
-
+            StopAllCoroutines();
         }
     }
 }

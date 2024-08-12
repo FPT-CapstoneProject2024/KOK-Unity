@@ -829,7 +829,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 418150890}
   m_TextViewport: {fileID: 886182921}
   m_TextComponent: {fileID: 1849044892}
@@ -2341,8 +2341,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 00000000
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f7a75cae009abe942b6cac55a0780281, type: 2}
-  m_sharedMaterial: {fileID: -6459560443012876710, guid: f7a75cae009abe942b6cac55a0780281, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2fb29be76865d1445819be8df81f1005, type: 2}
+  m_sharedMaterial: {fileID: 3875093253932669295, guid: 2fb29be76865d1445819be8df81f1005, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5408,7 +5408,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1794583429
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9370,7 +9370,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55f767137d042624e930c0dc25e9009a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UpLabel: {fileID: 0}
+  UpLabel: {fileID: 931287852}
   UsernameInputField: {fileID: 7613927651067571933}
   EmailInputField: {fileID: 44729365}
   GenderDropdown: {fileID: 7247411051308952479}

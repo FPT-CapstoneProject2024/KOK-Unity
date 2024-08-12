@@ -32,8 +32,11 @@ namespace KOK
 
         private void OnEnable()
         {
-            StartCoroutine(SetUpChat());
-            messageTMPP = messageTMP;
+            if (HasStateAuthority)
+            {
+                StartCoroutine(SetUpChat());
+                messageTMPP = messageTMP;
+            }
         }
 
         IEnumerator SetUpChat()
@@ -50,50 +53,62 @@ namespace KOK
 
         private void Update()
         {
-            if (allowEnter)
+            if (HasStateAuthority)
             {
-                if (!chatInputField.text.IsNullOrEmpty() && ((Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.KeypadEnter))))
+                if (allowEnter)
                 {
-                    SendChat();
-                    allowEnter = false;
+                    if (!chatInputField.text.IsNullOrEmpty() && ((Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.KeypadEnter))))
+                    {
+                        SendChat();
+                        allowEnter = false;
+                    }
                 }
-            }
-            else
-            {
-                if (chatInputField.isFocused)
+                else
                 {
-                    allowEnter = true;
+                    if (chatInputField.isFocused)
+                    {
+                        allowEnter = true;
+                    }
                 }
             }
         }
 
         public void SendChat()
         {
-            SendMessageAll(playerName, chatInputField.text.Trim());
-            chatInputField.text = "";
+            if (HasStateAuthority)
+            {
+                SendMessageAll(playerName, chatInputField.text.Trim());
+                chatInputField.text = "";
+            }
         }
 
         public void SendMessageAll(string message)
         {
-            if (runner.ActivePlayers.Count() > 1)
+            if (HasStateAuthority)
             {
-                RPC_SendMessage(runner,$"{message}\n");
-            }
-            else
-            {
-                CallMessageOnly1Player($"{message}\n");
+                if (runner.ActivePlayers.Count() > 1)
+                {
+                    RPC_SendMessage(runner, $"{message}\n");
+                }
+                else
+                {
+                    CallMessageOnly1Player($"{message}\n");
+                }
             }
         }
 
         public void SendMessageAll(string username, string message)
         {
-            if (runner.ActivePlayers.Count() > 1)
+            if (HasStateAuthority)
             {
-                RPC_SendMessage(runner,$"{username}: {message}\n");
-            }
-            else
-            {
-                CallMessageOnly1Player($"{username}: {message}\n");
+                if (runner.ActivePlayers.Count() > 1)
+                {
+                    RPC_SendMessage(runner, $"{username}: {message}\n");
+                }
+                else
+                {
+                    CallMessageOnly1Player($"{username}: {message}\n");
+                }
             }
         }
         public void CallMessageOnly1Player(string message)

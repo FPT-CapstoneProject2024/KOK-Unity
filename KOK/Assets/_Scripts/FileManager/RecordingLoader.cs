@@ -31,6 +31,7 @@ public class RecordingLoader : MonoBehaviour
     public VideoLoader videoLoader;
     public GameObject recordingPrefab;
     public GameObject displayPanel;
+    public GameObject videoDisplayPanel;
 
     FFMPEG ffmpeg;
 
@@ -107,11 +108,12 @@ public class RecordingLoader : MonoBehaviour
 
             recordingObj.transform.Find("Label 1").GetComponent<TMP_Text>().text = recording.RecordingName + " - " + recording.RecordingType;
             recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text = string.Empty;
+            recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text += "Recording time: " + recording.CreatedDate.ToString("dd/MM/yyyy HH:mm:ss") + "\n";
 
             foreach (var voiceAudio in recording.VoiceAudios)
             {
                 //string optionText = $"{recording.RecordingName} - {voiceAudio.VoiceUrl}";
-                recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text += "Recording time: " + recording.CreatedDate.ToString("dd/MM/yyyy HH:mm:ss") + "\n";
+                
 
             }
 
@@ -162,10 +164,10 @@ public class RecordingLoader : MonoBehaviour
             );
     }
 
-    IEnumerator LoadRecording(string songVideoUrl, List<string> localFilePaths)
+    IEnumerator LoadRecording(string songVideoUrl, List<string> voiceAudioUrls)
     {
         yield return new WaitForSeconds(2);
-        PlayVideo(songVideoUrl, localFilePaths);
+        PlayVideo(songVideoUrl, voiceAudioUrls);
         Debug.Log("Success: " + songVideoUrl);
     }
 
@@ -174,6 +176,7 @@ public class RecordingLoader : MonoBehaviour
     {
 
         //string voiceFolderPath2 = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingUrl + ".wav");
+        videoDisplayPanel.SetActive(true);
         videoLoader.ShowPopup(videoSongUrl, voiceAudioUrls);
         //gameObject.SetActive(false);
 

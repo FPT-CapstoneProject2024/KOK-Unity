@@ -24,6 +24,7 @@ namespace KOK
             GenderDropdown.value = (int)Account.Gender;
             YearOfBirthInputField.text = Account.Yob.ToString() ?? string.Empty;
             PhoneNumberInputField.text = Account.PhoneNumber ?? string.Empty;
+            UpLabel.text = "" + (int)Account.UpBalance;
         }
 
         public void UpdateModel()

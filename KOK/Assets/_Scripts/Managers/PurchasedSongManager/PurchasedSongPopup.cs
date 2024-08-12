@@ -60,7 +60,7 @@ namespace KOK
 
         public void OnCancelPurchaseSong()
         {
-            Destroy(PurchaseComponent.transform.parent);
+            Destroy(PurchaseComponent.transform.parent.gameObject);
         }
 
         public void OnCompletePurchasedSuccessConfirm()

@@ -13,7 +13,7 @@ namespace KOK
 
         public void ToHome()
         {
-            SceneManager.LoadScene(sceneName: "Home");
+            SceneManager.LoadScene(sceneName: "v_home");
         }
 
         public void ToSingleKaraokeRoomScene()
@@ -38,7 +38,7 @@ namespace KOK
 
         public void ToSongsScene()
         {
-            SceneManager.LoadScene(sceneName: "Song");
+            SceneManager.LoadScene(sceneName: "v_song");
         }
 
         public void ToShopScene()
@@ -52,7 +52,7 @@ namespace KOK
         }
         public void ToProfile()
         {
-            SceneManager.LoadScene(sceneName: "Profile");
+            SceneManager.LoadScene(sceneName: "v_profile");
         }
 
     }

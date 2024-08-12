@@ -31,6 +31,8 @@ namespace KOK
             StartCoroutine(WaitForHostPrepareVideo());
         }
 
+        
+
         IEnumerator WaitForHostPrepareVideo()
         {
             yield return new WaitForSeconds(0.1f);
@@ -73,12 +75,6 @@ namespace KOK
             foreach (PlayerRef player in runner.ActivePlayers)
             {
                 var delta = runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().videoTime - runner.GetPlayerObject(host).GetComponent<PlayerNetworkBehavior>().videoTime;
-
-                //Debug.Log(runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName + ": "
-                //    + runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().videoTime + " - "
-                //    + runner.GetPlayerObject(host).GetComponent<PlayerNetworkBehavior>().videoTime + " = "
-                //    + delta);
-                //Debug.Log(GetSortedList()[0].PlayerName + ": " + GetSortedList()[0].videoTime);
 
                 if (delta < -1d || delta > 1d)
                 {

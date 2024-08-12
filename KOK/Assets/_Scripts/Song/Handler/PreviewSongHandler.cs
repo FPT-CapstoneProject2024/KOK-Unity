@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Video;
 
@@ -12,6 +13,7 @@ namespace KOK
 
         public void OnClosePreviewSong()
         {
+            StopAllCoroutines();
             gameObject.GetComponentInChildren<VideoPlayer>().Stop();
             gameObject.SetActive(false);
         }
@@ -21,6 +23,13 @@ namespace KOK
             gameObject.GetComponentInChildren<VideoPlayer>().url = songUrl;
             gameObject.SetActive(true);
             gameObject.GetComponentInChildren<VideoPlayer>().Play();
+            StartCoroutine(AutoStopVideo(45));
+        }
+
+        IEnumerator AutoStopVideo(int second)
+        {
+            yield return new WaitForSeconds(second);
+            gameObject.GetComponentInChildren<VideoPlayer>().Stop();
         }
     }
 }
