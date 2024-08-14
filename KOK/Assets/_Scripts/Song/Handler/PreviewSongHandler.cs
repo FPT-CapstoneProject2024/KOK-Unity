@@ -8,7 +8,7 @@ namespace KOK
     {
         void Start()
         {
-            gameObject.SetActive(false);
+            //gameObject.SetActive(false);
         }
 
         public void OnClosePreviewSong()
@@ -20,8 +20,8 @@ namespace KOK
 
         public void OnOpenPreviewSong(string songUrl)
         {
-            gameObject.GetComponentInChildren<VideoPlayer>().url = songUrl;
             gameObject.SetActive(true);
+            gameObject.GetComponentInChildren<VideoPlayer>().url = songUrl;
             gameObject.GetComponentInChildren<VideoPlayer>().Play();
             StartCoroutine(AutoStopVideo(45));
         }

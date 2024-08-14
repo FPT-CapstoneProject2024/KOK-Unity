@@ -32,5 +32,26 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Profile.unity
     guid: a02970099d26dab40af71ad387090fcd
+  - enabled: 1
+    path: Assets/Scenes/v_home.unity
+    guid: aa7577eff9b818a4a95b6dcd80b1595f
+  - enabled: 1
+    path: Assets/Scenes/v_messenger.unity
+    guid: b0a258cec3b758847b55ebca92b86f0a
+  - enabled: 1
+    path: Assets/Scenes/v_profile.unity
+    guid: dc46af5a222cb554db04eb91c87bbb93
+  - enabled: 1
+    path: Assets/Scenes/v_recording.unity
+    guid: 6fd9d70cc72b38445bde3aa4e0463f2f
+  - enabled: 1
+    path: Assets/Scenes/v_shop.unity
+    guid: 687691ce633e8b94aa60a7d69bae3725
+  - enabled: 1
+    path: Assets/Scenes/v_sing.unity
+    guid: f082f4fb28b884d4f9df9021516fdced
+  - enabled: 1
+    path: Assets/Scenes/v_song.unity
+    guid: 994d2a1edaf65e84c8e8740b155a7e28
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 61ed0d596bf25db4f80291b5d9f5e798, type: 2}

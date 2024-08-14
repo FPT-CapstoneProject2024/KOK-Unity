@@ -996,7 +996,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -219.79999}
+  m_AnchoredPosition: {x: 0, y: -219.79993}
   m_SizeDelta: {x: 0, y: -234.8}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &111149167
@@ -2034,7 +2034,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -219.79999}
+  m_AnchoredPosition: {x: 0, y: -219.79993}
   m_SizeDelta: {x: 0, y: -234.8}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &256066762
@@ -2862,7 +2862,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -10, y: 94.000015}
+  m_AnchoredPosition: {x: -10, y: 94}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &398159054
@@ -4955,7 +4955,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 422, y: -169}
+  m_AnchoredPosition: {x: 422, y: -187}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &819747162
@@ -5784,7 +5784,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -52.950012, y: -61.77}
+  m_AnchoredPosition: {x: -52.950012, y: -78}
   m_SizeDelta: {x: -175.32, y: 79.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &974113595
@@ -6258,8 +6258,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0020751953}
-  m_SizeDelta: {x: -280, y: -497.80005}
+  m_AnchoredPosition: {x: 0, y: -36.740967}
+  m_SizeDelta: {x: -280, y: -552.23}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1006741428
 MonoBehaviour:
@@ -10405,7 +10405,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Trang ch\u1EE7"
+  m_text: "C\xE1 nh\xE2n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2fb29be76865d1445819be8df81f1005, type: 2}
   m_sharedMaterial: {fileID: 3875093253932669295, guid: 2fb29be76865d1445819be8df81f1005, type: 2}
@@ -10539,7 +10539,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Trang ch\u1EE7"
+  m_text: "Th\xF4ng b\xE1o"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2fb29be76865d1445819be8df81f1005, type: 2}
   m_sharedMaterial: {fileID: 3875093253932669295, guid: 2fb29be76865d1445819be8df81f1005, type: 2}
@@ -13134,7 +13134,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -64.03, y: -5.08}
+  m_AnchoredPosition: {x: -64.03, y: -21.31}
   m_SizeDelta: {x: 111.32, y: 111.31}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &2108582663

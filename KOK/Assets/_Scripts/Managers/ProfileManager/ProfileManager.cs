@@ -1,4 +1,4 @@
-using Fusion;
+﻿using Fusion;
 using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
@@ -24,6 +24,9 @@ namespace KOK
 
 
         [SerializeField] public InAppTransactionBinding InAppTransactionDetailPanel;
+
+        [SerializeField] GameObject loading;
+        [SerializeField] MessageAlert messageAlert;
 
 
         public void Awake()
@@ -58,6 +61,7 @@ namespace KOK
 
         public void SaveMemberInformation()
         {
+            loading.SetActive(true);
             profileBinding.UpdateModel();
             var account = profileBinding.Account;
             UpdateAccountRequest updateAccountRequest = new UpdateAccountRequest()
@@ -80,10 +84,14 @@ namespace KOK
                     {
                         PlayerPrefsHelper.SetProfileData(result.Value);
                         Debug.Log("Save data success: " + result.Value);
+                        messageAlert.Alert("Lưu thông tin thành công!", true);
+                        loading.SetActive(false);
                     },
                     (result) =>
                     {
                         Debug.LogError(result);
+                        messageAlert.Alert("Lưu thông tin thất bại!", true);
+                        loading.SetActive(false);
                     }
 
                 );

@@ -13,16 +13,19 @@ namespace KOK
 
         public void ToHome()
         {
+            Screen.orientation = ScreenOrientation.Portrait;
             SceneManager.LoadScene(sceneName: "v_home");
         }
 
         public void ToSingleKaraokeRoomScene()
         {
+            Screen.orientation = ScreenOrientation.LandscapeLeft;
             SceneManager.LoadScene(sceneName: "SingleRoom");
         }
 
         public void ToMultipleKaraokeRoomScene()
         {
+            Screen.orientation = ScreenOrientation.LandscapeLeft;
             SceneManager.LoadScene(sceneName: "MultipleRoom");
         }
 
@@ -38,6 +41,7 @@ namespace KOK
 
         public void ToSongsScene()
         {
+            Screen.orientation = ScreenOrientation.Portrait;
             SceneManager.LoadScene(sceneName: "v_song");
         }
 
@@ -48,10 +52,12 @@ namespace KOK
 
         public void ToLogin()
         {
+            Screen.orientation = ScreenOrientation.Portrait;
             SceneManager.LoadScene(sceneName: "Login");
         }
         public void ToProfile()
         {
+            Screen.orientation = ScreenOrientation.Portrait;
             SceneManager.LoadScene(sceneName: "v_profile");
         }
 
