@@ -15,9 +15,12 @@ namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post
         public DateTime? UploadTime { get; set; }
         public DateTime? UpdateTime { get; set; }
         public Guid? MemberId { get; set; }
+
         public Guid? RecordingId { get; set; }
+        public string SongUrl { get; set; }
         public PostStatus? Status { get; set; }
         public PostType? PostType { get; set; }
         public Guid? OriginPostId { get; set; }
+        public virtual Account Member { get; set; } = null!;
     }
 }

@@ -41,8 +41,9 @@ namespace KOK.ApiHandler.DTOModels
 
     public enum PostOrderFilter
     {
-        Caption = 1,
         PostId = 0,
+        Caption = 1,
+        UploadTime = 2,
     }
 
     public enum RecordingOrderFilter

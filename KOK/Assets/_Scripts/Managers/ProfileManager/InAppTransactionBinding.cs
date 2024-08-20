@@ -25,6 +25,8 @@ namespace KOK
 
         [SerializeField] InAppTransactionBinding inAppTransactionDetailBinding;
 
+        [SerializeField] AlertManager messageAlert;
+
         string songOrItemName = string.Empty;
         public void UpdateUI()
         {
@@ -67,7 +69,6 @@ namespace KOK
         public void UpdateUIDetail()
         {
             inAppTransactionDetailBinding = ProfileManager.Instance.InAppTransactionDetailPanel;
-            inAppTransactionDetailBinding.gameObject.SetActive(true);
             if (InAppTransaction.TransactionType.Equals(InAppTransactionType.BUY_SONG.ToString()))
             {
                 ApiHelper.Instance.GetComponent<SongController>()
@@ -75,12 +76,18 @@ namespace KOK
                     (result) =>
                     {
                         songOrItemName = result.Value.SongName;
+                        inAppTransactionDetailBinding.gameObject.SetActive(true);
                         inAppTransactionDetailBinding.songOrItemName = songOrItemName;
                         inAppTransactionDetailBinding.InAppTransaction = InAppTransaction;
                         inAppTransactionDetailBinding.UpdateUI();
 
                     },
-                    (ex) => { Debug.LogError(ex); }
+                    (ex) =>
+                    {
+                        Debug.LogError(ex);
+                        messageAlert = FindAnyObjectByType<AlertManager>();
+                        messageAlert.Alert("Tải thông tin thất bại!", false);
+                    }
                     );
             }
 

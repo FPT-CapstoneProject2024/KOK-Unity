@@ -26,17 +26,26 @@ namespace KOK
         [Header("Purchase Components")]
         [SerializeField] public GameObject songPurchaseCanvas;
         [SerializeField] LoadingManager loadingManager;
+        [SerializeField] TMP_Dropdown categoryDropdown;
 
         private SongFilter filter;
         private int currentPage = 1;
         private int totalPage = 1;
         private string searchKeyword = string.Empty;
 
-        private void OnEnable()
+        private void Start()
         {
+            if (SystemNavigation.isToPurchasedSong)
+            {
+                SystemNavigation.isToPurchasedSong = false;
+                categoryDropdown = GameObject.Find("CategoryDropdown").GetComponent<TMP_Dropdown>();
+                categoryDropdown.value = 1;
+                return;
+            }
             SetInitialState();
             LoadSongs();
         }
+
 
         public void LoadSongs()
         {

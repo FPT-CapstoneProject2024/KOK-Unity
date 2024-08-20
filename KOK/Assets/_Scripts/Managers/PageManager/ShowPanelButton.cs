@@ -12,6 +12,7 @@ namespace KOK
         public void Show()
         {
             panelToShow.SetActive(true);
+            Debug.Log("Show");
         }
 
         public void Hide() {

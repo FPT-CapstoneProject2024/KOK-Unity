@@ -38,7 +38,7 @@ public class FFMPEG : MonoBehaviour
     //    //yield return StartCoroutine(CombineAudioAndVideo(audioPath, videoPath));
     //}
 
-    public void DownloadFile2(string localZipFilePath)
+    public void DownloadFile2(string localZipFilePath, Action onSuccess, Action onError)
     {
         string folderPath = Path.Combine(Application.persistentDataPath, "AudioProcess");
         //string filePath = Path.Combine(folderPath, fileName);
@@ -58,18 +58,14 @@ public class FFMPEG : MonoBehaviour
                                         () =>
                                         {
                                             wavFilePath = FileCompressionHelper.ExtractWavFileFromZip(localZipFilePath, folderPath);
-                                          
+                                            onSuccess.Invoke();
                                         },
                                         () =>
                                         {
                                             Debug.LogError("Failed to extract zipped voice recording file");
-                                           
+                                           onError.Invoke();
                                         }
             );
-
-
-
-
     }
 
     // Cleanup 

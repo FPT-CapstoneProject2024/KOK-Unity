@@ -10,7 +10,7 @@ namespace KOK
 {
     public class SystemNavigation : MonoBehaviour
     {
-
+        public static bool isToPurchasedSong = false;
         public void ToHome()
         {
             Screen.orientation = ScreenOrientation.Portrait;
@@ -45,6 +45,14 @@ namespace KOK
             SceneManager.LoadScene(sceneName: "v_song");
         }
 
+        public void ToPurchasedSongScene()
+        {
+            Screen.orientation = ScreenOrientation.Portrait;
+            isToPurchasedSong = true;
+            SceneManager.LoadScene(sceneName: "v_song");
+
+        }
+
         public void ToShopScene()
         {
             SceneManager.LoadScene(sceneName: "Shop");
@@ -59,6 +67,12 @@ namespace KOK
         {
             Screen.orientation = ScreenOrientation.Portrait;
             SceneManager.LoadScene(sceneName: "v_profile");
+        }
+
+        public void ToSingScene()
+        {
+            Screen.orientation = ScreenOrientation.Portrait;
+            SceneManager.LoadScene(sceneName: "v_sing");
         }
 
     }

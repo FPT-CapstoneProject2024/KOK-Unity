@@ -26,7 +26,7 @@ namespace KOK
         [SerializeField] public InAppTransactionBinding InAppTransactionDetailPanel;
 
         [SerializeField] GameObject loading;
-        [SerializeField] MessageAlert messageAlert;
+        [SerializeField] AlertManager messageAlert;
 
 
         public void Awake()
@@ -99,6 +99,7 @@ namespace KOK
 
         public void GetInAppTransactionList()
         {
+            loading.SetActive(true);
             List<InAppTransaction> inAppTransactions = new();
             ApiHelper.Instance.GetComponent<InAppTransactionController>()
                 .GetInAppTransactionsByMemberIdCoroutine(
@@ -106,10 +107,15 @@ namespace KOK
                     (result) =>
                     {
                         inAppTransactions = result;
-                        Debug.Log(inAppTransactions.Count);
+                        //Debug.Log(inAppTransactions.Count);
                         ShowInAppTransactionPanel(inAppTransactions);
+                        loading.SetActive(false);
                     },
-                    (ex) => { Debug.LogError(ex); }
+                    (ex) =>
+                    {
+                        Debug.LogError(ex);
+                        loading.SetActive(false);
+                    }
                 );
         }
 

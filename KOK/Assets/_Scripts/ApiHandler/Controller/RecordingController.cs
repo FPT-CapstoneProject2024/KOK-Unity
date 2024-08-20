@@ -96,5 +96,25 @@ namespace KOK.ApiHandler.Controller
                     onError?.Invoke(errorValue);
                 });
         }
+
+        public void DeleteRecordingsByIdCoroutine(Guid recordingId, Action onSuccess, Action onError)
+        {
+            if (recordingId == null)
+            {
+                Debug.Log("Failed to get Recording by ID. Recording ID is null!");
+                return;
+            }
+            var url = recordingResourceUrl + $"/{recordingId.ToString()}";
+            ApiHelper.Instance.DeleteCoroutine(url,
+                (successValue) =>
+                {
+                    onSuccess?.Invoke();
+                },
+                (errorValue) =>
+                {
+                    onError?.Invoke();
+                });
+
+        }
     }
 }

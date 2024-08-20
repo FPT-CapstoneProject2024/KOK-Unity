@@ -253,7 +253,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -87.96002, y: -134.99994}
+  m_AnchoredPosition: {x: 266.64, y: 715.00006}
   m_SizeDelta: {x: 80.64, y: 60}
   m_Pivot: {x: 1, y: 1}
 --- !u!1 &24203095
@@ -2552,10 +2552,10 @@ RectTransform:
   - {fileID: 1028997875}
   m_Father: {fileID: 1725175221}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 700, y: 1322.2}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &340726542
 GameObject:
@@ -3418,7 +3418,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 134138402}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1814794226}
+        m_TargetAssemblyTypeName: KOK.SystemNavigation, Assembly-CSharp
+        m_MethodName: ToProfile
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &559253763
 GameObject:
   m_ObjectHideFlags: 0
@@ -4333,7 +4345,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -168.6, y: -135}
+  m_AnchoredPosition: {x: 186, y: 715}
   m_SizeDelta: {x: 80, y: 60}
   m_Pivot: {x: 1, y: 1}
 --- !u!1 &669802709
@@ -6258,8 +6270,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -36.740967}
-  m_SizeDelta: {x: -280, y: -552.23}
+  m_AnchoredPosition: {x: 0, y: -43.25}
+  m_SizeDelta: {x: -280, y: -825.14}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1006741428
 MonoBehaviour:
@@ -6283,6 +6295,7 @@ MonoBehaviour:
   songPreviewCanvas: {fileID: 2007411351}
   songPurchaseCanvas: {fileID: 1920845742}
   loadingManager: {fileID: 1006741429}
+  categoryDropdown: {fileID: 819747163}
 --- !u!114 &1006741429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6629,7 +6642,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -7.960022, y: -134.99994}
+  m_AnchoredPosition: {x: 346.64, y: 715.00006}
   m_SizeDelta: {x: 80, y: 60}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1028997876
@@ -10978,6 +10991,7 @@ MonoBehaviour:
   songPreviewCanvas: {fileID: 2007411351}
   songPurchaseCanvas: {fileID: 1225784321}
   loadingManager: {fileID: 1006741429}
+  categoryDropdown: {fileID: 0}
 --- !u!1 &1772256263
 GameObject:
   m_ObjectHideFlags: 0
@@ -11518,8 +11532,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -350.00003, y: 441.30005}
-  m_SizeDelta: {x: 700, y: 1087.3999}
+  m_AnchoredPosition: {x: -350.00003, y: 646.95}
+  m_SizeDelta: {x: 700, y: 1293.05}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1884252702
 MonoBehaviour:
