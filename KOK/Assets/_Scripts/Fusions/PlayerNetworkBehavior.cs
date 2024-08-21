@@ -55,7 +55,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     [Networked] public NetworkString<_128> audioUrl { get; set; }
 
-    public List<SongDetail> SongList { get; private set; }
+    public List<SongDetail> SongList { get; private set; } = new();
 
     public List<SongDetail> QueueSongList { get; private set; }
     public List<SongDetail> PurchasedSongList { get; private set; }
@@ -79,11 +79,10 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     {
         try
         {
+            NetworkRunner runner = NetworkRunner.Instances[0];
             if (this.HasStateAuthority)
             {
-                voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
-                loadingManager = FindAnyObjectByType<LoadingManager>();
-                NetworkRunner runner = NetworkRunner.Instances[0];
+                runner.SetPlayerObject(runner.LocalPlayer, FusionManager.Instance.playerObject);
                 //PlayerName = FusionManager.Instance._playerName;
                 //PlayerColor = FusionManager.Instance._playerColor;
 
@@ -114,12 +113,14 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 SetSinger();
 
                 StartCoroutine(UpdateTime());
-                StartCoroutine(UpdateSearchSongUI());
+                //StartCoroutine(UpdateSearchSongUI(SongList));
                 StartCoroutine(NotiJoinRoom());
                 RoomLogString = "";
                 LoadSongList();
                 ClearSongQueue();
             }
+            voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
+            loadingManager = FindAnyObjectByType<LoadingManager>();
             Debug.Log(PlayerName + " HasStateAuthority: " + HasStateAuthority);
             this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
             playerNameLabel.color = PlayerColor;
@@ -128,7 +129,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         catch (Exception ex)
         {
             Debug.LogError(ex);
-            //StartCoroutine(InitRoom());
+            StartCoroutine(InitRoom());
         }
         yield return new WaitForSeconds(1f);
     }
@@ -137,15 +138,9 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     {
         if (this.HasStateAuthority)
         {
-            yield return new WaitForSeconds(2f);
-            if (ChatManager.Instance != null)
-            {
-                ChatManager.Instance.SendMessageAll(PlayerName + " has joined");
-            }
-            else
-            {
-                StartCoroutine(NotiJoinRoom());
-            }
+            yield return new WaitForSeconds(1f);
+
+            ChatManager.Instance.SendMessageAll(PlayerName + " has joined");
         }
     }
 
@@ -165,9 +160,9 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         if (this.HasStateAuthority)
         {
             if (loadingManager == null) loadingManager = FindAnyObjectByType<LoadingManager>();
-            loadingManager.DisableUIElement();
-            FindAnyObjectByType<SongItemManager>().ClearSongList();
+            loadingManager.DisableUIElement();            
             SongList = new();
+            StartCoroutine(UpdateSearchSongUI(SongList));
             FindAnyObjectByType<ApiHelper>().gameObject
                     .GetComponent<SongController>()
                     .GetSongsFilterPagingCoroutine(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
@@ -177,7 +172,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                                                     {
                                                         pageSize = 100
                                                     },
-                                                    (drr) => { SongList = drr.Results.ToList(); StartCoroutine(UpdateSearchSongUI()); Debug.Log("Reload song success!"); },
+                                                    (drr) => { SongList = drr.Results.ToList(); StartCoroutine(UpdateSearchSongUI(SongList)); Debug.Log("Reload song success!"); },
                                                     (ex) => Debug.LogError(ex));
         }
 
@@ -203,7 +198,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                                                     (songDetail) =>
                                                     {
                                                         SongList = songDetail.Results.ToList();
-                                                        StartCoroutine(UpdateSearchSongUI());
+                                                        StartCoroutine(UpdateSearchSongUI(SongList));
                                                         Debug.Log("Reload song success!");
                                                         onSuccess.Invoke();
                                                     },
@@ -269,12 +264,19 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         if (videoPlayer != null)
         {
             videoPlayer.Play();
+            StartCoroutine(AutoStopRecording());
             if (this.HasStateAuthority)
             {
                 StartCoroutine(RecordingAndRemoveSongFromQueue());
             }
         }
 
+    }
+
+    IEnumerator AutoStopRecording()
+    {
+        yield return new WaitUntil(() => !videoPlayer.isPlaying);
+        StopRecording();
     }
 
     IEnumerator RecordingAndRemoveSongFromQueue()
@@ -528,7 +530,14 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     IEnumerator UpdateQueueSongUI()
     {
         yield return new WaitForSeconds(0.5f);
-        FindAnyObjectByType<SongItemManager>().UpdateQueueSongList();
+        var queueToggle = GameObject.Find("QueueToggle");
+        if (queueToggle == null)
+        {
+            StartCoroutine(UpdateQueueSongUI());
+        }else
+        {
+            queueToggle.GetComponent<SongItemManager>().UpdateQueueSongList();
+        }        
     }
 
     public void RefreshSearchSongUI()
@@ -540,10 +549,23 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     }
 
 
-    IEnumerator UpdateSearchSongUI()
+    IEnumerator UpdateSearchSongUI(List<SongDetail> songList)
     {
-        yield return new WaitForSeconds(0.5f);
-        FindAnyObjectByType<SongItemManager>().UpdateSongList();
+        if (HasStateAuthority)
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            var songToggle = GameObject.Find("SongToggle");
+            if (songToggle == null)
+            {
+                Debug.LogError(transform.root + " | " + songList.Count);
+                StartCoroutine(UpdateSearchSongUI(songList));
+            }
+            else
+            {
+                songToggle.GetComponent<SongItemManager>().UpdateSongList(songList);
+            }
+        }
     }
     public void SetSinger()
     {

@@ -53,26 +53,14 @@ namespace KOK
                 });
         }
 
-        public async Task<Post?> GetPostByIdAsync(Guid postId)
-        {
-            var url = postResourceUrl + "/" + postId.ToString();
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
 
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            ResponseResult<Post> result = JsonConvert.DeserializeObject<ResponseResult<Post>>(jsonResult);
-
-            return result.Value;
-        }
 
         public void GetPostsFilterPagingCoroutine(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging, Action<DynamicResponseResult<Post>> onSuccess /*Action<List<Post>> onSuccess*/, Action<string> onError)
         {
             var queryParams = GeneratePostQueryParams(filter, orderFilter, paging);
             var url = QueryHelper.BuildUrl(postResourceUrl, queryParams);
-
+            url = url.Replace("Ascending", "Descending");
+            Debug.Log(url);
             ApiHelper.Instance.GetCoroutine(url,
                 (successValue) =>
                 {
@@ -87,22 +75,7 @@ namespace KOK
                 });
         }
 
-        public async Task<DynamicResponseResult<Post>?> GetPostsFilterPagingAsync(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging)
-        {
-            var queryParams = GeneratePostQueryParams(filter, orderFilter, paging);
-            var url = QueryHelper.BuildUrl(postResourceUrl, queryParams);
-
-            Debug.Log(url);
-
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            DynamicResponseResult<Post> result = JsonConvert.DeserializeObject<DynamicResponseResult<Post>>(jsonResult);
-            return result;
-        }
+        
 
         public NameValueCollection GeneratePostQueryParams(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging)
         {

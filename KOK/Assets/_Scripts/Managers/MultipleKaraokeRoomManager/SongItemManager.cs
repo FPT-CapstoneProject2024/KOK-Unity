@@ -37,16 +37,35 @@ namespace KOK
 
         public void UpdateSongList()
         {
-            List<SongDetail> searchSongList = new List<SongDetail>(); 
+            var songList = _runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().SongList;
+            UpdateSongList(songList);
+        }
+
+        public void UpdateSongList(List<SongDetail> songList)
+        {
+            StartCoroutine(UpdateSongListCoroutine(songList));
+        }
+
+        public IEnumerator UpdateSongListCoroutine(List<SongDetail> songList)
+        {
+            yield return new WaitForSeconds(1f);
+            List<SongDetail> searchSongList = new List<SongDetail>();
             ClearSongList();
-            if (_viewportContent == null) { return; }
+            //if (_viewportContent == null) { return; }
             if (_runner == null) { _runner = NetworkRunner.Instances[0]; }
+            if (_runner == null)
+            {
+                StartCoroutine(UpdateSongListCoroutine(songList));
+                yield break;
+            }
             try
             {
                 //List<SongDetail> songList = SongManager.songs;
-                List<SongDetail> songList = _runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().SongList;
-
-                string searchKeyword = _searchSongInput.text;
+                string searchKeyword = "";
+                if (_searchSongInput != null)
+                {
+                    searchKeyword = _searchSongInput.text;
+                }
                 if (!searchKeyword.IsNullOrEmpty())
                 {
                     searchSongList = songList.Where(s => s.SongName.ContainsInsensitive(searchKeyword)
@@ -59,24 +78,30 @@ namespace KOK
                     searchSongList = songList;
                 }
 
-                if (_favToggle.isOn)
+                if (_favToggle != null)
                 {
-                    searchSongList = searchSongList.Where(s => s.isFavorite == true).ToList();
+                    if (_favToggle.isOn)
+                    {
+                        searchSongList = searchSongList.Where(s => s.isFavorite == true).ToList();
+                    }
                 }
-                if (_purToggle.isOn)
+                if (_purToggle != null)
                 {
-                    searchSongList = searchSongList.Where(s => s.isPurchased == true).ToList();
+                    if (_purToggle.isOn)
+                    {
+                        searchSongList = searchSongList.Where(s => s.isPurchased == true).ToList();
+                    }
                 }
 
                 foreach (var song in searchSongList)
                 {
                     try
                     {
+
                         GameObject songHolder = Instantiate(_songHolderPrefab, _viewportContent.transform);
                         songHolder.name = song.SongName;
                         songHolder.GetComponentInChildren<SongBinding>().BindingData(song);
                         songHolder.transform.GetChild(0).name = song.SongId.ToString();
-
                         if (song.isFavorite)
                         {
                             songHolder.transform.Find("FavouriteToggle").GetComponent<Toggle>().isOn = true;
@@ -93,6 +118,7 @@ namespace KOK
                     }
                     catch (Exception ex) { Debug.LogError(ex); }
                 }
+                if (_loadingManager == null) _loadingManager = FindAnyObjectByType<LoadingManager>();
                 if (searchSongList.Count > 0)
                 {
                     _loadingManager.EnableUIElement();
@@ -103,9 +129,7 @@ namespace KOK
                 }
 
             }
-            catch { }
-
-
+            catch (Exception ex) { Debug.LogError(ex); }
         }
 
         public void UpdateQueueSongList()

@@ -62,6 +62,12 @@ namespace KOK
 
         private void Start()
         {
+            Debug.Log(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName));
+            if(!PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName).Trim().IsNullOrEmpty())
+            {
+                SceneManager.LoadScene("v_home");
+                return;
+            }
             SwitchToLogin();
             VerificationEmail = string.Empty;
         }
@@ -176,7 +182,7 @@ namespace KOK
             }
 
             // Switch to home scene
-            SceneManager.LoadScene("Home");
+            SceneManager.LoadScene("v_home");
         }
 
         private void OnLoginError(LoginResponse result)

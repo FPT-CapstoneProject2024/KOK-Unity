@@ -18,6 +18,7 @@ using WebSocketSharp;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PostComment;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Song;
+using Photon.Realtime;
 
 public class RecordingLoader : MonoBehaviour
 {
@@ -31,6 +32,11 @@ public class RecordingLoader : MonoBehaviour
     public VideoLoader videoLoader;
     public GameObject recordingPrefab;
     public GameObject displayPanel;
+    public GameObject videoDisplayPanel;
+
+    public GameObject loadingPanel;
+    public AlertManager messageAlert;
+    public AlertManager confirmAlert;
 
     FFMPEG ffmpeg;
 
@@ -41,6 +47,12 @@ public class RecordingLoader : MonoBehaviour
         //ApiHelper.Instance.ToString();
         ffmpeg = GetComponent<FFMPEG>();
         if (ffmpeg == null) ffmpeg = gameObject.AddComponent<FFMPEG>();
+    }
+
+    public void RefreshRecordingList()
+    {
+        var playerId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
+        GetRecordingByOwnerId(Guid.Parse(playerId));
     }
 
     public void GetPurchasedSongCoroutine(Guid purchasedSongId)
@@ -72,10 +84,15 @@ public class RecordingLoader : MonoBehaviour
 
     public void GetRecordingByOwnerId(Guid ownerId)
     {
+        loadingPanel.SetActive(true);
         ApiHelper.Instance.gameObject
             .GetComponent<RecordingController>()
             .GetRecordingsByOwnerIdCoroutine(ownerId,
-                                                RecordingsGenerate,
+                                                (recordingList) =>
+                                                {
+                                                    RecordingsGenerate(recordingList);
+                                                    loadingPanel.gameObject.SetActive(false);
+                                                },
                                                 Test2
                                                 );
     }
@@ -104,14 +121,15 @@ public class RecordingLoader : MonoBehaviour
             GameObject recordingObj = Instantiate(recordingPrefab, displayPanel.transform);
 
             optionMappings.Add((recording, (List<VoiceAudio>)recording.VoiceAudios));
-
+            recordingObj.GetComponent<RecordingItem>().Init(recording, messageAlert, confirmAlert, this);
             recordingObj.transform.Find("Label 1").GetComponent<TMP_Text>().text = recording.RecordingName + " - " + recording.RecordingType;
             recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text = string.Empty;
+            recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text += "Recording time: " + recording.CreatedDate.ToString("dd/MM/yyyy HH:mm:ss") + "\n";
 
             foreach (var voiceAudio in recording.VoiceAudios)
             {
                 //string optionText = $"{recording.RecordingName} - {voiceAudio.VoiceUrl}";
-                recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text += "Recording time: " + recording.CreatedDate.ToString("dd/MM/yyyy HH:mm:ss") + "\n";
+
 
             }
 
@@ -128,8 +146,10 @@ public class RecordingLoader : MonoBehaviour
         }
     }
 
+    List<bool> isAudioReady = new List<bool>();
     public void OnPlayButtonClicked(Recording recording)
     {
+        loadingPanel.SetActive(true);
         ApiHelper.Instance.gameObject
             .GetComponent<PurchasedSongController>()
             .GetPurchasedSongByIdCoroutine(recording.PurchasedSongId,
@@ -145,11 +165,22 @@ public class RecordingLoader : MonoBehaviour
                                                                           {
                                                                               songVideoUrl = sd.Value.SongUrl;
                                                                               List<string> localFilePaths = new();
+                                                                              isAudioReady = new List<bool>();
                                                                               foreach (var audio in recording.VoiceAudios)
                                                                               {
                                                                                   var cloudFilePath = audio.VoiceUrl + ".zip";
                                                                                   var localFilePath = Application.persistentDataPath + "/AudioProcess/" + audio.VoiceUrl + ".zip";
-                                                                                  ffmpeg.DownloadFile2(localFilePath);
+                                                                                  if (!File.Exists(localFilePath))
+                                                                                  {
+                                                                                      ffmpeg.DownloadFile2(localFilePath,
+                                                                                          () => { isAudioReady.RemoveAt(0); Debug.Log($"Audio {audio.VoiceUrl} is ready!"); },
+                                                                                          () => { }
+                                                                                      );
+                                                                                  }
+                                                                                  else
+                                                                                  {
+                                                                                      isAudioReady.RemoveAt(0); Debug.Log($"Audio {audio.VoiceUrl} is ready!");
+                                                                                  }
                                                                                   localFilePaths.Add(localFilePath);
                                                                               }
 
@@ -158,15 +189,20 @@ public class RecordingLoader : MonoBehaviour
                                                                           },
                                                                           (ex) => Debug.LogError(ex));
                                             },
-                                            (ex) => Debug.LogError(ex)
+                                            (ex) =>
+                                            {
+                                                Debug.LogError(ex);
+                                                loadingPanel.SetActive(false);
+                                            }
             );
     }
 
-    IEnumerator LoadRecording(string songVideoUrl, List<string> localFilePaths)
+    IEnumerator LoadRecording(string songVideoUrl, List<string> voiceAudioUrls)
     {
-        yield return new WaitForSeconds(2);
-        PlayVideo(songVideoUrl, localFilePaths);
+        yield return new WaitUntil(() => isAudioReady.Count == 0);
+        PlayVideo(songVideoUrl, voiceAudioUrls);
         Debug.Log("Success: " + songVideoUrl);
+        loadingPanel.SetActive(false);
     }
 
 
@@ -174,6 +210,7 @@ public class RecordingLoader : MonoBehaviour
     {
 
         //string voiceFolderPath2 = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingUrl + ".wav");
+        videoDisplayPanel.SetActive(true);
         videoLoader.ShowPopup(videoSongUrl, voiceAudioUrls);
         //gameObject.SetActive(false);
 

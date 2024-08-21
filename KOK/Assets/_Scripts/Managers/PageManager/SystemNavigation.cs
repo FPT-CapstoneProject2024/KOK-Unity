@@ -10,19 +10,22 @@ namespace KOK
 {
     public class SystemNavigation : MonoBehaviour
     {
-
+        public static bool isToPurchasedSong = false;
         public void ToHome()
         {
-            SceneManager.LoadScene(sceneName: "Home");
+            Screen.orientation = ScreenOrientation.Portrait;
+            SceneManager.LoadScene(sceneName: "v_home");
         }
 
         public void ToSingleKaraokeRoomScene()
         {
+            Screen.orientation = ScreenOrientation.LandscapeLeft;
             SceneManager.LoadScene(sceneName: "SingleRoom");
         }
 
         public void ToMultipleKaraokeRoomScene()
         {
+            Screen.orientation = ScreenOrientation.LandscapeLeft;
             SceneManager.LoadScene(sceneName: "MultipleRoom");
         }
 
@@ -38,7 +41,16 @@ namespace KOK
 
         public void ToSongsScene()
         {
-            SceneManager.LoadScene(sceneName: "Song");
+            Screen.orientation = ScreenOrientation.Portrait;
+            SceneManager.LoadScene(sceneName: "v_song");
+        }
+
+        public void ToPurchasedSongScene()
+        {
+            Screen.orientation = ScreenOrientation.Portrait;
+            isToPurchasedSong = true;
+            SceneManager.LoadScene(sceneName: "v_song");
+
         }
 
         public void ToShopScene()
@@ -48,11 +60,20 @@ namespace KOK
 
         public void ToLogin()
         {
+            Screen.orientation = ScreenOrientation.Portrait;
             SceneManager.LoadScene(sceneName: "Login");
+            PlayerPrefsHelper.DeleteAll();
         }
         public void ToProfile()
         {
-            SceneManager.LoadScene(sceneName: "Profile");
+            Screen.orientation = ScreenOrientation.Portrait;
+            SceneManager.LoadScene(sceneName: "v_profile");
+        }
+
+        public void ToSingScene()
+        {
+            Screen.orientation = ScreenOrientation.Portrait;
+            SceneManager.LoadScene(sceneName: "v_sing");
         }
 
     }

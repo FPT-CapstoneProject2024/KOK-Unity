@@ -51,7 +51,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     private PlayerInputHandler _localPlayerInputHandler;
     public int playerRole = 0;
 
-    NetworkObject playerObject;
+    public NetworkObject playerObject;
 
     private void Awake()
     {
@@ -282,32 +282,19 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
-        //playerObject = runner.Spawn(playerPrefab, new Vector3(spawnPoint.position.x + Random.Range(-spawnOffset, spawnOffset), 0, spawnPoint.position.z + Random.Range(-spawnOffset, spawnOffset)));
-
-        //_playerName = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
-
         roomNameInput.interactable = false;
         randomJoinButton.interactable = false;
 
         playerObject = runner.Spawn(playerPrefab, Vector3.zero, Quaternion.identity);
-
-        if (runner.ActivePlayers.Count() > 1)
-        {
-            playerRole = 1;
-        }
-        else
-        {
-            playerRole = 0;
-        }
-        runner.SetPlayerObject(runner.LocalPlayer, playerObject);
-
         
+
+
         lobbyCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(true);
-        popUpCanvas.gameObject.SetActive(true);
-        itemPanelCanvas.gameObject.SetActive(true);
-        videoPlayer.gameObject.SetActive(true);
-        gameManager.gameObject.SetActive(true);
+        popUpCanvas.SetActive(true);
+        itemPanelCanvas.SetActive(true);
+        videoPlayer.SetActive(true);
+        gameManager.SetActive(true);  
 
         playerObject.transform.localPosition = spawnPoint.localPosition;
         playerObject.GetComponent<PlayerNetworkBehavior>().PlayerName = _playerName;
@@ -507,11 +494,12 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         string url = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().GetSongURLToPlay();
         RPCVideoPlayer.Rpc_OnPlayVideoButtonClick(runner, url);
-        foreach (var item in FindObjectsByType<SongItemManager>(FindObjectsSortMode.None))
-        {
-            item.UpdateQueueSongList();
-            item.UpdateSongList();
-        };
+
+        //foreach (var item in FindObjectsByType<SongItemManager>(FindObjectsSortMode.None))
+        //{
+        //    item.UpdateQueueSongList();
+        //    //item.UpdateSongList(S);
+        //};
 
     }
     public void OnJumpToNextVideoButtonClick()

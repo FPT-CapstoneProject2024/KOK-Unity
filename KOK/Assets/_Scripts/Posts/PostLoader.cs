@@ -67,6 +67,7 @@ namespace KOK.Assets._Scripts.Posts
             //Process(songUrl, recordingUrl);
         }
 
+        List<bool> isAudioReady = new List<bool>();
         private void LoadVideo(List<Recording> recordings)
         {
             foreach (var recording in recordings)
@@ -75,11 +76,16 @@ namespace KOK.Assets._Scripts.Posts
                 var startTimeSong = recording.StartTime;
 
                 Debug.Log(recording.VoiceAudios);
+                isAudioReady.Clear();
                 foreach (var voiceAudio in recording.VoiceAudios)
                 {
+                    isAudioReady.Add(false);
                     var startTimeVoiceAudio = voiceAudio.StartTime;
                     string voiceFilePath = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + voiceAudio.VoiceUrl + ".zip");
-                    ffmpeg.DownloadFile2(voiceFilePath);
+                    ffmpeg.DownloadFile2(voiceFilePath,
+                            () => { isAudioReady.RemoveAt(0); },
+                            () => { }
+                        );
                     StartCoroutine(PlayVideo(voiceFilePath, startTimeVoiceAudio, startTimeSong, voiceAudio.VoiceUrl));
                 }
             }
@@ -87,10 +93,8 @@ namespace KOK.Assets._Scripts.Posts
 
         public IEnumerator PlayVideo(string voiceFilePath, float startTimeVoiceAudio, float startTimeSong, string voiceUrl)
         {
+            yield return new WaitUntil(() => isAudioReady.Count == 0);
             string voiceFilePath2 = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + voiceUrl + ".wav");
-
-            //fk
-            yield return new WaitForSeconds(2f);
 
             if (songUrl.IsNullOrEmpty() && !File.Exists(voiceFilePath2))
             {

@@ -134,7 +134,7 @@ namespace KOK
             fileRef.GetFileAsync(localFilePath).ContinueWith(task => {
                 if (task.IsFaulted || task.IsCanceled)
                 {
-                    Debug.Log(task.Exception.ToString());
+                    Debug.Log(localFilePath + "\n" + task.Exception.ToString());
                     onError?.Invoke();
                 }
                 else
