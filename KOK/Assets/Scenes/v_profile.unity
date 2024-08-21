@@ -9146,7 +9146,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1814794226}
         m_TargetAssemblyTypeName: KOK.SystemNavigation, Assembly-CSharp
         m_MethodName: ToLogin
         m_Mode: 1

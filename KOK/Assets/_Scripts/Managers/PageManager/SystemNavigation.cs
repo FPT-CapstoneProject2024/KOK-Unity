@@ -62,6 +62,7 @@ namespace KOK
         {
             Screen.orientation = ScreenOrientation.Portrait;
             SceneManager.LoadScene(sceneName: "Login");
+            PlayerPrefsHelper.DeleteAll();
         }
         public void ToProfile()
         {

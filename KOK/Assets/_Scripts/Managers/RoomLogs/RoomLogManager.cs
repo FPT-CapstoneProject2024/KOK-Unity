@@ -142,5 +142,16 @@ namespace KOK
         {
             ChatManager.Instance.SendChat();
         }
+
+        private void OnDestroy()
+        {
+            DirectoryInfo dir = new DirectoryInfo(FolderPath);
+
+            foreach (FileInfo file in dir.GetFiles())
+            {
+                file.Delete();
+            }
+
+        }
     }
 }
