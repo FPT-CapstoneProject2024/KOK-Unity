@@ -36,20 +36,6 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
             ApiHelper.Instance.GetCoroutine(url, onSuccess, onError);
         }*/
 
-        public async Task<List<PostComment?>> GetPostCommentsByPostIdAsync(Guid postId)
-        {
-            var url = postCommentResourceUrl + "?PostId=" + postId.ToString();
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
-
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            ResponseResult<List<PostComment>> result = JsonConvert.DeserializeObject<ResponseResult<List<PostComment>>>(jsonResult);
-
-            return result?.Value?.ToList();
-        }
 
         public void GetPostCommentsByPostIdCoroutine(Guid postId, Action<List<PostComment>> onSuccess, Action<string> onError)
         {
@@ -99,24 +85,7 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
                 });
         }
 
-        /*public async Task<PostComment?> CreatePostCommentAsync(CreatePostCommentRequest createPostComment)
-        {
-            var jsonData = JsonConvert.SerializeObject(createPostComment);
-            var url = postCommentResourceUrl;
-            var jsonResult = await ApiHelper.Instance.PostAsync(url, jsonData);
-
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            Debug.Log(jsonResult);
-
-            ResponseResult<PostComment> result = JsonConvert.DeserializeObject<ResponseResult<PostComment>>(jsonResult);
-
-            return result.Value;
-        }*/
-
+        
         public void GetPostCommentsFilterPagingCoroutine(PostCommentFilter filter, PostCommentOrderFilter orderFilter, PagingRequest paging, Action<List<PostComment>> onSuccess, Action<string> onError)
         {
             var queryParams = GeneratePostCommentQueryParams(filter, orderFilter, paging);

@@ -139,7 +139,7 @@ namespace KOK
                 }
                 else
                 {
-                    Debug.Log("File downloaded successfully.");
+                    Debug.Log("File downloaded successfully at \n" + localFilePath);
                     onSuccess?.Invoke();
                 }
             });

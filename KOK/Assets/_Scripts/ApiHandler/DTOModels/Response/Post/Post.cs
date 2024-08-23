@@ -20,6 +20,7 @@ namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post
         public string SongUrl { get; set; }
         public PostStatus? Status { get; set; }
         public PostType? PostType { get; set; }
+        public float? Score { get; set; }
         public Guid? OriginPostId { get; set; }
         public virtual Account Member { get; set; } = null!;
     }

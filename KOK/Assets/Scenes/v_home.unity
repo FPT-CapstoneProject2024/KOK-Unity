@@ -2059,7 +2059,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: bf493c65912771f49bb3eb6516f80a19, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 077e2cf0e963bdd478aa3063ab8e770c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6782,6 +6782,7 @@ GameObject:
   - component: {fileID: 1418329045}
   - component: {fileID: 1418329044}
   - component: {fileID: 1418329046}
+  - component: {fileID: 1418329047}
   m_Layer: 5
   m_Name: ForumPost
   m_TagString: Untagged
@@ -6835,6 +6836,8 @@ MonoBehaviour:
   giveScoreLabel: {fileID: 1997026148}
   audioMixerGroup: {fileID: 24300002, guid: b7d3807e6aad94940b86bf1521489989, type: 2}
   videoRenderTexture: {fileID: 971728105}
+  scoreInput: {fileID: 0}
+  recordingHelper: {fileID: 1418329047}
   audioSources:
   - {fileID: 0}
   - {fileID: 0}
@@ -6867,6 +6870,19 @@ MonoBehaviour:
   text: {fileID: 0}
   text2: {fileID: 0}
   text3: {fileID: 0}
+--- !u!114 &1418329047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418329042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d68020208fcdc5245ab9ece6cf9c9119, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioMixerGroup: {fileID: 24300002, guid: b7d3807e6aad94940b86bf1521489989, type: 2}
 --- !u!1 &1420845853
 GameObject:
   m_ObjectHideFlags: 0
@@ -12695,7 +12711,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 420.6, y: 11.499947}
+  m_AnchoredPosition: {x: 420.60004, y: 11.499947}
   m_SizeDelta: {x: -78, y: -79}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &9150478351932177461

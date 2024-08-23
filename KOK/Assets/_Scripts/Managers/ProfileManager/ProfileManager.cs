@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace KOK
 {
@@ -17,6 +18,10 @@ namespace KOK
 
         [SerializeField] List<TMP_InputField> inputFieldForm = new List<TMP_InputField>();
         [SerializeField] ProfileBinding profileBinding;
+
+        [SerializeField] Image avatar; 
+        [SerializeField] TMP_Text usernameLabel;
+        [SerializeField] TMP_Text upLabel;
 
         [SerializeField] Transform inAppTransactionPanel;
         [SerializeField] Transform inAppTransactionContentViewPort;
@@ -54,9 +59,17 @@ namespace KOK
                         Debug.Log("111" + account);
                         profileBinding.UpdateUI();
                         PlayerPrefsHelper.SetProfileData(account);
+                        UpdateUI();
                     },
                     (ex) => { }
                 );
+        }
+
+        private void UpdateUI()
+        {
+            avatar.sprite = Resources.Load<Sprite>(profileBinding.Account.CharaterItemCode + "AVA");
+            usernameLabel.text = profileBinding.Account.UserName ?? string.Empty; 
+            upLabel.text = "" + (int)profileBinding.Account.UpBalance;
         }
 
         public void SaveMemberInformation()

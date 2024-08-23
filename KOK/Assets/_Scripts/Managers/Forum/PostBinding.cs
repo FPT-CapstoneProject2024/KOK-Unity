@@ -1,7 +1,9 @@
 ﻿using KOK.ApiHandler.Controller;
+using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -11,12 +13,15 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using WebSocketSharp;
 
 namespace KOK
 {
     [RequireComponent(typeof(FFMPEG))]
+    [RequireComponent (typeof(RecordingHelper))]
     public class PostBinding : MonoBehaviour
     {
+        [Header("Post infor component")]
         [SerializeField] Image avatar;
         [SerializeField] TMP_Text userNameLabel;
         [SerializeField] TMP_Text createTimeLabel;
@@ -28,7 +33,11 @@ namespace KOK
         [SerializeField] AudioMixerGroup audioMixerGroup;
         [SerializeField] RawImage videoRenderTexture;
 
-        private FFMPEG ffmpeg;
+        [Header("Score")]
+        [SerializeField] TMP_Text scoreInput;
+
+        //private FFMPEG ffmpeg;
+        [SerializeField] RecordingHelper recordingHelper;
         List<CommentBinding> commentBindings = new();
         Recording recording;
 
@@ -45,7 +54,7 @@ namespace KOK
 
         private void Start()
         {
-            ffmpeg = GetComponent<FFMPEG>();
+            //ffmpeg = GetComponent<FFMPEG>();
             audioLocalDirectory = Application.persistentDataPath + "/AudioProcess/";
         }
         public void Init(Post post)
@@ -61,10 +70,19 @@ namespace KOK
         {
             readyToPlay = false;
             //Avatar here
-
+            avatar.sprite = Resources.Load<Sprite>(post.Member.CharaterItemCode + "AVA");
             userNameLabel.text = post.Member.UserName; captionLabel.text = post.Caption;
+            createTimeLabel.text = post.UploadTime.Value.ToString("hh:mm  dd/MM/yyyy");
             //Need score
-            scoreLabel.text = $"Điểm: {Random.Range(50, 100)}";
+            if (post.Score == null)
+            {
+                scoreLabel.text = $"Chưa có điểm!";
+            }
+            else
+            {
+                scoreLabel.text = $"Điểm: {post.Score}";
+            }
+            //scoreLabel.text = $"Điểm: {Random.Range(50, 100)}";
 
             ApiHelper.Instance.GetComponent<RecordingController>()
                 .GetRecordingByIdCoroutine(
@@ -74,31 +92,65 @@ namespace KOK
                         this.recording = recording.Value;
                         voiceAudioUrls = new();
                         isAudioReady = new List<bool>();
+                        ResetAudioSourceComponent();
                         foreach (var audio in this.recording.VoiceAudios)
                         {
                             isAudioReady.Add(false);
-                            var localFilePath = Application.persistentDataPath + "/AudioProcess/" + audio.VoiceUrl + ".zip";
-                            if (!File.Exists(localFilePath))
+                            var localFilePathZip = "AudioProcess/" + audio.VoiceUrl + ".wav";
+                            if (!File.Exists(localFilePathZip))
                             {
-                                ffmpeg.DownloadFile2(localFilePath,
-                                    () => { isAudioReady.RemoveAt(0); Debug.Log($"Audio {audio.VoiceUrl} is ready!"); },
-                                    () => { }
-                                );
+                                var audioSource = gameObject.AddComponent<AudioSource>();
+                                recordingHelper.PrepareAudioSourceDownloadAudio(
+                                        audio.VoiceUrl,
+                                        (audioClip) => {
+                                            Debug.Log(audioClip.name);
+                                            audioSource.clip = audioClip;
+                                            audioSources.Add(audioSource);
+                                            isAudioReady.RemoveAt(0);
+                                        },
+                                        () => { }
+                                    );
                             }
                             else
                             {
-                                isAudioReady.RemoveAt(0); Debug.Log($"Audio {audio.VoiceUrl} is ready!");
+                                var audioSource = gameObject.AddComponent<AudioSource>();
+                                recordingHelper.PrepareAudioSourceLoadAudioClip(
+                                        audio.VoiceUrl,
+                                        (audioClip) => {
+                                            audioSource.clip = audioClip;
+                                            audioSources.Add(audioSource);
+                                            isAudioReady.RemoveAt(0);
+                                        },
+                                        () => { }
+                                    
+                                    );
+                                Debug.Log($"Audio {audio.VoiceUrl} is ready!");
                             }
 
-                            voiceAudioUrls.Add(localFilePath);
+                            
                         }
                         Debug.Log("prepare " + isAudioReady.Count);
                         Debug.Log("voiceAudioUrls " + voiceAudioUrls.Count);
-                        StartCoroutine(Prepare(voiceAudioUrls));
+                        StartCoroutine(Prepare());
                     },
                     (recording) => { }
                 );
         }
+
+
+        private void GiveScore()
+        {
+            if (scoreInput.text.IsNullOrEmpty())
+            {
+                return;
+            }
+            int score = Int32.Parse(scoreInput.text);
+            
+            
+            scoreInput.text = string.Empty;
+
+        }
+
 
         private void ResetAudioSourceComponent()
         {
@@ -111,51 +163,17 @@ namespace KOK
                 Destroy(audioSource);
             }
         }
-        private IEnumerator Prepare(List<string> voiceAudioUrls)
+        private IEnumerator Prepare()
         {
             yield return new WaitUntil(() => isAudioReady.Count == 0);
 
-            Debug.Log("prepare audio complete ");
-            List<string> filePathLocalWavs = new();
-            List<string> filePathLocalZips = new();
-
-            foreach (var voiceAudioUrl in voiceAudioUrls)
-            {
-                var filePathLocalWav = voiceAudioUrl.Replace(".zip", ".wav");
-                filePathLocalWavs.Add(filePathLocalWav);
-                filePathLocalZips.Add(voiceAudioUrl);
-                var audioClip = ffmpeg.LoadAudioClipWavHelper(voiceAudioUrl.Replace(".zip", ".wav"));
-                yield return new WaitUntil(() => audioClip != null);
-                if (audioClip != null)
-                {
-                    audioClipList.Add(audioClip);
-                }
-                else
-                {
-                    Debug.LogError("Can not load audio clip!");
-                    yield break;
-                }
-
-            }
-
-            Debug.Log("audioClipList " + audioClipList.Count);
-            audioSources = new List<AudioSource>();
-            foreach (var audioClip in audioClipList)
-            {
-                var audioSource = gameObject.AddComponent<AudioSource>();
-                Debug.Log(audioSource);
-                audioSource.clip = audioClip;
-                audioSource.loop = false;
-                audioSource.playOnAwake = false;
-                audioSource.outputAudioMixerGroup = audioMixerGroup;
-                audioSources.Add(audioSource);
-            }
+            Debug.Log("prepare audio complete ");    
             Debug.Log("audioSources " + audioSources.Count);
             videoPlayer.Stop();
             videoPlayer.url = post.SongUrl;
             videoPlayer.Prepare();
             videoPlayer.SetDirectAudioVolume(0, 0.2f);
-            
+
             readyToPlay = true;
 
         }
@@ -207,7 +225,7 @@ namespace KOK
 
                     StartCoroutine(SliderFollowVideo());
                 }
-                
+
             }
             else
             {
@@ -250,7 +268,7 @@ namespace KOK
             ResetAudioSourceComponent();
             videoPlayer.Stop();
             videoRenderTexture.gameObject.SetActive(false);
-            progressSlider.value = 0;   
+            progressSlider.value = 0;
         }
         IEnumerator SliderFollowVideo()
         {
@@ -259,7 +277,7 @@ namespace KOK
             {
                 progressSlider.value = (float)videoPlayer.time;
             }
-            
+
             StartCoroutine(SliderFollowVideo());
         }
         public void OnSliderDragStart()

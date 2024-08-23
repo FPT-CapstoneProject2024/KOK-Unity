@@ -127,6 +127,8 @@ namespace KOK
                     onError?.Invoke(result);
                 });
         }
+
+        public void AddScoreToPostCouroutine() { }
     }
 }
 

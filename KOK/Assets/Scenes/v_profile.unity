@@ -15142,6 +15142,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputFieldForm: []
   profileBinding: {fileID: 1928563768}
+  avatar: {fileID: 718082882}
+  usernameLabel: {fileID: 672507557}
+  upLabel: {fileID: 2081239398}
   inAppTransactionPanel: {fileID: 2027231354}
   inAppTransactionContentViewPort: {fileID: 456761}
   inAppTransactionItemPrefab: {fileID: 6683619345251244908, guid: 70ff0987bd85db74cb2d112b88b5ac62, type: 3}
@@ -17887,6 +17890,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55f767137d042624e930c0dc25e9009a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  avatar: {fileID: 956861767}
   UpLabel: {fileID: 2081239398}
   UsernameInputField: {fileID: 1121941518}
   EmailInputField: {fileID: 811518064}

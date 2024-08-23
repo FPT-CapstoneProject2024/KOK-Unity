@@ -20,6 +20,8 @@ namespace KOK.ApiHandler.DTOModels
         public DateTime? CreatedTime { get; set; }
         public Guid? CharacterItemId { get; set; }
         public Guid? RoomItemId { get; set; }
+        public string? CharaterItemCode { get; set; }
+        public string? RoomItemCode { get; set; }
         public AccountStatus? AccountStatus { get; set; }
         public override string ToString()
         {
