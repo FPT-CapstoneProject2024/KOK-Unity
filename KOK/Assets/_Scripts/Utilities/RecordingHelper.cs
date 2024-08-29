@@ -42,8 +42,8 @@ namespace KOK
                     () =>
                     {
                         wavFilePath = ExtractWavFileFromZip("Assets/Resources/AudioProcess/" + localAudioFilePath + ".zip", "Assets/Resources/AudioProcess/");
-                        Debug.Log(wavFilePath + "\n" + FileCompressionHelper.ExtractWavFileFromZip("Assets/Resources/AudioProcess/" + localAudioFilePath + ".zip", "Assets/Resources/AudioProcess/"));
-                        Debug.Log("AudioProcess/" + Path.GetFileNameWithoutExtension(wavFilePath));
+                        Debug.Log(wavFilePath + "\n" + localAudioFilePath + "\n" + FileCompressionHelper.ExtractWavFileFromZip("Assets/Resources/AudioProcess/" + localAudioFilePath + ".zip", "Assets/Resources/AudioProcess/"));
+                        //Debug.Log("AudioProcess/" + Path.GetFileNameWithoutExtension(wavFilePath));
 
                     },
                     () =>

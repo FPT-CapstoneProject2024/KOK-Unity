@@ -196,7 +196,7 @@ namespace KOK.ApiHandler.Utilities
 
                 if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
-                    Debug.Log($"{url} - PUT - {webRequest.error}");
+                    Debug.LogError($"{url} - PUT - {webRequest.error}");
                     onError?.Invoke(webRequest.downloadHandler.text);
                 }
                 else

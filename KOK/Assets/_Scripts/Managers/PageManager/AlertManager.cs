@@ -29,6 +29,7 @@ namespace KOK
         public void Alert(string message, bool isSuccess)
         {
             alertPanel.SetActive(true);
+            alertText.text = "";
             string hex;
             if (isSuccess)
             {
@@ -44,6 +45,7 @@ namespace KOK
         public void Alert(string message, string buttonText, bool isSuccess)
         {
             alertPanel.SetActive(true);
+            alertText.text = "";
             string hex;
             if (isSuccess)
             {

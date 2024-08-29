@@ -1,6 +1,8 @@
-﻿using KOK.ApiHandler.Controller;
+﻿using Fusion;
+using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
+using KOK.Assets._Scripts.ApiHandler.Controller;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post;
 using System;
@@ -17,8 +19,6 @@ using WebSocketSharp;
 
 namespace KOK
 {
-    [RequireComponent(typeof(FFMPEG))]
-    [RequireComponent (typeof(RecordingHelper))]
     public class PostBinding : MonoBehaviour
     {
         [Header("Post infor component")]
@@ -32,12 +32,21 @@ namespace KOK
         [SerializeField] TMP_Text giveScoreLabel;
         [SerializeField] AudioMixerGroup audioMixerGroup;
         [SerializeField] RawImage videoRenderTexture;
+        [SerializeField] Sprite defaultAvatar;
+        public List<Selectable> selectableList;
+        [SerializeField] EditPostBinding editPostBinding;
 
-        [Header("Score")]
-        [SerializeField] TMP_Text scoreInput;
+        [Header("Option")]
+        [SerializeField] TMP_Dropdown optionDropdown;
+        List<string> ownPostOptions = new List<string>() { "Chỉnh sửa", "Xoá",""};
+        List<string> otherPostOptions = new List<string>() {  "Báo cáo","" };
 
-        //private FFMPEG ffmpeg;
-        [SerializeField] RecordingHelper recordingHelper;
+        [Header("Score Give")]
+        [SerializeField] GameObject scoreGivePanel;
+        [SerializeField] ScoreBinding scoreBinding;
+        [SerializeField] Gradient gradient;
+
+        private int ownScore = 0;
         List<CommentBinding> commentBindings = new();
         Recording recording;
 
@@ -50,40 +59,72 @@ namespace KOK
 
         string audioLocalDirectory = "";
 
-        private Post post;
+        public Post post;
+        private ForumNewFeedManager forumNewFeedManager;
 
         private void Start()
         {
-            //ffmpeg = GetComponent<FFMPEG>();
             audioLocalDirectory = Application.persistentDataPath + "/AudioProcess/";
         }
-        public void Init(Post post)
+        public void Init(Post post, bool isOwnPostProfile, ForumNewFeedManager forumNewFeedManager)
         {
+            foreach (var selectable in selectableList)
+            {
+                selectable.interactable = true;
+            }
             Stop();
             StopAllCoroutines();
             this.post = post;
+            this.forumNewFeedManager = forumNewFeedManager;
             ShowThisPost();
         }
 
+        public void Clear()
+        {
+            foreach (var selectable in selectableList)
+            {
+                selectable.interactable = false;
+            }
+            avatar.sprite = defaultAvatar;
+            userNameLabel.text = "";
+            createTimeLabel.text = "";
+            captionLabel.text = "";
+            scoreLabel.text = "";
+            giveScoreLabel.text = "";
+            videoRenderTexture.gameObject.SetActive(false);
+            optionDropdown.ClearOptions();
+            videoPlayer.url = null;
+            ResetAudioSourceComponent();
+        }
+
         List<bool> isAudioReady = new List<bool>();
-        private void ShowThisPost()
+        public void ShowThisPost()
         {
             readyToPlay = false;
             //Avatar here
             avatar.sprite = Resources.Load<Sprite>(post.Member.CharaterItemCode + "AVA");
             userNameLabel.text = post.Member.UserName; captionLabel.text = post.Caption;
             createTimeLabel.text = post.UploadTime.Value.ToString("hh:mm  dd/MM/yyyy");
-            //Need score
+            //Score
             if (post.Score == null)
             {
                 scoreLabel.text = $"Chưa có điểm!";
+                scoreLabel.color = Color.white;
             }
             else
             {
                 scoreLabel.text = $"Điểm: {post.Score}";
+                scoreLabel.color = gradient.Evaluate(post.Score.Value / 100);
             }
-            //scoreLabel.text = $"Điểm: {Random.Range(50, 100)}";
 
+            //Option Dropdown
+            InitOptionDropdownValue();
+
+            List<RecordingHelper> recordingHelpers = gameObject.GetComponents<RecordingHelper>().ToList();
+            foreach (RecordingHelper recordingHelper in recordingHelpers)
+            {
+                Destroy(recordingHelper);
+            }
             ApiHelper.Instance.GetComponent<RecordingController>()
                 .GetRecordingByIdCoroutine(
                     (System.Guid)post.RecordingId,
@@ -100,9 +141,11 @@ namespace KOK
                             if (!File.Exists(localFilePathZip))
                             {
                                 var audioSource = gameObject.AddComponent<AudioSource>();
+                                RecordingHelper recordingHelper = gameObject.AddComponent<RecordingHelper>();
                                 recordingHelper.PrepareAudioSourceDownloadAudio(
                                         audio.VoiceUrl,
-                                        (audioClip) => {
+                                        (audioClip) =>
+                                        {
                                             Debug.Log(audioClip.name);
                                             audioSource.clip = audioClip;
                                             audioSources.Add(audioSource);
@@ -114,20 +157,22 @@ namespace KOK
                             else
                             {
                                 var audioSource = gameObject.AddComponent<AudioSource>();
+                                RecordingHelper recordingHelper = gameObject.AddComponent<RecordingHelper>();
                                 recordingHelper.PrepareAudioSourceLoadAudioClip(
                                         audio.VoiceUrl,
-                                        (audioClip) => {
+                                        (audioClip) =>
+                                        {
                                             audioSource.clip = audioClip;
                                             audioSources.Add(audioSource);
                                             isAudioReady.RemoveAt(0);
                                         },
                                         () => { }
-                                    
+
                                     );
                                 Debug.Log($"Audio {audio.VoiceUrl} is ready!");
                             }
 
-                            
+
                         }
                         Debug.Log("prepare " + isAudioReady.Count);
                         Debug.Log("voiceAudioUrls " + voiceAudioUrls.Count);
@@ -135,22 +180,36 @@ namespace KOK
                     },
                     (recording) => { }
                 );
+            ApiHelper.Instance.GetComponent<PostRatingController>()
+                .GetPostRatingOfAMember(
+                    (Guid)post.PostId,
+                    Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
+                    (postRating) =>
+                    {
+                        if (postRating != null)
+                        {
+                            ownScore = (int)postRating.Score;
+                            giveScoreLabel.text = $"Điểm của bạn: {ownScore}";
+                        }
+                        else
+                        {
+                            ownScore = -1;
+                            giveScoreLabel.text = $"Bạn chưa chấm điểm";
+                        }
+                    },
+                    (ex) =>
+                    {
+                        ownScore = -1;
+                        giveScoreLabel.text = $"Bạn chưa chấm điểm";
+                    }
+                );
         }
 
-
-        private void GiveScore()
+        public void ShowGiveScorePanel()
         {
-            if (scoreInput.text.IsNullOrEmpty())
-            {
-                return;
-            }
-            int score = Int32.Parse(scoreInput.text);
-            
-            
-            scoreInput.text = string.Empty;
-
+            scoreGivePanel.gameObject.SetActive(true);
+            scoreBinding.Init(ownScore, this);
         }
-
 
         private void ResetAudioSourceComponent()
         {
@@ -167,7 +226,7 @@ namespace KOK
         {
             yield return new WaitUntil(() => isAudioReady.Count == 0);
 
-            Debug.Log("prepare audio complete ");    
+            Debug.Log("prepare audio complete ");
             Debug.Log("audioSources " + audioSources.Count);
             videoPlayer.Stop();
             videoPlayer.url = post.SongUrl;
@@ -295,6 +354,73 @@ namespace KOK
             }
             Play();
             videoPlayer.time = progressSlider.value;
+        }
+
+        private void InitOptionDropdownValue()
+        {
+            optionDropdown.ClearOptions();
+            if (post.MemberId.Equals(Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId))))
+            {
+                optionDropdown.AddOptions(ownPostOptions);
+                optionDropdown.value = ownPostOptions.Count - 1;
+            }
+            else
+            {
+                optionDropdown.AddOptions(otherPostOptions);
+                optionDropdown.value = otherPostOptions.Count - 1;
+            }
+        }
+
+        public void OnOptionDropdownValueChange()
+        {
+            Debug.Log(optionDropdown.options[optionDropdown.value]);
+            if (optionDropdown.options[optionDropdown.value].text.Equals("Xoá"))
+            {
+                OpenDeletePostConfirm();
+            }
+            else if (optionDropdown.options[optionDropdown.value].text.Equals("Chỉnh sửa"))
+            {
+                OpenEditPostPanel();
+            }
+
+            if (post.MemberId.Equals(Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId))))
+            {
+                optionDropdown.value = ownPostOptions.Count - 1;
+            }
+            else
+            {
+                optionDropdown.value = otherPostOptions.Count - 1;
+            }
+        }
+
+        private void OpenEditPostPanel()
+        {
+            editPostBinding.InitEditPostPanel(post, forumNewFeedManager);
+        }
+
+        private void OpenDeletePostConfirm()
+        {
+            forumNewFeedManager.ConfirmAlertManager.Confirm
+                (
+                    "Xác nhận xoá post",
+                    () =>
+                    {
+                        ApiHelper.Instance.GetComponent<PostController>()
+                            .DeletePostByIdCoroutine
+                            (
+                                (Guid)post.PostId,
+                                () =>
+                                {
+                                    forumNewFeedManager.MessageAlertManager.Alert("Xoá post thành công", true);
+                                    forumNewFeedManager.Refresh();
+                                },
+                                () =>
+                                {
+                                    forumNewFeedManager.MessageAlertManager.Alert("Xoá post thất bại!", false);
+                                }
+                            );
+                    }
+                );
         }
 
         private void OnDestroy()

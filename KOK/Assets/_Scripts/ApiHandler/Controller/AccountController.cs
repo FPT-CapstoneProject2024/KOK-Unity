@@ -101,24 +101,6 @@ namespace KOK.ApiHandler.Controller
                 });
         }
 
-       
-
-        
-
-        public async Task<DynamicResponseResult<Account>?> GetAccountsFilterPagingAsync(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging)
-        {
-            var queryParams = GenerateAccountQueryParams(filter, orderFilter, paging);
-            var url = QueryHelper.BuildUrl(accountResourceUrl, queryParams);
-
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            DynamicResponseResult<Account> result = JsonConvert.DeserializeObject<DynamicResponseResult<Account>>(jsonResult);
-            return result;
-        }
 
         private NameValueCollection GenerateAccountQueryParams(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging)
         {

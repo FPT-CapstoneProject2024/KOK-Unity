@@ -2,7 +2,7 @@
 using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.InAppTransaction;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.InAppTransactions;
 using System;
 using System.Collections;
 using System.Collections.Generic;

@@ -1,6 +1,9 @@
 ﻿using KOK.ApiHandler.Context;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Request;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Post;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PostRating;
 using Newtonsoft.Json;
 using System;
@@ -33,78 +36,40 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
             // Prepare and send api request
             var url = postRatingResourceUrl + "/" + postRatingId.ToString();
             ApiHelper.Instance.GetCoroutine(url, onSuccess, onError);
+        }        
+
+        public void GetPostRatingOfAMember(Guid postId, Guid memberId, Action<PostRating> onSuccess, Action<string> onError) 
+        {
+            var url = postRatingResourceUrl + $"?MemberId={memberId}&PostId={postId}";
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<PostRating>>(successValue);
+                    onSuccess?.Invoke(result.Results[0]);
+                },
+                (errorValue) =>
+                {
+                    onError?.Invoke(errorValue);
+                });
         }
 
-        public async Task<List<PostRating?>> GetPostRatingsByPostIdAsync(Guid postId)
+        public void CreatePostRatingCoroutine(CreatePostRatingRequest newPostRating, Action<PostRating> onSuccess, Action<string> onError)
         {
-            var url = postRatingResourceUrl + "?" + postId.ToString();
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
-
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            ResponseResult<List<PostRating>> result = JsonConvert.DeserializeObject<ResponseResult<List<PostRating>>>(jsonResult);
-
-            return result.Value.ToList();
-        }
-
-        /*public async Task<PostRating?> CreatePostRatingAsync(CreatePostRatingRequest createPostRating)
-        {
-            var jsonData = JsonConvert.SerializeObject(createPostRating);
+            var jsonData = JsonConvert.SerializeObject(newPostRating);
             var url = postRatingResourceUrl;
-            var jsonResult = await ApiHelper.Instance.PostAsync(url, jsonData);
-
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            Debug.Log(jsonResult);
-
-            ResponseResult<PostRating> result = JsonConvert.DeserializeObject<ResponseResult<PostRating>>(jsonResult);
-
-            return result.Value;
-        }*/
-
-/*        public async Task<DynamicResponseResult<PostRating>?> GetPostRatingsFilterPagingAsync(PostRatingFilter filter, PostRatingOrderFilter orderFilter, PagingRequest paging)
-        {
-            var queryParams = GeneratePostRatingQueryParams(filter, orderFilter, paging);
-            var url = QueryHelper.BuildUrl(postRatingResourceUrl, queryParams);
-
-            Debug.Log(url);
-
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            DynamicResponseResult<PostRating> result = JsonConvert.DeserializeObject<DynamicResponseResult<PostRating>>(jsonResult);
-            return result;
-        }*/
-
-        /*public NameValueCollection GeneratePostRatingQueryParams(PostRatingFilter filter, PostRatingOrderFilter orderFilter, PagingRequest paging)
-        {
-            var queryParams = new NameValueCollection();
-            if (filter.PostRatingCode != null)
-            {
-                queryParams.Add(nameof(filter.PostRatingCode), filter.PostRatingCode);
-            }
-
-            if (filter.PostRatingName != null)
-            {
-                queryParams.Add(nameof(filter.PostRatingName), filter.PostRatingName);
-            }
-
-            queryParams.Add(nameof(paging.page), paging.page.ToString());
-            queryParams.Add(nameof(paging.pageSize), paging.pageSize.ToString());
-            queryParams.Add(nameof(paging.OrderType), paging.OrderType.ToString());
-            queryParams.Add(nameof(orderFilter), orderFilter.ToString());
-
-            return queryParams;
-        }*/
+            Debug.Log(url + "\n" + jsonData);
+            ApiHelper.Instance.PostCoroutine(url, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<PostRating>>(successValue);
+                    onSuccess?.Invoke(result.Value);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to create new post rating: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
+        }
     }
 
 }

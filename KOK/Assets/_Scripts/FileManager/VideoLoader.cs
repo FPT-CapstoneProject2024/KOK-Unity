@@ -298,7 +298,7 @@ namespace KOK.Assets._Scripts.FileManager
             ffmpeg.CleanUp(filePathLocalWav);
             ffmpeg.CleanUp(filePathLocalZip);
             gameObject.SetActive(false);
-            recordingLoader.Show();
+            //recordingLoader.Show();
         }
 
         private void OnDisable()
