@@ -76,3 +76,7 @@ crashlytics-build.properties
 
 #Build directory
 [Bb]uild/
+
+# Temporary file
+*.zip
+*.wav
