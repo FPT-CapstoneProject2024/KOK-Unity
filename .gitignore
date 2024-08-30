@@ -79,4 +79,7 @@ crashlytics-build.properties
 
 # Temporary file
 *.zip
+*.zip.meta
 *.wav
+*.wav.meta
+

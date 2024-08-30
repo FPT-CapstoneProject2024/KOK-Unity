@@ -18,5 +18,7 @@ namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PostComment
         public Guid MemberId { get; set; }
         public Guid PostId { get; set; }
         public DateTime UploadTime { get; set; }
+
+        public Account Member {  get; set; }    
     }
 }

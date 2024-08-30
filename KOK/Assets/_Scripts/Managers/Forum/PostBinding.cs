@@ -38,13 +38,20 @@ namespace KOK
 
         [Header("Option")]
         [SerializeField] TMP_Dropdown optionDropdown;
-        List<string> ownPostOptions = new List<string>() { "Chỉnh sửa", "Xoá",""};
-        List<string> otherPostOptions = new List<string>() {  "Báo cáo","" };
+        List<string> ownPostOptions = new List<string>() { "Chỉnh sửa", "Xoá", "" };
+        List<string> otherPostOptions = new List<string>() { "Báo cáo", "" };
 
         [Header("Score Give")]
         [SerializeField] GameObject scoreGivePanel;
         [SerializeField] ScoreBinding scoreBinding;
         [SerializeField] Gradient gradient;
+
+        [Header("Comment")]
+        [SerializeField] GameObject commentPanel;
+        [SerializeField] GameObject commentPanelContent;
+        [SerializeField] GameObject parentCommentPrefab;
+        [SerializeField] GameObject childCommentPrefab;
+
 
         private int ownScore = 0;
         List<CommentBinding> commentBindings = new();
@@ -68,10 +75,7 @@ namespace KOK
         }
         public void Init(Post post, bool isOwnPostProfile, ForumNewFeedManager forumNewFeedManager)
         {
-            foreach (var selectable in selectableList)
-            {
-                selectable.interactable = true;
-            }
+            Clear();            
             Stop();
             StopAllCoroutines();
             this.post = post;
@@ -125,6 +129,7 @@ namespace KOK
             {
                 Destroy(recordingHelper);
             }
+            ResetAudioSourceComponent();
             ApiHelper.Instance.GetComponent<RecordingController>()
                 .GetRecordingByIdCoroutine(
                     (System.Guid)post.RecordingId,
@@ -133,7 +138,6 @@ namespace KOK
                         this.recording = recording.Value;
                         voiceAudioUrls = new();
                         isAudioReady = new List<bool>();
-                        ResetAudioSourceComponent();
                         foreach (var audio in this.recording.VoiceAudios)
                         {
                             isAudioReady.Add(false);
@@ -177,6 +181,10 @@ namespace KOK
                         Debug.Log("prepare " + isAudioReady.Count);
                         Debug.Log("voiceAudioUrls " + voiceAudioUrls.Count);
                         StartCoroutine(Prepare());
+                        foreach (var selectable in selectableList)
+                        {
+                            selectable.interactable = true;
+                        }
                     },
                     (recording) => { }
                 );
@@ -423,6 +431,27 @@ namespace KOK
                 );
         }
 
+        public void ShowCommentPanel()
+        {
+            commentPanel.SetActive(true);
+            foreach (Transform child in commentPanelContent.transform)
+            {
+                Destroy(child.gameObject);
+            }
+            ApiHelper.Instance.GetComponent<PostCommentController>()
+                .GetAllCommentsOfAPost
+                (
+                    (Guid)post.PostId,
+                    (comments) => { 
+                        foreach(var comment in comments)
+                        {
+                            var commentObject = Instantiate(parentCommentPrefab, commentPanelContent.transform);
+                            commentObject.GetComponent<CommentBinding>().Init(comment, commentPanelContent.transform);
+                        }    
+                    },
+                    (ex) => { }
+                );
+        }
         private void OnDestroy()
         {
             DirectoryInfo dir = new DirectoryInfo(audioLocalDirectory);

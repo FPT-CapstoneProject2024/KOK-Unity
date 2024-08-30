@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using WebSocketSharp;
 
 namespace KOK.Assets._Scripts.ApiHandler.Controller
 {
@@ -85,7 +86,7 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
                 });
         }
 
-        
+
         public void GetPostCommentsFilterPagingCoroutine(PostCommentFilter filter, PostCommentOrderFilter orderFilter, PagingRequest paging, Action<List<PostComment>> onSuccess, Action<string> onError)
         {
             var queryParams = GeneratePostCommentQueryParams(filter, orderFilter, paging);
@@ -104,28 +105,50 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
                 });
         }
 
+        public void GetAllCommentsOfAPost(Guid postId, Action<List<PostComment>> onSuccess, Action<string> onError)
+        {
+            PostCommentFilter filter = new() { PostId = postId, CommentType = 0 };
+            var queryParams = GeneratePostCommentQueryParams(filter, new(), new());
+            var url = QueryHelper.BuildUrl(postCommentResourceUrl, queryParams);
+
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<PostComment>>(successValue);
+                    onSuccess?.Invoke(result.Results);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to retrieve PostComment list: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
+        }
         public NameValueCollection GeneratePostCommentQueryParams(PostCommentFilter filter, PostCommentOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
-            /* if (filter.MemberId != null)
-             {
-                 queryParams.Add(nameof(filter.MemberId), filter.MemberId.ToString());
-             }*/
+            if (filter.MemberId != null && filter.MemberId != Guid.Empty)
+            {
+                queryParams.Add(nameof(filter.MemberId), filter.MemberId.ToString());
+            }
 
-            /*if (filter.PostId != null)
+            if (filter.PostId != null && filter.PostId != Guid.Empty)
             {
                 queryParams.Add(nameof(filter.PostId), filter.PostId.ToString());
-            }*/
+            }
 
-            if (filter.Comment!= null)
+            if (!filter.Comment.IsNullOrEmpty())
             {
                 queryParams.Add(nameof(filter.Comment), filter.Comment.ToString());
             }
 
-            queryParams.Add(nameof(paging.page), paging.page.ToString());
-            queryParams.Add(nameof(paging.pageSize), paging.pageSize.ToString());
-            queryParams.Add(nameof(paging.OrderType), paging.OrderType.ToString());
-            queryParams.Add(nameof(orderFilter), orderFilter.ToString());
+
+            queryParams.Add(nameof(filter.CommentType), filter.CommentType.ToString());
+
+
+            //queryParams.Add(nameof(paging.page), paging.page.ToString());
+            //queryParams.Add(nameof(paging.pageSize), paging.pageSize.ToString());
+            //queryParams.Add(nameof(paging.OrderType), paging.OrderType.ToString());
+            //queryParams.Add(nameof(orderFilter), orderFilter.ToString());
 
             return queryParams;
         }

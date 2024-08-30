@@ -135,7 +135,7 @@ namespace KOK
         public void UpdatePostCoroutine(Guid postId, EditPostRequest request, Action<ResponseResult<Post>> onSuccess, Action<ResponseResult<Post>> onError)
         {
             var jsonData = JsonConvert.SerializeObject(request);
-            jsonData = jsonData.Replace("\"Caption\":", "");
+            //jsonData = jsonData.Replace("\"Caption\":", "");
             var url = postResourceUrl + "/" + postId;
             Debug.Log(url + "  |  " + jsonData);
             ApiHelper.Instance.PutCoroutine(url, jsonData,
