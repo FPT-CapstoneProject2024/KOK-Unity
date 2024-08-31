@@ -12,13 +12,14 @@ namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PostComment
     {
         public Guid? CommentId { get; set; }
         public string Comment { get; set; } = null!;
-        public PostCommentType? CommentType { get; set; }
+        public int CommentType { get; set; }
         public PostCommentStatus? Status { get; set; }
         public Guid? ParentCommentId { get; set; }
         public Guid MemberId { get; set; }
         public Guid PostId { get; set; }
         public DateTime UploadTime { get; set; }
 
-        public Account Member {  get; set; }    
+        public Account Member { get; set; }
+        public List<PostComment> InverseParentComment { get; set; }
     }
 }

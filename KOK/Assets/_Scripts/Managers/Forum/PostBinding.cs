@@ -5,6 +5,7 @@ using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.Controller;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PostComment;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -35,6 +36,7 @@ namespace KOK
         [SerializeField] Sprite defaultAvatar;
         public List<Selectable> selectableList;
         [SerializeField] EditPostBinding editPostBinding;
+        [SerializeField] EditCommentBinding editCommentBinding;
 
         [Header("Option")]
         [SerializeField] TMP_Dropdown optionDropdown;
@@ -50,7 +52,11 @@ namespace KOK
         [SerializeField] GameObject commentPanel;
         [SerializeField] GameObject commentPanelContent;
         [SerializeField] GameObject parentCommentPrefab;
-        [SerializeField] GameObject childCommentPrefab;
+        [SerializeField] TMP_InputField commentInputField;
+        [SerializeField] TMP_Text replyCommentNotyLabel;
+
+        PostComment parentCommentToReply;
+        bool isReply;
 
 
         private int ownScore = 0;
@@ -75,7 +81,7 @@ namespace KOK
         }
         public void Init(Post post, bool isOwnPostProfile, ForumNewFeedManager forumNewFeedManager)
         {
-            Clear();            
+            Clear();
             Stop();
             StopAllCoroutines();
             this.post = post;
@@ -104,6 +110,7 @@ namespace KOK
         List<bool> isAudioReady = new List<bool>();
         public void ShowThisPost()
         {
+            StopAllCoroutines();
             readyToPlay = false;
             //Avatar here
             avatar.sprite = Resources.Load<Sprite>(post.Member.CharaterItemCode + "AVA");
@@ -431,8 +438,14 @@ namespace KOK
                 );
         }
 
+        public void OpenEditCommentPanel(PostComment postComment)
+        {
+            editCommentBinding.InitEditCommentPanel(postComment, forumNewFeedManager, this);
+        }
         public void ShowCommentPanel()
         {
+            replyCommentNotyLabel.gameObject.SetActive(false);
+            commentInputField.text = "";
             commentPanel.SetActive(true);
             foreach (Transform child in commentPanelContent.transform)
             {
@@ -442,15 +455,118 @@ namespace KOK
                 .GetAllCommentsOfAPost
                 (
                     (Guid)post.PostId,
-                    (comments) => { 
-                        foreach(var comment in comments)
+                    (comments) =>
+                    {
+                        foreach (var comment in comments)
                         {
                             var commentObject = Instantiate(parentCommentPrefab, commentPanelContent.transform);
-                            commentObject.GetComponent<CommentBinding>().Init(comment, commentPanelContent.transform);
-                        }    
+                            commentObject.GetComponent<CommentBinding>().Init(comment, commentPanelContent.transform, forumNewFeedManager, this, (parentComment) => { SwitchToReply(parentComment); });
+                            commentBindings.Add(commentObject.GetComponent<CommentBinding>());
+                        }
+                        StartCoroutine(WaitCommentReady());
                     },
                     (ex) => { }
                 );
+        }
+
+        public void CreateComment()
+        {
+            if (isReply)
+            {
+                if (!commentInputField.text.IsNullOrEmpty())
+                {
+                    ApiHelper.Instance.GetComponent<PostCommentController>()
+                        .CreateReply(
+                            (Guid)post.PostId,
+                            (Guid)parentCommentToReply.CommentId,
+                            new()
+                            {
+                                MemberId = Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
+                                Comment = commentInputField.text,
+                                CommentType = 1,
+
+                            },
+                            (postComment) =>
+                            {
+                                Debug.Log("Create reply success!");
+                                ShowCommentPanel();
+                            },
+                            (ex) => { }
+                        );
+                }
+            }
+            else
+            {
+                if (!commentInputField.text.IsNullOrEmpty())
+                {
+                    ApiHelper.Instance.GetComponent<PostCommentController>()
+                        .CreateComment(
+                            (Guid)post.PostId,
+                            new()
+                            {
+                                MemberId = Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
+                                Comment = commentInputField.text,
+                                CommentType = 0,
+                            },
+                            (postComment) =>
+                            {
+                                Debug.Log("Create comment success!");
+                                ShowCommentPanel();
+                            },
+                            (ex) => { }
+                        );
+                }
+            }
+        }
+
+       
+
+        public void SwitchToReply(PostComment parentComment)
+        {
+            string tmpComment = parentComment.Comment;
+            if (parentComment.Comment.Length > 20)
+            {
+                tmpComment = tmpComment.Substring(0, 20) + "...";
+            }
+            replyCommentNotyLabel.gameObject.SetActive(true);
+            replyCommentNotyLabel.text = $"Trả lời {parentComment.Member.UserName} \n <i>{tmpComment}</i>";
+            parentCommentToReply = parentComment;
+            isReply = true;
+        }
+        public void SwitchToComment()
+        {
+            replyCommentNotyLabel.text = "";
+            replyCommentNotyLabel.gameObject.SetActive(false);
+            parentCommentToReply = null;
+            isReply = false;
+        }
+
+
+        IEnumerator WaitCommentReady()
+        {
+            yield return new WaitUntil(
+                    () =>
+                    {
+                        bool isReady = true;
+                        foreach (var comment in commentBindings)
+                        {
+                            isReady = isReady && comment.ready;
+                        }
+                        return isReady;
+                    }
+                );
+
+            foreach (var comment in commentBindings)
+            {
+                if (comment != null)
+                {
+                    yield return new WaitUntil(() => comment.ready);
+                    comment.DeactiveReplyPanel();
+                }
+            }
+
+            commentPanelContent.gameObject.SetActive(false);
+            commentPanelContent.gameObject.SetActive(true);
         }
         private void OnDestroy()
         {

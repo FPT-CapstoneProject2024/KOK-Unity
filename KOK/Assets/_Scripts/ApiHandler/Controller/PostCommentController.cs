@@ -1,7 +1,9 @@
 ﻿using KOK.ApiHandler.Context;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Request;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.PostComment;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PostComment;
 using Newtonsoft.Json;
 using System;
@@ -10,6 +12,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using WebSocketSharp;
 
@@ -107,7 +110,7 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
 
         public void GetAllCommentsOfAPost(Guid postId, Action<List<PostComment>> onSuccess, Action<string> onError)
         {
-            PostCommentFilter filter = new() { PostId = postId, CommentType = 0 };
+            PostCommentFilter filter = new() { PostId = postId, CommentType = 0, Status = 1 };
             var queryParams = GeneratePostCommentQueryParams(filter, new(), new());
             var url = QueryHelper.BuildUrl(postCommentResourceUrl, queryParams);
 
@@ -115,12 +118,71 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
                 (successValue) =>
                 {
                     var result = JsonConvert.DeserializeObject<DynamicResponseResult<PostComment>>(successValue);
+                    foreach (var comment in result.Results)
+                    {
+                        comment.InverseParentComment = comment.InverseParentComment.Where(reply => (int)reply.Status == 1).ToList();
+                    }
                     onSuccess?.Invoke(result.Results);
                 },
                 (errorValue) =>
                 {
                     Debug.LogError($"Error when trying to retrieve PostComment list: {errorValue}");
                     onError?.Invoke(errorValue);
+                });
+        }
+
+        public void CreateComment(Guid postId, CreatePostCommentRequest request, Action<ResponseResult<PostComment>> onSuccess, Action<string> onError)
+        {
+            request.PostId = postId;
+            var jsonData = JsonConvert.SerializeObject(request);
+            ApiHelper.Instance.PostCoroutine(postCommentResourceUrl, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<PostComment>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<string>(errorValue);
+                    onError?.Invoke(result);
+                });
+        }
+
+        public void DeleteCommentByIdCoroutine(Guid postCommentId, Action onSuccess, Action onError)
+        {
+            if (postCommentId == null)
+            {
+                Debug.Log("Failed to get Post by ID. Post ID is null!");
+                return;
+            }
+            var url = postCommentResourceUrl + $"/{postCommentId.ToString()}";
+            ApiHelper.Instance.DeleteCoroutine(url,
+                (successValue) =>
+                {
+                    onSuccess?.Invoke();
+                },
+                (errorValue) =>
+                {
+                    onError?.Invoke();
+                });
+
+        }
+
+        public void CreateReply(Guid postId, Guid parentCommentId, CreatePostCommentRequest request, Action<ResponseResult<PostComment>> onSuccess, Action<string> onError)
+        {
+            request.PostId = postId;
+            request.ParentCommentId = parentCommentId;
+            var jsonData = JsonConvert.SerializeObject(request);
+            ApiHelper.Instance.PostCoroutine(postCommentResourceUrl, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<PostComment>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<string>(errorValue);
+                    onError?.Invoke(result);
                 });
         }
         public NameValueCollection GeneratePostCommentQueryParams(PostCommentFilter filter, PostCommentOrderFilter orderFilter, PagingRequest paging)
@@ -135,6 +197,8 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
             {
                 queryParams.Add(nameof(filter.PostId), filter.PostId.ToString());
             }
+
+            queryParams.Add(nameof(filter.Status), filter.Status.ToString());
 
             if (!filter.Comment.IsNullOrEmpty())
             {
@@ -151,6 +215,26 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
             //queryParams.Add(nameof(orderFilter), orderFilter.ToString());
 
             return queryParams;
+        }
+
+        public void UpdateCommentCoroutine(Guid postCommentId, EditPostCommentRequest request, Action<ResponseResult<PostComment>> onSuccess, Action<ResponseResult<PostComment>> onError)
+        {
+            var jsonData = JsonConvert.SerializeObject(request);
+            //jsonData = jsonData.Replace("\"Caption\":", "");
+            var url = postCommentResourceUrl + "/" + postCommentId;
+            Debug.Log(url + "  |  " + jsonData);
+            ApiHelper.Instance.PutCoroutine(url, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<PostComment>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<PostComment>>(errorValue);
+                    Debug.LogError(result.Value + "\n" + result.Message) ;
+                    onError?.Invoke(result);
+                });
         }
     }
 }

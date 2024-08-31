@@ -13,5 +13,6 @@ namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Request.PostComment
         public Guid PostId { get; set; } = Guid.Empty;
         public int CommentType { get; set; } = 0;
         public string Comment { get; set; } = string.Empty;
+        public int Status { get; set; } = 0;
     }
 }
