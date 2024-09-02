@@ -47,5 +47,21 @@ namespace KOK.ApiHandler.Controller
 
             return queryParams;
         }
+
+        public void PurchasePackagePayOSCoroutine(PayOSPackagePurchaseRequest request, Action<ResponseResult<PayOSPackagePurchaseResponse>> onSuccess, Action<ResponseResult<PayOSPackagePurchaseResponse>> onError)
+        {
+            var jsonData = JsonConvert.SerializeObject(request);
+            ApiHelper.Instance.PostCoroutine(packageResourceUrl + "/purchase/payos", jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<PayOSPackagePurchaseResponse>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<PayOSPackagePurchaseResponse>>(errorValue);
+                    onError?.Invoke(result);
+                });
+        }
     }
 }
