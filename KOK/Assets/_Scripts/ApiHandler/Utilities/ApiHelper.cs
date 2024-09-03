@@ -25,6 +25,7 @@ namespace KOK.ApiHandler.Utilities
     [RequireComponent (typeof(UpPackageController))]
     [RequireComponent(typeof(MoMoController))]
     [RequireComponent (typeof(InAppTransactionController))]
+    [RequireComponent (typeof(ReportController))]
     /// <summary>
     /// A singleton helper class to handle API calls in Unity.
     /// </summary>

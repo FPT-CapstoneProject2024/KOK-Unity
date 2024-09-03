@@ -55,6 +55,9 @@ namespace KOK
         [SerializeField] TMP_InputField commentInputField;
         [SerializeField] TMP_Text replyCommentNotyLabel;
 
+        [Header("Report")]
+        [SerializeField] public ReportBinding reportBinding;
+
         PostComment parentCommentToReply;
         bool isReply;
 
@@ -388,7 +391,7 @@ namespace KOK
 
         public void OnOptionDropdownValueChange()
         {
-            Debug.Log(optionDropdown.options[optionDropdown.value]);
+            //Debug.Log(optionDropdown.options[optionDropdown.value]);
             if (optionDropdown.options[optionDropdown.value].text.Equals("Xoá"))
             {
                 OpenDeletePostConfirm();
@@ -396,7 +399,11 @@ namespace KOK
             else if (optionDropdown.options[optionDropdown.value].text.Equals("Chỉnh sửa"))
             {
                 OpenEditPostPanel();
-            }
+            } 
+            else if (optionDropdown.options[optionDropdown.value].text.Equals("Báo cáo"))
+            {
+                OpenReportPanel();
+            } 
 
             if (post.MemberId.Equals(Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId))))
             {
@@ -469,6 +476,12 @@ namespace KOK
                 );
         }
 
+        private void OpenReportPanel()
+        {
+            reportBinding.gameObject.SetActive(true);
+            reportBinding.Init((Guid)post.PostId, (Guid)post.MemberId, ReportType.POST, forumNewFeedManager);
+        }
+
         public void CreateComment()
         {
             if (isReply)
@@ -519,7 +532,7 @@ namespace KOK
             }
         }
 
-       
+
 
         public void SwitchToReply(PostComment parentComment)
         {
@@ -568,6 +581,7 @@ namespace KOK
             commentPanelContent.gameObject.SetActive(false);
             commentPanelContent.gameObject.SetActive(true);
         }
+
         private void OnDestroy()
         {
             DirectoryInfo dir = new DirectoryInfo(audioLocalDirectory);

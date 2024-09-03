@@ -50,6 +50,9 @@ namespace KOK
         [SerializeField] EditCommentBinding editCommentBinding;
         [SerializeField] TMP_InputField editInputField;
 
+        [Header("Report")]
+        [SerializeField] public ReportBinding reportBinding;
+
         private PostComment postComment;
         public void Init(PostComment postComment, Transform commentViewPortContent, ForumNewFeedManager forumNewFeedManager, PostBinding postBinding, Action<PostComment> switchToReply)
         {
@@ -66,6 +69,7 @@ namespace KOK
             this.switchToReply = switchToReply;
             this.forumNewFeedManager = forumNewFeedManager;
             this.postBinding = postBinding;
+            this.reportBinding = postBinding.reportBinding;
             StartCoroutine(SetCommentSize());
 
         }
@@ -191,6 +195,10 @@ namespace KOK
             {
                 OpenEditCommentPanel();
             }
+            else if (optionDropdown.options[optionDropdown.value].text.Equals("Báo cáo"))
+            {
+                OpenReportPanel();
+            }
 
             if (postComment.MemberId.Equals(Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId))))
             {
@@ -230,6 +238,12 @@ namespace KOK
                             );
                     }
                 );
+        }
+
+        private void OpenReportPanel()
+        {
+            reportBinding.gameObject.SetActive(true);
+            reportBinding.Init((Guid)postComment.CommentId, (Guid)postComment.MemberId, ReportType.COMMENT, forumNewFeedManager);
         }
     }
 }

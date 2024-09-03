@@ -58,7 +58,7 @@ namespace KOK
             {
                 return;
             }
-            Debug.LogError(isOwnedProfile);
+            //Debug.LogError(isOwnedProfile);
             ApiHelper.Instance.GetComponent<PostController>()
             .GetPostsFilterPagingCoroutine(
                 new PostFilter(),
@@ -194,6 +194,8 @@ namespace KOK
                 }
             );
         }
+
+        
 
     }
 }
