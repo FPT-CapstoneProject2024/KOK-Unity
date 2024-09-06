@@ -74,8 +74,8 @@ namespace KOK
         {
             string fileName = Path.GetFileName(localFilePath);
             StorageReference fileRef = voiceRecordingReference.Child(fileName);
-
-            fileRef.PutFileAsync(localFilePath)
+            string local_file_uri = string.Format("{0}://{1}", Uri.UriSchemeFile, localFilePath);
+            fileRef.PutFileAsync(local_file_uri)
                 .ContinueWith((Task<StorageMetadata> task) =>
                 {
                     if (task.IsFaulted || task.IsCanceled)
@@ -88,7 +88,7 @@ namespace KOK
                         // Metadata contains file metadata such as size, content-type, and download URL.
                         StorageMetadata metadata = task.Result;
                         string md5Hash = metadata.Md5Hash;
-                        Debug.Log("Finished uploading...");
+                        Debug.Log("Finished uploading voice record...");
                         onSuccess?.Invoke(metadata);
                     }
                 });
@@ -131,16 +131,20 @@ namespace KOK
         {
             string fileName = Path.GetFileName(localFilePath);
             StorageReference fileRef = voiceRecordingReference.Child(fileName);
-            fileRef.GetFileAsync(localFilePath).ContinueWith(task => {
+
+            string local_file_uri = string.Format("{0}://{1}", Uri.UriSchemeFile, localFilePath);
+            fileRef.GetFileAsync(local_file_uri).ContinueWith(task => {
                 if (task.IsFaulted || task.IsCanceled)
                 {
-                    Debug.Log(localFilePath + "\n" + task.Exception.ToString());
+                    Debug.Log(local_file_uri + "\n" + task.Exception.ToString());
                     onError?.Invoke();
                 }
                 else
                 {
-                    Debug.Log("File downloaded successfully at \n" + localFilePath);
-                    onSuccess?.Invoke();
+                    Debug.Log("File downloaded successfully at \n" + local_file_uri);
+                    Debug.LogError(onSuccess);
+                    onSuccess.Invoke();
+                    Debug.Log("test success");
                 }
             });
         }
@@ -216,7 +220,10 @@ namespace KOK
             //fileName.Replace(".txt", "");
             StorageReference fileRef = roomLoggingReference.Child(fileName);
 
-            fileRef.PutFileAsync(localFilePath)
+
+            string local_file_uri = string.Format("{0}://{1}", Uri.UriSchemeFile, localFilePath);
+
+            fileRef.PutFileAsync(local_file_uri)
                 .ContinueWith((Task<StorageMetadata> task) =>
                 {
                     if (task.IsFaulted || task.IsCanceled)

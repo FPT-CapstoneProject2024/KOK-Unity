@@ -81,6 +81,7 @@ namespace KOK
         private void Start()
         {
             audioLocalDirectory = Application.persistentDataPath + "/AudioProcess/";
+            
         }
         public void Init(Post post, bool isOwnPostProfile, ForumNewFeedManager forumNewFeedManager)
         {
@@ -342,7 +343,7 @@ namespace KOK
 
         private void Stop()
         {
-            ResetAudioSourceComponent();
+            //ResetAudioSourceComponent();
             videoPlayer.Stop();
             videoRenderTexture.gameObject.SetActive(false);
             progressSlider.value = 0;

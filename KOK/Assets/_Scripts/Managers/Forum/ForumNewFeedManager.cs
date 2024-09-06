@@ -29,6 +29,7 @@ namespace KOK
 
         private void Start()
         {
+            postBinding.Clear();
             RefreshForum();
             LoadOwnAccount();
         }
