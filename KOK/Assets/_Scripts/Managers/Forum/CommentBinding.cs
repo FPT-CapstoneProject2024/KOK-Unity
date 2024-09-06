@@ -1,16 +1,13 @@
 ﻿using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.Controller;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PostComment;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
-using WebSocketSharp;
 
 namespace KOK
 {
@@ -63,7 +60,7 @@ namespace KOK
             avatar.sprite = Resources.Load<Sprite>(postComment.Member.CharaterItemCode + "AVA");
             userName.text = postComment.Member.UserName.ToString();
             commentContent.text = postComment.Comment;
-            createDateTime.text = postComment.UploadTime.ToString();
+            createDateTime.text = postComment.UploadTime.ToString("hh:mm  dd/MM/yyyy");
             this.commentViewPortContent = commentViewPortContent;
             this.postComment = postComment;
             this.switchToReply = switchToReply;
@@ -94,7 +91,7 @@ namespace KOK
                         isShowReply = true;
                         showReplyButton.gameObject.SetActive(true);
                         replyCommentBindingList.Clear();
-                        postComment.InverseParentComment.Reverse();
+                        //postComment.InverseParentComment.Reverse();
                         foreach (var comment in postComment.InverseParentComment)
                         {
                                 var commentObject = Instantiate(childCommentPrefab, replyPanel.transform);

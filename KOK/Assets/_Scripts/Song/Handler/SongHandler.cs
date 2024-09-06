@@ -89,13 +89,17 @@ namespace KOK
 
         private void ClearContainer()
         {
-            if (songContainer.transform.childCount > 0)
+            try
             {
-                while (songContainer.transform.childCount > 0)
+                if (songContainer.transform.childCount > 0)
                 {
-                    DestroyImmediate(songContainer.transform.GetChild(0).gameObject);
+                    while (songContainer.transform.childCount > 0)
+                    {
+                        DestroyImmediate(songContainer.transform.GetChild(0).gameObject);
+                    }
                 }
             }
+            catch { }
         }
 
         private void SpawnSongItem(List<SongDetail> songs)

@@ -3,16 +3,12 @@ using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.PostComment;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Post;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PostComment;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using WebSocketSharp;
 

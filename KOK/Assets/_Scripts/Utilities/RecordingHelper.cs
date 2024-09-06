@@ -36,18 +36,23 @@ namespace KOK
 
         private void DownLoadFile(string localAudioFilePath, Action onError)
         {
+            Debug.LogError("1 Extract to: " + Application.persistentDataPath + "/AudioProcess/");
             FirebaseStorageManager.Instance
                 .DownloadVoiceRecordingFile(
-                    "Assets/Resources/AudioProcess/" + localAudioFilePath +".zip",
+                    Application.persistentDataPath+"/AudioProcess/" + localAudioFilePath +".zip",
                     () =>
                     {
-                        wavFilePath = ExtractWavFileFromZip("Assets/Resources/AudioProcess/" + localAudioFilePath + ".zip", "Assets/Resources/AudioProcess/");
-                        Debug.Log(wavFilePath + "\n" + localAudioFilePath + "\n" + FileCompressionHelper.ExtractWavFileFromZip("Assets/Resources/AudioProcess/" + localAudioFilePath + ".zip", "Assets/Resources/AudioProcess/"));
+                        Debug.LogError("2 Extract to: " + Application.persistentDataPath + "/AudioProcess/");
+
+                        //wavFilePath = ExtractWavFileFromZip(Application.persistentDataPath+"/AudioProcess/" + localAudioFilePath + ".zip", 
+                        //    Application.persistentDataPath + "/AudioProcess/");
+                        //Debug.Log(wavFilePath + "\n" + localAudioFilePath);
                         //Debug.Log("AudioProcess/" + Path.GetFileNameWithoutExtension(wavFilePath));
 
                     },
                     () =>
                     {
+                        Debug.LogError("WTF ERROR?");
                         onError.Invoke();
                     }
                 );
@@ -71,6 +76,7 @@ namespace KOK
 
         private string ExtractWavFileFromZip(string zipFilePath, string destinationFolder)
         {
+            Debug.Log("Extract to: " + zipFilePath);
             try
             {
                 using (ZipArchive archive = ZipFile.OpenRead(zipFilePath))

@@ -40,6 +40,7 @@ public class FFMPEG : MonoBehaviour
 
     public void DownloadFile2(string localZipFilePath, Action onSuccess, Action onError)
     {
+        Debug.LogError("DownloadFile2");
         string folderPath = Path.Combine(Application.persistentDataPath, "AudioProcess");
         //string filePath = Path.Combine(folderPath, fileName);
 

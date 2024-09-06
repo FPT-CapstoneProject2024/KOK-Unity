@@ -20,6 +20,7 @@ using Random = UnityEngine.Random;
 
 public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 {
+    public static bool isHost = false;
     public static FusionManager Instance;
     public bool connectOnAwake = false;
     public NetworkRunner runner;
@@ -71,6 +72,10 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
+    private void OnEnable()
+    {
+        isHost = false;
+    }
     private void Start()
     {
         lobbyCanvas.gameObject.SetActive(true);
@@ -109,6 +114,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void CreateRoom()
     {
+        isHost = true;
         playerRole = 0;
         _playerName = nameInput.text;
         if (_playerName.IsNullOrEmpty())
@@ -330,6 +336,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         //Debug.Log("OnDisconnectedFromServer");
         FindAnyObjectByType<RoomListUpdate>().ClearRoomList();
         createButton.interactable = false;
+        isHost = false;
     }
 
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken)

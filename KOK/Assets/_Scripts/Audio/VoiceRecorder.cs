@@ -189,7 +189,7 @@ namespace KOK.Audio
         {
             string wavFilePath = SaveAudioClipAsWav();
             // Compress .wav file to zip
-            string compressedFilePath = FileCompressionHelper.CompressWavFileAsZip(Application.persistentDataPath + "/Recordings/", wavFilePath);
+            string compressedFilePath = FileCompressionHelper.CompressWavFileAsZip(Application.persistentDataPath+"/Recordings/", wavFilePath);
             Debug.Log($"Compressed file path: {compressedFilePath}");
             if (string.IsNullOrEmpty(compressedFilePath))
             {

@@ -2668,6 +2668,15 @@
             <summary>Defines if the (TCP) socket implementation needs to do "framing".</summary>
             <remarks>The WebSocket protocol (e.g.) includes framing, so when that is used, we set DoFraming to false.</remarks>
         </member>
+        <member name="F:ExitGames.Client.Photon.TPeer.waitForInitResponse">
+            <summary>
+            Helper value to track if this TPeer sends an init request and has to wait for the response. Defaults to true.
+            </summary>
+            <remarks>
+            For WebSockets, the init request is usually skipped (unless there is an init-token)
+            Setting this false allows WS/WSS to send pings even before the init-response is back. this fixes a bug in some platforms which do not provide the init-response message (for unknown reasons)
+            </remarks>
+        </member>
         <member name="M:ExitGames.Client.Photon.TPeer.DispatchIncomingCommands">
             <summary>
             Checks the incoming queue and Dispatches received data if possible. Returns if a Dispatch happened or
@@ -2687,7 +2696,7 @@
             <summary>enqueues serialized operations to be sent as tcp stream / package</summary>
         </member>
         <member name="M:ExitGames.Client.Photon.TPeer.SendPing">
-            <summary>Queues a ping (operation or "message") and updates this.lastPingActivity to avoid another ping for a while.</summary>
+            <summary>Checks conditions. Immediately sends a ping as operation or "message". Updates this.lastPingActivity to avoid another ping for a while.</summary>
         </member>
         <member name="M:ExitGames.Client.Photon.TPeer.ReceiveIncomingCommands(System.Byte[],System.Int32)">
             <summary>reads incoming tcp-packages to create and queue incoming commands*</summary>

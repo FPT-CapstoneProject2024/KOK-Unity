@@ -55,7 +55,7 @@ namespace KOK
 
         public void ToShopScene()
         {
-            SceneManager.LoadScene(sceneName: "Shop");
+            SceneManager.LoadScene(sceneName: "v_shop");
         }
 
         public void ToLogin()
