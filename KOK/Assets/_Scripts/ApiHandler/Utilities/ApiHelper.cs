@@ -25,6 +25,7 @@ namespace KOK.ApiHandler.Utilities
     [RequireComponent (typeof(UpPackageController))]
     [RequireComponent(typeof(MoMoController))]
     [RequireComponent (typeof(InAppTransactionController))]
+    [RequireComponent (typeof(ReportController))]
     /// <summary>
     /// A singleton helper class to handle API calls in Unity.
     /// </summary>
@@ -196,7 +197,7 @@ namespace KOK.ApiHandler.Utilities
 
                 if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
-                    Debug.Log($"{url} - PUT - {webRequest.error}");
+                    Debug.LogError($"{url} - PUT - {webRequest.error}");
                     onError?.Invoke(webRequest.downloadHandler.text);
                 }
                 else

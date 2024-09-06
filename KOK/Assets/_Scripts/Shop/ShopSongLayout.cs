@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using KOK.ApiHandler.DTOModels;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Song;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Songs;
 using KOK.ApiHandler.Context;
 using KOK.Assets._Scripts.Shop;
 using KOK.ApiHandler.Controller;

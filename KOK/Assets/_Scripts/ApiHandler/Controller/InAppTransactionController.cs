@@ -2,7 +2,7 @@
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.InAppTransaction;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.InAppTransactions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

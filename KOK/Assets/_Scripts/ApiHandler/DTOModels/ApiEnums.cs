@@ -1,3 +1,5 @@
+﻿using System.Collections.Generic;
+
 namespace KOK.ApiHandler.DTOModels
 {
     #region Filter_and_Sorting
@@ -215,5 +217,33 @@ namespace KOK.ApiHandler.DTOModels
         MOMO = 1,
     }
 
+    #endregion
+
+    #region ReportCategory
+    public static class ReportCategory
+    {
+        public static List<string> List = new()
+        {
+            "Nội dung liên quan đến tình dục",
+            "Bắt nạt hoặc quấy rối",
+            "Kêu gọi bạo lực, thù ghét",
+            "Tự tử hoặc tự gây thương tích",
+            "Bán hoặc quảng cáo mặt hàng bị cấm",
+            "Lừa đảo hoặc mạo danh",
+            "Spam",
+            "Thông tin sai sự thật",
+            "Vi phạm quyền sở hữu trí tuệ",
+        };
+    }
+
+    #endregion
+
+    #region ReportType
+    public enum ReportType
+    {
+        POST,
+        COMMENT,
+        ROOM
+    }
     #endregion
 }

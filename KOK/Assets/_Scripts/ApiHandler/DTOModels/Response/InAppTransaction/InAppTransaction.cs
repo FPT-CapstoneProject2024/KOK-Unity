@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response.InAppTransaction
+namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response.InAppTransactions
 {
     [Serializable]
     public class InAppTransaction
