@@ -1,15 +1,18 @@
 ﻿using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
+using QRCoder;
 using System;
 using System.Collections.Specialized;
 using System.Web;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace KOK
 {
-    public class PackagePurchaseHandler : MonoBehaviour
+    public class PackagePurchaseHandler : MonoBehaviour, IPointerClickHandler
     {
         [Header("Confirm Components")]
         [SerializeField] public GameObject ConfirmComponent;
@@ -21,11 +24,14 @@ namespace KOK
         [Header("Notification Component")]
         [SerializeField] public GameObject PurchaseResultComponent;
         [SerializeField] public TMP_Text PurchaseResultMessage;
+        [SerializeField] public RawImage qrImage;
 
         private PurchasePackageParam purchasePackageParam;
+        private Texture2D storeEncodedTexture;
 
         private void Start()
         {
+            storeEncodedTexture = new Texture2D(256, 256);
             purchasePackageParam = null;
             gameObject.SetActive(false);
         }
@@ -56,12 +62,18 @@ namespace KOK
                 SetPurchaseResultMessage("Không tìm thấy ID của người dùng. Vui lòng đăng nhập lại!");
                 return;
             }
-            MoMoPaymentRequest paymentRequest = new MoMoPaymentRequest()
+            //MoMoPaymentRequest paymentRequest = new MoMoPaymentRequest()
+            //{
+            //    PackageId = purchasePackageParam.PackageId,
+            //    MemberId = Guid.Parse(accountId),
+            //};
+            PayOSPackagePurchaseRequest purchaseRequest = new PayOSPackagePurchaseRequest()
             {
                 PackageId = purchasePackageParam.PackageId,
                 MemberId = Guid.Parse(accountId),
             };
-            ApiHelper.Instance.GetComponent<MoMoController>().CreatePackagePurchaseMoMoRequestCoroutine(paymentRequest, OnCreateMoMoPaymentSuccess, OnCreateMoMoPaymentError);
+            //ApiHelper.Instance.GetComponent<MoMoController>().CreatePackagePurchaseMoMoRequestCoroutine(paymentRequest, OnCreateMoMoPaymentSuccess, OnCreateMoMoPaymentError);
+            ApiHelper.Instance.GetComponent<UpPackageController>().PurchasePackagePayOSCoroutine(purchaseRequest, OnCreatePayOSPaymentSuccess, OnCreatePayOSPaymentError);
         }
 
         private void OnCreateMoMoPaymentSuccess(ResponseResult<MoMoCreatePaymentResponse> responseResult)
@@ -78,6 +90,37 @@ namespace KOK
         }
 
         private void OnCreateMoMoPaymentError(ResponseResult<MoMoCreatePaymentResponse> responseResult)
+        {
+            if (responseResult == null)
+            {
+                SetPurchaseResultMessage("Tạo yêu cầu nạp UP thất bại. Vui lòng thử lại!");
+                DisplayPurchaseResult();
+                return;
+            }
+            SetPurchaseResultMessage(responseResult.Message);
+            DisplayPurchaseResult();
+        }
+
+        private void OnCreatePayOSPaymentSuccess(ResponseResult<PayOSPackagePurchaseResponse> responseResult)
+        {
+            if (responseResult.Value == null || !responseResult.Result.HasValue || !((bool)responseResult.Result))
+            {
+                SetPurchaseResultMessage(responseResult.Message);
+                DisplayPurchaseResult();
+                return;
+            }
+            Debug.Log($"Link: {responseResult.Value.checkoutUrl}");
+
+            string resultMessage = $"Tạo yêu cầu nạp UP thành công. Nhấn <color=#00BFFF><link=\"{responseResult.Value.checkoutUrl}\"><u>tại đây</u></link></color> để đến trang thanh toán.";
+            SetPurchaseResultMessage(resultMessage);
+            SetPayOSQrImage(responseResult.Value);
+            DisplayPurchaseResult();
+            //Debug.Log(responseResult.Value.GetDataAsString());
+            //string targetAppDeepLink = responseResult.Value.Deeplink;
+            //Application.OpenURL(targetAppDeepLink);
+        }
+
+        private void OnCreatePayOSPaymentError(ResponseResult<PayOSPackagePurchaseResponse> responseResult)
         {
             if (responseResult == null)
             {
@@ -156,7 +199,7 @@ namespace KOK
             else if (resultCode == 0 || resultCode == 9000)
             {
                 var upBalanceHandler = FindAnyObjectByType<UpBalanceHandler>();
-                if (upBalanceHandler != null) 
+                if (upBalanceHandler != null)
                 {
                     upBalanceHandler.ReloadUserUpBalance();
                 }
@@ -180,12 +223,65 @@ namespace KOK
 
         private void OnEnable()
         {
-            SubscribeToEvent();
+            //SubscribeToEvent();
         }
 
         private void OnDisable()
         {
-            UnsubscribeToEvent();
+            //UnsubscribeToEvent();
+        }
+
+        private void SetPayOSQrImage(PayOSPackagePurchaseResponse purchaseResponse)
+        {
+            var texture = EncodeTextToQRCode(purchaseResponse.qrCode);
+            qrImage.texture = texture;
+        }
+
+        private Texture2D EncodeTextToQRCode(string text)
+        {
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
+            QRCode qrCode = new QRCode(qrCodeData);
+
+            // Get raw pixel data from the QR code
+            var qrCodeMatrix = qrCodeData.ModuleMatrix;
+
+            // Create a texture based on the size of the QR code matrix
+            int size = qrCodeMatrix.Count;
+            Texture2D texture = new Texture2D(size, size);
+
+            // Set each pixel in the texture based on the QR code matrix
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    // If true, set the pixel to black, otherwise white
+                    UnityEngine.Color color = qrCodeMatrix[y][x] ? UnityEngine.Color.black : UnityEngine.Color.white;
+                    texture.SetPixel(x, y, color);
+                }
+            }
+
+            // Apply the changes to the texture
+            texture.filterMode = FilterMode.Point; // Ensures sharpness for pixelated images
+            texture.Apply();
+
+            return texture;
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            // Get the index of the link that was clicked
+            int linkIndex = TMP_TextUtilities.FindIntersectingLink(PurchaseResultMessage, Input.mousePosition, Camera.main);
+
+            if (linkIndex != -1)
+            {
+                // Extract the link ID from the text
+                TMP_LinkInfo linkInfo = PurchaseResultMessage.textInfo.linkInfo[linkIndex];
+                string linkId = linkInfo.GetLinkID();
+
+                // Open the link in the browser
+                Application.OpenURL(linkId);
+            }
         }
     }
 }
