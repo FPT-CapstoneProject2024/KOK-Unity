@@ -183,6 +183,7 @@ public class RecordingLoader : MonoBehaviour
                             audioSource.clip = audioClip;
                             audioSources.Add(audioSource);
                             isAudioReady.RemoveAt(0);
+                            Debug.Log($"Audio {audio.VoiceUrl} is ready!");
                         },
                         () => { }
                     );
@@ -210,14 +211,13 @@ public class RecordingLoader : MonoBehaviour
 
         }
         StartCoroutine(Prepare());
-        Debug.Log("prepare " + isAudioReady.Count);
         //StartCoroutine(Prepare());
         //StartCoroutine(LoadRecording(songVideoUrl, localFilePaths));
     }
 
     IEnumerator AutoCancelLoadFail()
     {
-        yield return new WaitForSeconds(15);
+        yield return new WaitForSeconds(30);
         if (!readyToPlay) {
             StopAllCoroutines();
             loadingPanel.SetActive(false);
@@ -228,6 +228,8 @@ public class RecordingLoader : MonoBehaviour
 
     private IEnumerator Prepare()
     {
+
+        Debug.Log("prepare " + isAudioReady.Count);
         yield return new WaitUntil(() => isAudioReady.Count == 0);
 
         Debug.Log("prepare audio complete ");

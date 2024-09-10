@@ -1,4 +1,4 @@
-using Firebase.Storage;
+﻿using Firebase.Storage;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -17,7 +17,7 @@ namespace KOK.Audio
     {
         const int MAX_RECORDING_DURATION_SECONDS = 600; // 10 minutes
         const int DEFAULT_SAMPLE_RATES = 48000; // 48khz
-
+        [SerializeField] RoomNotification roomNotification;
         public string FileName
         {
             get => fileName;
@@ -41,6 +41,7 @@ namespace KOK.Audio
             audioSource.playOnAwake = false;
             isRecording = false;
             recordingSaveLocation = Application.persistentDataPath + "/Recordings/";
+            if (roomNotification == null) roomNotification = FindAnyObjectByType<RoomNotification>();
             InitializeMicrophone();
         }
 
@@ -224,6 +225,7 @@ namespace KOK.Audio
 
             yield return new WaitUntil(() => uploadCompleted);
 
+            Debug.LogError(roomNotification);
             if (uploadSuccessful)
             {
                 try
@@ -235,10 +237,12 @@ namespace KOK.Audio
                 {
                     Debug.LogError($"An error occurred while deleting local files: {ex.Message}");
                 }
+                roomNotification.ShowNoti("Lưu bản ghi âm thành công!", true);
             }
             else
             {
                 Debug.LogError($"Failed to upload file to Firebase: {uploadException}");
+                roomNotification.ShowNoti("Không thể lưu bản ghi âm!", false);
             }
         }
 

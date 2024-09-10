@@ -10,7 +10,7 @@ using WebSocketSharp;
 
 namespace KOK
 {
-    public class ChatManager : NetworkBehaviour
+    public class ChatManager : MonoBehaviour
     {
         [SerializeField] TMP_InputField chatInputField;
         RPCMessage RPCMessage;
@@ -32,20 +32,19 @@ namespace KOK
 
         private void OnEnable()
         {
-            if (HasStateAuthority)
-            {
-                StartCoroutine(SetUpChat());
-                messageTMPP = messageTMP;
-            }
+            StartCoroutine(SetUpChat());
+            messageTMPP = messageTMP;
+
         }
 
         IEnumerator SetUpChat()
         {
-            yield return new WaitForSeconds(1f);
-            runner = FindAnyObjectByType<NetworkRunner>();
+            yield return new WaitForSeconds(2f);
+            runner = NetworkRunner.Instances[0];
             RPCMessage = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<RPCMessage>();
             playerName = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerName.ToString();
-            if (playerName.IsNullOrEmpty())
+            Debug.LogError(playerName + " | " + runner);
+            if (playerName.IsNullOrEmpty() || runner == null)
             {
                 StartCoroutine(SetUpChat());
             }
@@ -53,63 +52,57 @@ namespace KOK
 
         private void Update()
         {
-            if (HasStateAuthority)
+            if (allowEnter)
             {
-                if (allowEnter)
+                if (!chatInputField.text.IsNullOrEmpty() && ((Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.KeypadEnter))))
                 {
-                    if (!chatInputField.text.IsNullOrEmpty() && ((Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.KeypadEnter))))
-                    {
-                        SendChat();
-                        allowEnter = false;
-                    }
-                }
-                else
-                {
-                    if (chatInputField.isFocused)
-                    {
-                        allowEnter = true;
-                    }
+                    SendChat();
+                    allowEnter = false;
                 }
             }
+            else
+            {
+                if (chatInputField.isFocused)
+                {
+                    allowEnter = true;
+                }
+            }
+
         }
 
         public void SendChat()
         {
-            if (HasStateAuthority)
-            {
-                SendMessageAll(playerName, chatInputField.text.Trim());
-                chatInputField.text = "";
-            }
+            SendMessageAll(playerName, chatInputField.text.Trim());
+            chatInputField.text = "";
+
         }
 
         public void SendMessageAll(string message)
         {
-            if (HasStateAuthority)
+            //runner = NetworkRunner.Instances[0];
+            if (runner.ActivePlayers.Count() > 1)
             {
-                if (runner.ActivePlayers.Count() > 1)
-                {
-                    RPC_SendMessage(runner, $"{message}\n");
-                }
-                else
-                {
-                    CallMessageOnly1Player($"{message}\n");
-                }
+                RPC_SendMessage(runner, $"{message}\n");
             }
+            else
+            {
+                CallMessageOnly1Player($"{message}\n");
+            }
+
         }
 
         public void SendMessageAll(string username, string message)
         {
-            if (HasStateAuthority)
+            //runner = NetworkRunner.Instances[0];
+            if (runner.ActivePlayers.Count() > 1)
             {
-                if (runner.ActivePlayers.Count() > 1)
-                {
-                    RPC_SendMessage(runner, $"{username}: {message}\n");
-                }
-                else
-                {
-                    CallMessageOnly1Player($"{username}: {message}\n");
-                }
+                RPC_SendMessage(runner, $"{username}: {message}\n");
             }
+            else
+            {
+                CallMessageOnly1Player($"{username}: {message}\n");
+            }
+
         }
         public void CallMessageOnly1Player(string message)
         {

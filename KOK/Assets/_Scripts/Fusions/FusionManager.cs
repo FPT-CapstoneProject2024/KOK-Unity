@@ -115,6 +115,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     public void CreateRoom()
     {
         isHost = true;
+        Debug.LogError("Create button click " + isHost);
         playerRole = 0;
         _playerName = nameInput.text;
         if (_playerName.IsNullOrEmpty())
@@ -144,9 +145,10 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         //}
         //ConnectToRunner(_playerName, roomName);
     }
-    
+
     public void JoinRoom(string roomName)
     {
+        isHost = false;
         playerRole = 1;
         _playerName = nameInput.text;
         if (_playerName.IsNullOrEmpty())
@@ -283,8 +285,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         FindAnyObjectByType<RoomListUpdate>().UpdateRoomList(sessionList);
     }
-    
-   
+
+
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
@@ -292,7 +294,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         randomJoinButton.interactable = false;
 
         playerObject = runner.Spawn(playerPrefab, Vector3.zero, Quaternion.identity);
-        
+
 
 
         lobbyCanvas.gameObject.SetActive(false);
@@ -300,14 +302,14 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         popUpCanvas.SetActive(true);
         itemPanelCanvas.SetActive(true);
         videoPlayer.SetActive(true);
-        gameManager.SetActive(true);  
+        gameManager.SetActive(true);
 
         playerObject.transform.localPosition = spawnPoint.localPosition;
         playerObject.GetComponent<PlayerNetworkBehavior>().PlayerName = _playerName;
         playerObject.GetComponent<PlayerNetworkBehavior>().PlayerColor = _playerColor;
         StartCoroutine(WaitToSetPosition());
     }
-    
+
     IEnumerator WaitToSetPosition()
     {
         yield return new WaitForSeconds(0.5f);
@@ -362,7 +364,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
     {
-       // Debug.Log("OnObjectExitAOI");
+        // Debug.Log("OnObjectExitAOI");
     }
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
@@ -376,10 +378,10 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
-        
+
         string test = runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0].ToString();
         Debug.Log("OnPlayerLeft | " + test);
-        runner.GetPlayerObject(runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0]).GetComponent<PlayerNetworkBehavior>().PlayerRole = 0;   
+        runner.GetPlayerObject(runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0]).GetComponent<PlayerNetworkBehavior>().PlayerRole = 0;
         ParticipantItemHandlerManager.Instance.UpdateParticipantList();
 
         ChatManager.Instance.SendMessageAll(playerObject.GetComponent<PlayerNetworkBehavior>().PlayerName + " has left");
@@ -468,7 +470,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         Debug.Log("JoinLobby stated");
         string lobbyId = "DefaultLobbyId";
         var result = await runner.JoinSessionLobby(SessionLobby.Custom, lobbyId);
-        
+
         if (!result.Ok)
         {
             Debug.LogError("Unable to join lobby " + lobbyId);
