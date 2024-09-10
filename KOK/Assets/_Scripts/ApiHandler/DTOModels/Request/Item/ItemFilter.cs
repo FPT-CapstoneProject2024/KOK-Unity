@@ -13,5 +13,7 @@ namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Item
         public string ItemCode { get; set; } = string.Empty;
         public string ItemName { get; set; } = string.Empty;
         public ItemType ItemType { get; set; } 
+
+        public ItemStatus ItemStatus { get; set; }
     }
 }

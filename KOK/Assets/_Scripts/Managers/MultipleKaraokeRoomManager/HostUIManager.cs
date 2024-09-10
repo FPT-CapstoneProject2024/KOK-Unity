@@ -15,8 +15,6 @@ namespace KOK
 
         void OnEnable()
         {
-            if (HasStateAuthority)
-            {
                 HostUIList.Clear();
                 List<HostUIMask> tmp = FindObjectsOfType<HostUIMask>().ToList();
                 foreach (var t in tmp)
@@ -24,7 +22,7 @@ namespace KOK
                     HostUIList.Add(t.gameObject);
                 }
                 StartCoroutine(CheckHost());
-            }
+            
         }
 
         IEnumerator CheckHost()
