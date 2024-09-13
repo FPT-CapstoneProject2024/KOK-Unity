@@ -1374,6 +1374,7 @@ MonoBehaviour:
   songPreviewCanvas: {fileID: 0}
   songPurchaseCanvas: {fileID: 0}
   loadingManager: {fileID: 211093548}
+  categoryDropdown: {fileID: 0}
 --- !u!114 &211093550
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6608,6 +6609,7 @@ MonoBehaviour:
   songPreviewCanvas: {fileID: 0}
   songPurchaseCanvas: {fileID: 0}
   loadingManager: {fileID: 1704565047}
+  categoryDropdown: {fileID: 0}
 --- !u!114 &1704565047
 MonoBehaviour:
   m_ObjectHideFlags: 0

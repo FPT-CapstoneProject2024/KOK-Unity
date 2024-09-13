@@ -17,7 +17,7 @@ namespace KOK.Audio
     {
         const int MAX_RECORDING_DURATION_SECONDS = 600; // 10 minutes
         const int DEFAULT_SAMPLE_RATES = 48000; // 48khz
-        [SerializeField] RoomNotification roomNotification;
+        public RoomNotification roomNotification;
         public string FileName
         {
             get => fileName;
