@@ -1,16 +1,10 @@
 ﻿using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Song;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Shop;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
 using Item = KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item.Item;
 
 namespace KOK
@@ -24,15 +18,18 @@ namespace KOK
         [SerializeField] TMP_Text itemPriceText;
         [SerializeField] TMP_Text itemDescriptionText;
         [SerializeField] Button buyButton;
+        [SerializeField] Sprite defaultImage;
         private ShopItemManager shopItemManager;
 
         public void Init(Item item, ShopItemManager shopItemManager)
         {
             this.Item = item;
+            itemImage.sprite = null;
             if (item.ItemType == ApiHandler.DTOModels.ItemType.CHARACTER)
             {
                 itemImage.sprite = Resources.Load<Sprite>(item.ItemCode + "AVA");
             }
+            if (itemImage.sprite == null) itemImage.sprite = defaultImage;
             itemNameText.text = "Tên: " + item.ItemName;
             itemTypeText.text = "Loại: " + item.ItemType.ToString();
             itemPriceText.text = "Giá: " + (int)item.ItemSellPrice;

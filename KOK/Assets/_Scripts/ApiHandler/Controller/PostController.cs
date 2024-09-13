@@ -17,6 +17,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using WebSocketSharp;
 
 namespace KOK
 {
@@ -80,7 +81,7 @@ namespace KOK
         public NameValueCollection GeneratePostQueryParams(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
-            if (filter.Caption != null)
+            if (!filter.Caption.IsNullOrEmpty())
             {
                 queryParams.Add(nameof(filter.Caption), filter.Caption.ToString());
             }

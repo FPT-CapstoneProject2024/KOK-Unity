@@ -1,3 +1,4 @@
+﻿using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Item;
@@ -18,6 +19,8 @@ namespace KOK
         public AlertManager MessageAlertManager;
         public AlertManager ConfirmAlertManager;
         [SerializeField] TMP_Dropdown categoryDropdown;
+        [SerializeField] TMP_Text upLabel;
+        [SerializeField] LoadingManager loadingManager;
 
         List<Item> items = new();
         List<ItemBinding> itemBindings = new List<ItemBinding>();
@@ -32,6 +35,7 @@ namespace KOK
             {
                 GameObject.Destroy(child.gameObject);
             }
+            loadingManager.EnableLoadingSymbol();
             ApiHelper.Instance.GetComponent<ShopItemController>()
                 .GetShopItemOfAMemberCoroutine(
                     Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
@@ -53,9 +57,19 @@ namespace KOK
                             var itemBinding = itemObject.GetComponent<ItemBinding>();
                             itemBinding.Init(item, this);
                         }
+                        loadingManager.DisableLoadingSymbol();
                     },
-                    (ex) => { }
+                    (ex) => {
+                        loadingManager.DisableLoadingSymbol();
+                        MessageAlertManager.Alert("Đã có lỗi xảy ra!", false);
+                    }
 
+                );
+            ApiHelper.Instance.GetComponent<AccountController>()
+                .GetAccountByIdCoroutine(
+                    Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
+                    (account) => { upLabel.text = (int)account.UpBalance + ""; },
+                    (ex) => { }
                 );
         }
 
