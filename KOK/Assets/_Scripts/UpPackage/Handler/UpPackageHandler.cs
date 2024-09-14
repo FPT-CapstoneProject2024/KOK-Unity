@@ -52,7 +52,7 @@ namespace KOK
 
         private void SetPackageMessage(string message)
         {
-            packageListMessage.text = message;
+            //packageListMessage.text = message;
         }
 
         private void OnEnable()

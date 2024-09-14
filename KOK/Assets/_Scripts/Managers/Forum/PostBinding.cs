@@ -117,6 +117,7 @@ namespace KOK
             StopAllCoroutines();
             readyToPlay = false;
             //Avatar here
+            Debug.Log(post.Member.CharaterItemCode + "AVA");
             avatar.sprite = Resources.Load<Sprite>(post.Member.CharaterItemCode + "AVA");
             userNameLabel.text = post.Member.UserName; captionLabel.text = post.Caption;
             createTimeLabel.text = post.UploadTime.Value.ToString("hh:mm  dd/MM/yyyy");

@@ -129,22 +129,34 @@ namespace KOK
 
         public void DownloadVoiceRecordingFile(string localFilePath, Action onSuccess, Action onError)
         {
+            //    string fileName = Path.GetFileName(localFilePath);
+            //    StorageReference fileRef = voiceRecordingReference.Child(fileName);
             string fileName = Path.GetFileName(localFilePath);
+            fileName = fileName.Replace(".zip", "");
+            fileName = fileName.Replace(".wav", "");
+            fileName = fileName + ".zip";
             StorageReference fileRef = voiceRecordingReference.Child(fileName);
+            Debug.Log(fileRef
+                + "\n" + localFilePath
+                + "\n" + fileName);
 
-            string local_file_uri = string.Format("{0}://{1}", Uri.UriSchemeFile, localFilePath);
-            fileRef.GetFileAsync(local_file_uri).ContinueWith(task => {
+            fileRef.GetFileAsync(localFilePath).ContinueWith(task => {
                 if (task.IsFaulted || task.IsCanceled)
                 {
-                    Debug.Log(local_file_uri + "\n" + task.Exception.ToString());
+                    Debug.LogError(task.Exception.ToString());
                     onError?.Invoke();
                 }
                 else
                 {
-                    Debug.Log("File downloaded successfully at \n" + local_file_uri);
-                    Debug.LogError(onSuccess);
-                    onSuccess.Invoke();
-                    Debug.Log("test success");
+                    Debug.Log("File downloaded successfully at " + fileName);
+                    try
+                    {
+                        onSuccess?.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError("Exception in onSuccess: " + ex.ToString());
+                    }
                 }
             });
         }

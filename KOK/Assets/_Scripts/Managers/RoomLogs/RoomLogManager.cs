@@ -107,7 +107,7 @@ namespace KOK
             FirebaseStorageManager.Instance.UploadRoomLogFile(FullPath,
                                                               (sm) =>
                                                               {
-                                                                  Debug.Log("Upload Success room log" + sm);
+                                                                  Debug.Log("Upload Success room log " + sm.Name);
                                                                   //Delete local room log here
 
                                                               },

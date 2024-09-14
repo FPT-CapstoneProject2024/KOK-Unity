@@ -45,8 +45,10 @@ public class RoomClientController : MonoBehaviour
         else
         {
             muteToggle.interactable = true;
-            recorder.TransmitEnabled = !muteToggle.isOn;
+            //recorder.TransmitEnabled = !muteToggle.isOn;
+            TurnOnMic();
         }
+        Debug.LogError(isSinger + " | " + recorder.TransmitEnabled);
     }
 
     public void TurnOffMic()
