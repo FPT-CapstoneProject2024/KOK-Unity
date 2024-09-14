@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.VoiceAudios;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PurchasedSongs;
+using PurchasedSong = KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PurchasedSongs.PurchasedSong;
 
 namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response
 {
@@ -25,6 +27,8 @@ namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response
         public Guid HostId { get; set; }
         public Guid OwnerId { get; set; }
         public Guid KaraokeRoomId { get; set; }
+        public PurchasedSong PurchasedSong { get; set; } = null!;
+
 
         public ICollection<VoiceAudio> VoiceAudios { get; set; }
         public override string ToString()

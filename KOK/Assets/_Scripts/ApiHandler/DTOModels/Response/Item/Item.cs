@@ -18,6 +18,7 @@ namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item
         public ItemStatus? ItemStatus { get; set; }
         public bool? CanExpire { get; set; }
         public bool? CanStack { get; set; }
+        public bool? IsOwned { get; set; }
         public DateTime CreatedDate { get; set; }
         public Guid? CreatorId { get; set; }
         public string? PrefabCode { get; set; }

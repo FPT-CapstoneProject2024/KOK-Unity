@@ -866,7 +866,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 30, y: 26.799988}
+  m_AnchoredPosition: {x: 30, y: 26.800049}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &154205444
@@ -1029,7 +1029,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 80.599976, y: 26.799988}
+  m_AnchoredPosition: {x: 80.599976, y: 26.800049}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &205699257
@@ -2291,7 +2291,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 23.909973}
+  m_AnchoredPosition: {x: 0, y: 23.909912}
   m_SizeDelta: {x: -0.000061035156, y: 47.82}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &590575516
@@ -3331,7 +3331,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -80.5, y: 26.799988}
+  m_AnchoredPosition: {x: -80.5, y: 26.800049}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &887183300
@@ -3406,7 +3406,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 18.800049, y: -18.200012}
+  m_AnchoredPosition: {x: 18.800049, y: -18.199951}
   m_SizeDelta: {x: 47.48001, y: 47.47998}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &889753129
@@ -3725,7 +3725,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -27.400024, y: 26.799988}
+  m_AnchoredPosition: {x: -27.400024, y: 26.800049}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &937481238
@@ -4795,7 +4795,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -244.79999, y: 126.78}
+  m_AnchoredPosition: {x: -244.79999, y: 126.78003}
   m_SizeDelta: {x: 370.37, y: 148.42}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1284120001
@@ -5769,7 +5769,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 673106249}
   m_HandleRect: {fileID: 673106248}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -6297,7 +6297,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.0000076293945, y: -0.000030517578}
+  m_AnchoredPosition: {x: 0.0000076293945, y: 0.00012207031}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1509539535
@@ -28999,7 +28999,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 195, y: 180.30771}
+  m_AnchoredPosition: {x: 195, y: 180.30774}
   m_SizeDelta: {x: 272.92, y: 260.62}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &1679952979
@@ -29135,6 +29135,8 @@ GameObject:
   - component: {fileID: 1682492868}
   - component: {fileID: 1682492867}
   - component: {fileID: 1682492872}
+  - component: {fileID: 1682492874}
+  - component: {fileID: 1682492873}
   m_Layer: 0
   m_Name: ApiHelper
   m_TagString: Untagged
@@ -29335,6 +29337,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4555db7426d7dd47a62d38d6f9a2cba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1682492873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1682492856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0315825c9848424698c5a7eac0463d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1682492874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1682492856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0badddd613bf978498a3d8f9c8a910dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1692163159

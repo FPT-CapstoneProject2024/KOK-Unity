@@ -22,7 +22,7 @@ namespace KOK
 {
     public class ShopItemController : MonoBehaviour
     {
-        private string itemResourceUrl = string.Empty;
+        private string itemResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Items_Resource;
 
         private void Start()
         {
@@ -42,57 +42,51 @@ namespace KOK
             ApiHelper.Instance.GetCoroutine(url, onSuccess, onError);
         }
 
-        public async Task<Item?> GetItemByIdAsync(Guid itemId)
+        public void GetItemsFilterCoroutine(ItemFilter filter, ItemOrderFilter orderFilter, Action<List<Item>> onSuccess, Action<string> onError)
         {
-            var url = itemResourceUrl + "/" + itemId.ToString();
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
-
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            ResponseResult<Item> result = JsonConvert.DeserializeObject<ResponseResult<Item>>(jsonResult);
-
-            return result.Value;
-        }
-
-        public async Task<Item?> CreateItemAsync(CreateItemRequest createItem)
-        {
-            var jsonData = JsonConvert.SerializeObject(createItem);
-            var url = itemResourceUrl;
-            var jsonResult = await ApiHelper.Instance.PostAsync(url, jsonData);
-
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            Debug.Log(jsonResult);
-
-            ResponseResult<Item> result = JsonConvert.DeserializeObject<ResponseResult<Item>>(jsonResult);
-
-            return result.Value;
-        }
-
-        public async Task<DynamicResponseResult<Item>?> GetItemsFilterPagingAsync(ItemFilter filter, ItemOrderFilter orderFilter, PagingRequest paging)
-        {
-            var queryParams = GenerateItemQueryParams(filter, orderFilter, paging);
+            filter.ItemStatus = ItemStatus.ENABLE;
+            var queryParams = GenerateItemQueryParams(filter, orderFilter);
             var url = QueryHelper.BuildUrl(itemResourceUrl, queryParams);
-
-            Debug.Log(url);
-
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            DynamicResponseResult<Item> result = JsonConvert.DeserializeObject<DynamicResponseResult<Item>>(jsonResult);
-            return result;
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<Item>>(successValue);
+                    onSuccess?.Invoke(result.Results);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to retrieve items list: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
         }
 
-        public NameValueCollection GenerateItemQueryParams(ItemFilter filter, ItemOrderFilter orderFilter, PagingRequest paging)
+        public void GetShopItemOfAMemberCoroutine(Guid memberId, ItemFilter filter, ItemOrderFilter orderFilter, Action<List<Item>> onSuccess, Action<string> onError)
+        {
+            filter.ItemStatus = ItemStatus.ENABLE;
+            var queryParams = GenerateItemQueryParams(filter, orderFilter);
+            var url = itemResourceUrl + $"/get-shop-item/{memberId}";
+            url = QueryHelper.BuildUrl(url, queryParams);
+            Debug.Log(url);
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<DynamicResponseResult<Item>>(successValue);
+                    onSuccess?.Invoke(result.Results);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to retrieve items list: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
+        }
+
+        public void BuySong()
+        {
+
+        }
+
+
+        public NameValueCollection GenerateItemQueryParams(ItemFilter filter, ItemOrderFilter orderFilter)
         {
             var queryParams = new NameValueCollection();
             if (filter.ItemCode != null)
@@ -105,131 +99,44 @@ namespace KOK
                 queryParams.Add(nameof(filter.ItemName), filter.ItemName);
             }
 
-            queryParams.Add(nameof(paging.page), paging.page.ToString());
-            queryParams.Add(nameof(paging.pageSize), paging.pageSize.ToString());
-            queryParams.Add(nameof(paging.OrderType), paging.OrderType.ToString());
-            queryParams.Add(nameof(orderFilter), orderFilter.ToString());
+            if (filter.ItemStatus != null)
+            {
+                queryParams.Add(nameof(filter.ItemStatus), filter.ItemStatus.ToString());
+            }
+
+            //queryParams.Add(nameof(paging.page), paging.page.ToString());
+            //queryParams.Add(nameof(paging.pageSize), paging.pageSize.ToString());
+            //queryParams.Add(nameof(paging.OrderType), paging.OrderType.ToString());
+            //queryParams.Add(nameof(orderFilter), orderFilter.ToString());
+
+            return queryParams;
+        }
+        public NameValueCollection GenerateItemQueryParams(ItemFilter filter, ItemOrderFilter orderFilter, PagingRequest pagingRequest)
+        {
+            var queryParams = new NameValueCollection();
+            if (filter.ItemCode != null)
+            {
+                queryParams.Add(nameof(filter.ItemCode), filter.ItemCode);
+            }
+
+            if (filter.ItemName != null)
+            {
+                queryParams.Add(nameof(filter.ItemName), filter.ItemName);
+            }
+
+            if (filter.ItemStatus != null)
+            {
+                queryParams.Add(nameof(filter.ItemStatus), filter.ItemStatus.ToString());
+            }
+
+            //queryParams.Add(nameof(paging.page), paging.page.ToString());
+            //queryParams.Add(nameof(paging.pageSize), paging.pageSize.ToString());
+            //queryParams.Add(nameof(paging.OrderType), paging.OrderType.ToString());
+            //queryParams.Add(nameof(orderFilter), orderFilter.ToString());
 
             return queryParams;
         }
 
-        /*public void OnCreateSubmit()
-        {
-            Item newItem = new Item
-            {
-                ItemCode = itemCodeInput.text,
-                ItemName = itemNameInput.text,
-                ItemDescription = itemDescriptionInput.text,
-                ItemType = int.Parse(itemTypeInput.text),
-                ItemPrice = decimal.Parse(itemPriceInput.text),
-                CanExpire = canExpireToggle.isOn,
-                CanStack = canStackToggle.isOn,
-                //CreatorId = ,  // login
-            };
 
-            StartCoroutine(PostItemToApi(newItem));
-        }
-
-        public void OnUpdateSubmit()
-        {
-            Guid itemId = Guid.Parse(itemIdInput.text);
-
-            Item updateItem = new Item
-            {
-                ItemCode = itemCodeInput.text,
-                ItemName = itemNameInput.text,
-                ItemDescription = itemDescriptionInput.text,
-                ItemType = int.Parse(itemTypeInput.text),
-                ItemPrice = decimal.Parse(itemPriceInput.text),
-                ItemStatus = int.Parse(itemStatusInput.text),
-                CanExpire = canExpireToggle.isOn,
-                CanStack = canStackToggle.isOn
-                //CreatorId = ,  // login
-            };
-
-            StartCoroutine(PutItemToApi(itemId, updateItem));
-        }
-
-        public void OnDeleteSubmit()
-        {
-            Guid itemId = Guid.Parse(itemIdInput.text);
-
-            StartCoroutine(DeleteItemFromApi(itemId));
-        }
-
-        private IEnumerator PostItemToApi(Item item)
-        {
-            string jsonData = JsonConvert.SerializeObject(item);
-
-            UnityWebRequest request = new UnityWebRequest(baseUrl, "POST");
-            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                Debug.Log("Item successfully sent to the API.");
-                Helper helper = new Helper();
-                notificationText.text = "Item successfully sent to the API.";
-                yield return helper.FadeTextToFullAlpha(notificationFadeDuration, notificationText);
-                yield return new WaitForSeconds(2); // Wait for 2 seconds before starting to fade out
-                yield return helper.FadeTextToZeroAlpha(notificationFadeDuration, notificationText);
-            }
-            else
-            {
-                Debug.LogError("Error sending item to the API: " + request.error);
-                Helper helper = new Helper();
-                notificationText.text = "Error sending item to the API: " + request.error;
-                yield return helper.FadeTextToFullAlpha(notificationFadeDuration, notificationText);
-                yield return new WaitForSeconds(2); // Wait for 2 seconds before starting to fade out
-                yield return helper.FadeTextToZeroAlpha(notificationFadeDuration, notificationText);
-            }
-        }
-
-        private IEnumerator PutItemToApi(Guid itemId, Item item)
-        {
-            string jsonData = JsonConvert.SerializeObject(item);
-            string url = $"{baseUrl}/{itemId}";
-
-            UnityWebRequest request = new UnityWebRequest(url, "PUT");
-            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                Debug.Log("Item successfully sent to the API.");
-            }
-            else
-            {
-                Debug.LogError("Error sending item to the API: " + request.error);
-            }
-        }
-
-        private IEnumerator DeleteItemFromApi(Guid itemId)
-        {
-            string url = $"{baseUrl}/{itemId}";
-
-            UnityWebRequest request = new UnityWebRequest(url, "DELETE");
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                Debug.Log("Item successfully deleted.");
-            }
-            else
-            {
-                Debug.LogError("Error deleting item: " + request.error);
-            }
-        }*/
     }
 }

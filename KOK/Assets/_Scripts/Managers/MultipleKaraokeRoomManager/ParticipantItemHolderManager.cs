@@ -47,7 +47,8 @@ namespace KOK
                 {
                     GameObject participant = Instantiate(_participantHolderPrefab, _viewportContent.transform);
                     participant.name = _runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName.ToString();
-                    participant.transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>(_runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().AvatarCode);
+                    participant.transform.GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>(_runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().AvatarCode + "AVA");
+                    Debug.LogError(_runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().AvatarCode + "AVA");
                     participant.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = _runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName.ToString();
                     participant.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = ((RoomRole)(Enum.GetValues(typeof(RoomRole))).GetValue(_runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole)).ToString();
 

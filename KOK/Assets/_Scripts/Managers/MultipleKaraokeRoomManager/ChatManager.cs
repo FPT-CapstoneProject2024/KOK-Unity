@@ -10,7 +10,7 @@ using WebSocketSharp;
 
 namespace KOK
 {
-    public class ChatManager : NetworkBehaviour
+    public class ChatManager : MonoBehaviour
     {
         [SerializeField] TMP_InputField chatInputField;
         RPCMessage RPCMessage;
@@ -34,15 +34,17 @@ namespace KOK
         {
             StartCoroutine(SetUpChat());
             messageTMPP = messageTMP;
+
         }
 
         IEnumerator SetUpChat()
         {
-            yield return new WaitForSeconds(1f);
-            runner = FindAnyObjectByType<NetworkRunner>();
+            yield return new WaitForSeconds(2f);
+            runner = NetworkRunner.Instances[0];
             RPCMessage = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<RPCMessage>();
             playerName = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerName.ToString();
-            if (playerName.IsNullOrEmpty())
+            Debug.LogError(playerName + " | " + runner);
+            if (playerName.IsNullOrEmpty() || runner == null)
             {
                 StartCoroutine(SetUpChat());
             }
@@ -65,36 +67,42 @@ namespace KOK
                     allowEnter = true;
                 }
             }
+
         }
 
         public void SendChat()
         {
             SendMessageAll(playerName, chatInputField.text.Trim());
             chatInputField.text = "";
+
         }
 
         public void SendMessageAll(string message)
         {
+            //runner = NetworkRunner.Instances[0];
             if (runner.ActivePlayers.Count() > 1)
             {
-                RPC_SendMessage(runner,$"{message}\n");
+                RPC_SendMessage(runner, $"{message}\n");
             }
             else
             {
                 CallMessageOnly1Player($"{message}\n");
             }
+
         }
 
         public void SendMessageAll(string username, string message)
         {
+            //runner = NetworkRunner.Instances[0];
             if (runner.ActivePlayers.Count() > 1)
             {
-                RPC_SendMessage(runner,$"{username}: {message}\n");
+                RPC_SendMessage(runner, $"{username}: {message}\n");
             }
             else
             {
                 CallMessageOnly1Player($"{username}: {message}\n");
             }
+
         }
         public void CallMessageOnly1Player(string message)
         {

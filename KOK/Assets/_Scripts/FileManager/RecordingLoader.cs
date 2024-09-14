@@ -6,18 +6,14 @@ using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.VoiceAudios;
 using System;
-using KOK.Assets._Scripts.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
-using Photon.Voice;
 using System.IO;
 using KOK;
-using System.Reflection;
 using KOK.Assets._Scripts.FileManager;
 using System.Collections;
-using WebSocketSharp;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.PostComment;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Song;
+using UnityEngine.Video;
+using System.Linq;
 
 public class RecordingLoader : MonoBehaviour
 {
@@ -27,20 +23,46 @@ public class RecordingLoader : MonoBehaviour
     private List<(Recording recording, List<VoiceAudio> voiceAudio)> optionMappings;
     private string songUrl;
     private string recordingUrl;
-    public WaveformDisplay waveformDisplay;
+    //public WaveformDisplay waveformDisplay;
     public VideoLoader videoLoader;
     public GameObject recordingPrefab;
     public GameObject displayPanel;
+    public GameObject videoDisplayPanel;
 
-    FFMPEG ffmpeg;
+    public GameObject loadingPanel;
+    public AlertManager messageAlert;
+    public AlertManager confirmAlert;
+
+    [SerializeField] VideoPlayer videoPlayer;
+    List<AudioSource> audioSources = new();
+    string songVideoUrl = "";
+    List<string> voiceAudioUrls = new List<string>();
+    List<AudioClip> audioClipList = new();
+    PurchasedSong purchasedSong;
+    bool readyToPlay = false;
+    Recording recording;
+    [SerializeField] Slider progressSlider;
+    [SerializeField] RawImage videoRenderTexture;
+
+    //public RecordingHelper recordingHelper;
+
+    bool isDraggingSlider = false; // To track if the user is dragging the slider
+
+    string audioLocalDirectory = "";
 
     private void Start()
     {
+        audioLocalDirectory = Application.persistentDataPath + "/AudioProcess/";
         var playerId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
         GetRecordingByOwnerId(Guid.Parse(playerId));
         //ApiHelper.Instance.ToString();
-        ffmpeg = GetComponent<FFMPEG>();
-        if (ffmpeg == null) ffmpeg = gameObject.AddComponent<FFMPEG>();
+        
+    }
+
+    public void RefreshRecordingList()
+    {
+        var playerId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
+        GetRecordingByOwnerId(Guid.Parse(playerId));
     }
 
     public void GetPurchasedSongCoroutine(Guid purchasedSongId)
@@ -72,10 +94,15 @@ public class RecordingLoader : MonoBehaviour
 
     public void GetRecordingByOwnerId(Guid ownerId)
     {
+        loadingPanel.SetActive(true);
         ApiHelper.Instance.gameObject
             .GetComponent<RecordingController>()
             .GetRecordingsByOwnerIdCoroutine(ownerId,
-                                                RecordingsGenerate,
+                                                (recordingList) =>
+                                                {
+                                                    RecordingsGenerate(recordingList);
+                                                    loadingPanel.gameObject.SetActive(false);
+                                                },
                                                 Test2
                                                 );
     }
@@ -104,21 +131,10 @@ public class RecordingLoader : MonoBehaviour
             GameObject recordingObj = Instantiate(recordingPrefab, displayPanel.transform);
 
             optionMappings.Add((recording, (List<VoiceAudio>)recording.VoiceAudios));
-
-            recordingObj.transform.Find("Label 1").GetComponent<TMP_Text>().text = recording.RecordingName;
-            recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text = "";
-
-            foreach (var voiceAudio in recording.VoiceAudios)
-            {
-                //string optionText = $"{recording.RecordingName} - {voiceAudio.VoiceUrl}";
-                recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text += voiceAudio.VoiceUrl + "\n";
-
-            }
-
-            //recordingObj.transform.Find("EditButton").GetComponent<Button>().onClick.AddListener(delegate ()
-            //{
-            //    OnEditButtonClicked(recording.PurchasedSongId, recording.VoiceAudios);
-            //});
+            recordingObj.GetComponent<RecordingItem>().Init(recording, messageAlert, confirmAlert, this);
+            recordingObj.transform.Find("Label 1").GetComponent<TMP_Text>().text = recording.RecordingName + " - " + recording.RecordingType;
+            recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text = string.Empty;
+            recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text += "Recording time: " + recording.CreatedDate.ToString("dd/MM/yyyy HH:mm:ss") + "\n";
 
             recordingObj.transform.Find("PlayButton").GetComponent<Button>().onClick.AddListener(delegate ()
             {
@@ -127,142 +143,325 @@ public class RecordingLoader : MonoBehaviour
 
         }
     }
+    private void ResetAudioSourceComponent()
+    {
+        //Reset audio source component
+        audioClipList.Clear();
+        voiceAudioUrls.Clear();
+        audioSources = GetComponents<AudioSource>().ToList();
+        foreach (var audioSource in audioSources)
+        {
+            Destroy(audioSource);
+        }
+    }
 
-    //public void OnEditButtonClicked(Guid purchasedSongId, List<VoiceAudio> voiceAudios)
-    //{
-    //    /*int index = tmpDropdown.value;
-    //    if (index >= 0 && index < optionMappings.Count)
-    //    {
-    //        var selectedMapping = optionMappings[index];
-
-    //        Guid purchasedSongId = selectedMapping.recording.PurchasedSongId;
-    //        GetPurchasedSongCoroutine(purchasedSongId);
-    //        recordingUrl = selectedMapping.voiceAudio.VoiceUrl;
-    //        //Process(songUrl, recordingUrl);
-    //        StartCoroutine(test2());
-    //    }*/
-    //    GetPurchasedSongCoroutine(purchasedSongId);
-    //    recordingUrl = voiceUrl;
-    //    StartCoroutine(EditVideo());
-    //}
-
-    // chua down
+    List<bool> isAudioReady = new List<bool>();
     public void OnPlayButtonClicked(Recording recording)
     {
-        ApiHelper.Instance.gameObject
-            .GetComponent<PurchasedSongController>()
-            .GetPurchasedSongByIdCoroutine(recording.PurchasedSongId,
-                                            (purchasedSongs) =>
-                                            {
-                                                Guid songId = new();
-                                                string songVideoUrl = "";
-                                                songId = purchasedSongs[0].SongId;
-                                                ApiHelper.Instance.gameObject
-                                                    .GetComponent<SongController>()
-                                                    .GetSongByIdCoroutine(songId,
-                                                                          (sd) =>
-                                                                          {
-                                                                              songVideoUrl = sd.Value.SongUrl;
-                                                                              List<string> localFilePaths = new();
-                                                                              foreach (var audio in recording.VoiceAudios)
-                                                                              {
-                                                                                  var cloudFilePath = audio.VoiceUrl + ".zip";
-                                                                                  var localFilePath = Application.persistentDataPath + "/AudioProcess/" + audio.VoiceUrl + ".zip";
-                                                                                  ffmpeg.DownloadFile2(localFilePath);
-                                                                                  localFilePaths.Add(localFilePath);
-                                                                              }
+        StartCoroutine(AutoCancelLoadFail());
+        loadingPanel.SetActive(true);
+        this.recording = recording;
+        songVideoUrl = recording.PurchasedSong.Song.SongUrl;
+        audioSources = new();
+        List<RecordingHelper> recordingHelpers = gameObject.GetComponents<RecordingHelper>().ToList();
+        foreach (RecordingHelper recordingHelper in recordingHelpers)
+        {
+            Destroy(recordingHelper);
+        }    
+        foreach (var audio in recording.VoiceAudios)
+        {
+            isAudioReady.Add(false);
+            var localFilePathZip = "AudioProcess/" + audio.VoiceUrl + ".wav";
+            if (!File.Exists(localFilePathZip))
+            {
+                var audioSource = gameObject.AddComponent<AudioSource>();
+                RecordingHelper recordingHelper = gameObject.AddComponent<RecordingHelper>();
+                recordingHelper.PrepareAudioSourceDownloadAudio(
+                        audio.VoiceUrl,
+                        (audioClip) =>
+                        {
+                            audioSource.clip = audioClip;
+                            audioSources.Add(audioSource);
+                            isAudioReady.RemoveAt(0);
+                            Debug.Log($"Audio {audio.VoiceUrl} is ready!");
+                        },
+                        () => { }
+                    );
+            }
+            else
+            {
+                var audioSource = gameObject.AddComponent<AudioSource>();
+                RecordingHelper recordingHelper = gameObject.AddComponent<RecordingHelper>();
+                recordingHelper.PrepareAudioSourceLoadAudioClip(
+                        audio.VoiceUrl,
+                        (audioClip) =>
+                        {
+                            audioSource.clip = audioClip;
+                            audioSources.Add(audioSource);
+                            isAudioReady.RemoveAt(0);
+                            Debug.Log($"Audio {audio.VoiceUrl} is ready!");
+                            
+                        },
+                        () => { loadingPanel.SetActive(false); }
 
-                                                                              StartCoroutine(LoadRecording(songVideoUrl, localFilePaths));
+                    );
 
-                                                                          },
-                                                                          (ex) => Debug.LogError(ex));
-                                            },
-                                            (ex) => Debug.LogError(ex)
-            );
+            }
+
+
+        }
+        StartCoroutine(Prepare());
+        //StartCoroutine(Prepare());
+        //StartCoroutine(LoadRecording(songVideoUrl, localFilePaths));
     }
 
-    IEnumerator LoadRecording(string songVideoUrl, List<string> localFilePaths)
+    IEnumerator AutoCancelLoadFail()
     {
-        yield return new WaitForSeconds(2);
-        PlayVideo(songVideoUrl, localFilePaths);
-        Debug.Log("Success: " + songVideoUrl);
+        yield return new WaitForSeconds(30);
+        if (!readyToPlay) {
+            StopAllCoroutines();
+            loadingPanel.SetActive(false);
+            videoDisplayPanel.SetActive(false);
+            messageAlert.Alert("Tải bản thu âm thất bại!", false);
+        }
     }
 
-    //private void OnGetPurchasedSongSuccess(List<PurchasedSong> purchasedSongs, Recording recording)
-    //{
-    //    Guid songId = new();
-    //    string songVideoUrl = "";
-    //    songId = purchasedSongs[0].SongId;
-    //    ApiHelper.Instance.gameObject
-    //        .GetComponent<SongController>()
-    //        .GetSongByIdCoroutine(songId,
-    //                              (sd) =>
-    //                              {
-    //                                  songVideoUrl = sd.Value.SongUrl;
-    //                                  List<string> localFilePaths = new();
-    //                                  foreach (var audio in recording.VoiceAudios)
-    //                                  {
-    //                                      var cloudFilePath = audio.VoiceUrl + ".zip";
-    //                                      var localFilePath = Application.persistentDataPath + "/AudioProcess/" + audio.VoiceUrl + ".zip";
-    //                                      ffmpeg.DownloadFile2(localFilePath,
-    //                                          () =>
-    //                                          {
-    //                                              PlayVideo(songVideoUrl, localFilePaths);
-    //                                              Debug.Log("Success: " + songVideoUrl);
-    //                                          },
-    //                                          () => { });
-    //                                      localFilePaths.Add(localFilePath);
-    //                                  }
-
-
-    //                              },
-    //                              (ex) => Debug.LogError(ex));
-    //}
-
-    public void PlayVideo(string videoSongUrl, List<string> voiceAudioUrls)
+    private IEnumerator Prepare()
     {
 
-        //string voiceFolderPath2 = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingUrl + ".wav");
-        videoLoader.ShowPopup(videoSongUrl, voiceAudioUrls);
-        //gameObject.SetActive(false);
+        Debug.Log("prepare " + isAudioReady.Count);
+        yield return new WaitUntil(() => isAudioReady.Count == 0);
+
+        Debug.Log("prepare audio complete ");
+        Debug.Log("audioSources " + audioSources.Count);
+        videoPlayer.Stop();
+        videoPlayer.url = songVideoUrl;
+        videoPlayer.Prepare();
+        videoPlayer.SetDirectAudioVolume(0, 0.2f);
+
+        readyToPlay = true;
+        Play();
+        loadingPanel.SetActive(false);
 
     }
+    private void Play()
+    {
+        if (!readyToPlay)
+        {
+            return;
+        }
 
-    public IEnumerator EditVideo()
+        videoDisplayPanel.SetActive(true);
+        videoRenderTexture.gameObject.SetActive(true);
+        videoPlayer.Play();
+        StartCoroutine(SyncVoiceAudioWithVideo());
+        StartCoroutine(SyncStart(recording.StartTime, audioSources)) ;
+    }
+
+    IEnumerator SyncStart(float videoStartTime, List<AudioSource> audioSources)
     {
         yield return new WaitForSeconds(0.1f);
-        if (songUrl.IsNullOrEmpty())
+        if (videoPlayer.time > 0)
         {
-            StartCoroutine(EditVideo());
+            foreach (AudioSource audioSource in audioSources)
+            {
+                audioSource.Play();
+                audioSource.time = (float)videoPlayer.time;
+            }
+            if (progressSlider.minValue != 0 || progressSlider.maxValue != (float)videoPlayer.length)
+            {
+                progressSlider.minValue = 0;
+                progressSlider.maxValue = (float)videoPlayer.length;
+
+                StartCoroutine(SliderFollowVideo());
+            }
+
         }
         else
         {
-            //Process(songUrl, recordingUrl);
+            StartCoroutine(SyncStart(videoStartTime, audioSources));
+        }
+    }
+    IEnumerator SyncVoiceAudioWithVideo()
+    {
+        yield return new WaitForSeconds(0.5f);
+        if (videoPlayer.isPlaying)
+        {
+            foreach (AudioSource audioSource in audioSources)
+            {
+                //if (!audioSource.isPlaying) audioSource.Play();
+                if (videoPlayer.time < audioSource.clip.length)
+                {
+                    audioSource.time = (float)videoPlayer.time;
+                }
+                else
+                {
+                    audioSource.time = audioSource.clip.length;
+                }
+                //Debug.Log(videoPlayer.time + " | " + audioSource.time);
+            }
         }
     }
 
-    //private async void Process(string songUrl, string voiceUrl)
+    private void Pause()
+    {
+        foreach (var audioSource in audioSources)
+        {
+            audioSource.Pause();
+        }
+        videoPlayer.Pause();
+    }
+
+    public void Stop()
+    {
+        ResetAudioSourceComponent();
+        videoPlayer.Stop();
+        videoRenderTexture.gameObject.SetActive(false);
+        progressSlider.value = 0;
+    }
+    IEnumerator SliderFollowVideo()
+    {
+        yield return new WaitForSeconds(0.2f);
+        if (!isDraggingSlider)
+        {
+            progressSlider.value = (float)videoPlayer.time;
+        }
+
+        StartCoroutine(SliderFollowVideo());
+    }
+    public void OnSliderDragStart()
+    {
+        isDraggingSlider = true;
+        Pause();
+    }
+
+    public void OnSliderDragEnd()
+    {
+        isDraggingSlider = false;
+        if (!readyToPlay)
+        {
+            return;
+        }
+        Play();
+        videoPlayer.time = progressSlider.value;
+    }
+
+    private void OnDisable()
+    {
+        Stop();
+    }
+
+    private void OnDestroy()
+    {
+        DirectoryInfo dir = new DirectoryInfo(audioLocalDirectory);
+
+        foreach (FileInfo file in dir.GetFiles())
+        {
+            file.Delete();
+        }
+
+    }
+
+    //bool readyToPlay = false;
+    //private IEnumerator Prepare()
     //{
-    //    Debug.Log($"SongUrl: {songUrl}, VoiceUrl: {voiceUrl}");
+    //    yield return new WaitUntil(() => isAudioReady.Count == 0);
 
-    //    var recordingName = recordingUrl + ".zip";
-    //    string folderPath = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingName);
-    //    await ffmpeg.DownloadFile2(recordingName, folderPath);
-    //    //StartCoroutine(ffmpeg.DownloadFile(voiceUrl, "recordedVoice.wav", "AudioProcess"));
-    //    try { StartCoroutine(ffmpeg.DownloadFile(songUrl, "downloadedVideo.mp4", "AudioProcess")); }
-    //    catch { }
+    //    Debug.Log("prepare audio complete ");
+    //    Debug.Log("audioSources " + audioSources.Count);
+    //    videoPlayer.Stop();
+    //    videoPlayer.url = songVideoUrl;
+    //    videoPlayer.Prepare();
+    //    videoPlayer.SetDirectAudioVolume(0, 0.2f);
 
+    //    readyToPlay = true;
 
-    //    string videoFolderPath = Path.Combine(Application.persistentDataPath, "AudioProcess", "downloadedVideo.mp4");
-    //    try { StartCoroutine(ffmpeg.ExtractAudioFromVideo(videoFolderPath)); }
-    //    catch { }
-
-    //    waveformDisplay.ShowPopup(Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingUrl + ".wav"));
-    //    //gameObject.SetActive(false);
     //}
 
-    public void Show()
-    {
-        gameObject.SetActive(true);
-    }
+    //public void OnPlayButtonClicked1(Recording recording)
+    //{
+    //    loadingPanel.SetActive(true);
+    //    ApiHelper.Instance.gameObject
+    //        .GetComponent<PurchasedSongController>()
+    //        .GetPurchasedSongByIdCoroutine(recording.PurchasedSongId,
+    //                                        (purchasedSongs) =>
+    //                                        {
+    //                                            Guid songId = new();
+    //                                            string songVideoUrl = "";
+    //                                            songId = purchasedSongs[0].SongId;
+    //                                            ApiHelper.Instance.gameObject
+    //                                                .GetComponent<SongController>()
+    //                                                .GetSongByIdCoroutine(songId,
+    //                                                                      (sd) =>
+    //                                                                      {
+    //                                                                          songVideoUrl = sd.Value.SongUrl;
+    //                                                                          List<string> localFilePaths = new();
+    //                                                                          isAudioReady = new List<bool>();
+    //                                                                          foreach (var audio in recording.VoiceAudios)
+    //                                                                          {
+    //                                                                              var cloudFilePath = audio.VoiceUrl + ".zip";
+    //                                                                              var localFilePath = Application.persistentDataPath + "/AudioProcess/" + audio.VoiceUrl + ".zip";
+    //                                                                              if (!File.Exists(localFilePath))
+    //                                                                              {
+    //                                                                                  ffmpeg.DownloadFile2(localFilePath,
+    //                                                                                      () => { isAudioReady.RemoveAt(0); Debug.Log($"Audio {audio.VoiceUrl} is ready!"); },
+    //                                                                                      () => { }
+    //                                                                                  );
+    //                                                                              }
+    //                                                                              else
+    //                                                                              {
+    //                                                                                  isAudioReady.RemoveAt(0); Debug.Log($"Audio {audio.VoiceUrl} is ready!");
+    //                                                                              }
+    //                                                                              localFilePaths.Add(localFilePath);
+    //                                                                          }
+
+    //                                                                          StartCoroutine(LoadRecording(songVideoUrl, localFilePaths));
+
+    //                                                                      },
+    //                                                                      (ex) => Debug.LogError(ex));
+    //                                        },
+    //                                        (ex) =>
+    //                                        {
+    //                                            Debug.LogError(ex);
+    //                                            loadingPanel.SetActive(false);
+    //                                        }
+    //        );
+    //}
+
+    //IEnumerator LoadRecording(string songVideoUrl, List<string> voiceAudioUrls)
+    //{
+    //    yield return new WaitUntil(() => isAudioReady.Count == 0);
+    //    PlayVideo(songVideoUrl, voiceAudioUrls);
+    //    Debug.Log("Success: " + songVideoUrl);
+    //    loadingPanel.SetActive(false);
+    //}
+
+
+    //public void PlayVideo(string videoSongUrl, List<string> voiceAudioUrls)
+    //{
+
+    //    //string voiceFolderPath2 = Path.Combine(Application.persistentDataPath + "/AudioProcess/" + recordingUrl + ".wav");
+    //    videoDisplayPanel.SetActive(true);
+    //    videoLoader.ShowPopup(videoSongUrl, voiceAudioUrls);
+    //    //gameObject.SetActive(false);
+
+    //}
+
+    //public IEnumerator EditVideo()
+    //{
+    //    yield return new WaitForSeconds(0.1f);
+    //    if (songUrl.IsNullOrEmpty())
+    //    {
+    //        StartCoroutine(EditVideo());
+    //    }
+    //    else
+    //    {
+    //        //Process(songUrl, recordingUrl);
+    //    }
+    //}
+
+    //public void Show()
+    //{
+    //    gameObject.SetActive(true);
+    //}
 }

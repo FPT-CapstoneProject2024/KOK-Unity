@@ -20,6 +20,7 @@ using Random = UnityEngine.Random;
 
 public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 {
+    public static bool isHost = false;
     public static FusionManager Instance;
     public bool connectOnAwake = false;
     public NetworkRunner runner;
@@ -51,7 +52,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     private PlayerInputHandler _localPlayerInputHandler;
     public int playerRole = 0;
 
-    NetworkObject playerObject;
+    public NetworkObject playerObject;
 
     private void Awake()
     {
@@ -71,6 +72,10 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
+    private void OnEnable()
+    {
+        isHost = false;
+    }
     private void Start()
     {
         lobbyCanvas.gameObject.SetActive(true);
@@ -109,6 +114,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void CreateRoom()
     {
+        isHost = true;
+        Debug.LogError("Create button click " + isHost);
         playerRole = 0;
         _playerName = nameInput.text;
         if (_playerName.IsNullOrEmpty())
@@ -138,9 +145,10 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         //}
         //ConnectToRunner(_playerName, roomName);
     }
-    
+
     public void JoinRoom(string roomName)
     {
+        isHost = false;
         playerRole = 1;
         _playerName = nameInput.text;
         if (_playerName.IsNullOrEmpty())
@@ -277,44 +285,31 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         FindAnyObjectByType<RoomListUpdate>().UpdateRoomList(sessionList);
     }
-    
-   
+
+
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
-        //playerObject = runner.Spawn(playerPrefab, new Vector3(spawnPoint.position.x + Random.Range(-spawnOffset, spawnOffset), 0, spawnPoint.position.z + Random.Range(-spawnOffset, spawnOffset)));
-
-        //_playerName = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
-
         roomNameInput.interactable = false;
         randomJoinButton.interactable = false;
 
         playerObject = runner.Spawn(playerPrefab, Vector3.zero, Quaternion.identity);
 
-        if (runner.ActivePlayers.Count() > 1)
-        {
-            playerRole = 1;
-        }
-        else
-        {
-            playerRole = 0;
-        }
-        runner.SetPlayerObject(runner.LocalPlayer, playerObject);
 
-        
+
         lobbyCanvas.gameObject.SetActive(false);
         clientCanvas.gameObject.SetActive(true);
-        popUpCanvas.gameObject.SetActive(true);
-        itemPanelCanvas.gameObject.SetActive(true);
-        videoPlayer.gameObject.SetActive(true);
-        gameManager.gameObject.SetActive(true);
+        popUpCanvas.SetActive(true);
+        itemPanelCanvas.SetActive(true);
+        videoPlayer.SetActive(true);
+        gameManager.SetActive(true);
 
         playerObject.transform.localPosition = spawnPoint.localPosition;
         playerObject.GetComponent<PlayerNetworkBehavior>().PlayerName = _playerName;
         playerObject.GetComponent<PlayerNetworkBehavior>().PlayerColor = _playerColor;
         StartCoroutine(WaitToSetPosition());
     }
-    
+
     IEnumerator WaitToSetPosition()
     {
         yield return new WaitForSeconds(0.5f);
@@ -343,6 +338,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         //Debug.Log("OnDisconnectedFromServer");
         FindAnyObjectByType<RoomListUpdate>().ClearRoomList();
         createButton.interactable = false;
+        isHost = false;
     }
 
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken)
@@ -368,7 +364,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
     {
-       // Debug.Log("OnObjectExitAOI");
+        // Debug.Log("OnObjectExitAOI");
     }
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
@@ -382,10 +378,10 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
-        
+
         string test = runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0].ToString();
         Debug.Log("OnPlayerLeft | " + test);
-        runner.GetPlayerObject(runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0]).GetComponent<PlayerNetworkBehavior>().PlayerRole = 0;   
+        runner.GetPlayerObject(runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0]).GetComponent<PlayerNetworkBehavior>().PlayerRole = 0;
         ParticipantItemHandlerManager.Instance.UpdateParticipantList();
 
         ChatManager.Instance.SendMessageAll(playerObject.GetComponent<PlayerNetworkBehavior>().PlayerName + " has left");
@@ -454,6 +450,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
             if (random == i)
             {
                 runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerRole = 0;
+                runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().SetupHostRole();
             }
             else
             {
@@ -473,7 +470,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         Debug.Log("JoinLobby stated");
         string lobbyId = "DefaultLobbyId";
         var result = await runner.JoinSessionLobby(SessionLobby.Custom, lobbyId);
-        
+
         if (!result.Ok)
         {
             Debug.LogError("Unable to join lobby " + lobbyId);
@@ -506,11 +503,12 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         string url = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().GetSongURLToPlay();
         RPCVideoPlayer.Rpc_OnPlayVideoButtonClick(runner, url);
-        foreach (var item in FindObjectsByType<SongItemManager>(FindObjectsSortMode.None))
-        {
-            item.UpdateQueueSongList();
-            item.UpdateSongList();
-        };
+
+        //foreach (var item in FindObjectsByType<SongItemManager>(FindObjectsSortMode.None))
+        //{
+        //    item.UpdateQueueSongList();
+        //    //item.UpdateSongList(S);
+        //};
 
     }
     public void OnJumpToNextVideoButtonClick()

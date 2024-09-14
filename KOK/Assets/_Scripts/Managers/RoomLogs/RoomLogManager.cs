@@ -52,12 +52,14 @@ namespace KOK
                     RoomLog = fileLogName,
                     CreatorId = creatorId
                 },
-                (kr) => {
+                (kr) =>
+                {
                     //Debug.LogError(kr.Value.RoomId + "  |  " + kr.Value.ToString()); 
                     roomId = kr.Value.RoomId;
                 },
-                (ex) => { 
-                    Debug.LogError(ex); 
+                (ex) =>
+                {
+                    Debug.LogError(ex);
                 });
         }
 
@@ -74,12 +76,12 @@ namespace KOK
         {
             if (!Directory.Exists(FolderPath)) Directory.CreateDirectory(FolderPath);
 
-            //System.IO.DirectoryInfo di = new(FolderPath);
+            System.IO.DirectoryInfo di = new(FolderPath);
 
-            //foreach (FileInfo file in di.GetFiles())
-            //{
-            //    file.Delete();
-            //}
+            foreach (FileInfo file in di.GetFiles())
+            {
+                file.Delete();
+            }
 
             if (!File.Exists(FullPath))
             {
@@ -103,9 +105,10 @@ namespace KOK
         public void UploadRoomLogFile()
         {
             FirebaseStorageManager.Instance.UploadRoomLogFile(FullPath,
-                                                              (sm) => { 
-                                                                  Debug.Log("Upload Success " + sm);
-                                                                 //Delete local room log here
+                                                              (sm) =>
+                                                              {
+                                                                  Debug.Log("Upload Success room log " + sm.Name);
+                                                                  //Delete local room log here
 
                                                               },
                                                               (ex) => { });
@@ -141,6 +144,17 @@ namespace KOK
         public void OnButtonSendChatClick()
         {
             ChatManager.Instance.SendChat();
+        }
+
+        private void OnDestroy()
+        {
+            DirectoryInfo dir = new DirectoryInfo(FolderPath);
+
+            foreach (FileInfo file in dir.GetFiles())
+            {
+                file.Delete();
+            }
+
         }
     }
 }

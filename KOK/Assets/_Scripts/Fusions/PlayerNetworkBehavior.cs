@@ -29,7 +29,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     [Networked] public Color PlayerColor { get; set; }
     [SerializeField] SpriteRenderer playerRenderer;
 
-    [Networked][SerializeField] public int PlayerRole { get; set; }
+    [Networked] public int PlayerRole { get; set; }
 
     [SerializeField] public VideoPlayer videoPlayer;
 
@@ -55,7 +55,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     [Networked] public NetworkString<_128> audioUrl { get; set; }
 
-    public List<SongDetail> SongList { get; private set; }
+    public List<SongDetail> SongList { get; private set; } = new();
 
     public List<SongDetail> QueueSongList { get; private set; }
     public List<SongDetail> PurchasedSongList { get; private set; }
@@ -71,7 +71,62 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     private void Start()
     {
-        StartCoroutine(InitRoom());
+        //StartCoroutine(InitRoom());
+        //try
+        //{
+        NetworkRunner runner = NetworkRunner.Instances[0];
+        if (this.HasStateAuthority)
+        {
+            runner.SetPlayerObject(runner.LocalPlayer, FusionManager.Instance.playerObject);
+            //PlayerName = FusionManager.Instance._playerName;
+            //PlayerColor = FusionManager.Instance._playerColor;
+
+            AccountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
+            PlayerName = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
+            //if (runner.ActivePlayers.Count() > 1)
+            if (!FusionManager.isHost)
+            {
+                PlayerRole = 1;
+                StartCoroutine(SyncSongQueueWithHost());
+                StartCoroutine(SyncRoomLogWithHost());
+            }
+            else
+            {
+                PlayerRole = 0;
+
+                string roomName = $"RoomLog_{PlayerName}_{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss")}.txt";
+                RoomLogManager.Instance.CreateRoomLog(roomName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
+            }
+
+            CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
+            AvatarCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
+
+
+            videoPlayer = FindAnyObjectByType<VideoPlayer>();
+
+            RPCVideoPlayer.Rpc_TestAddLocalObject(FindAnyObjectByType<NetworkRunner>(), this);
+
+            SetSinger();
+
+            StartCoroutine(UpdateTime());
+            //StartCoroutine(UpdateSearchSongUI(SongList));
+            StartCoroutine(NotiJoinRoom());
+            RoomLogString = "";
+            LoadSongList();
+            ClearSongQueue();
+            Debug.LogError(this.name);
+        }
+        voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
+        loadingManager = FindAnyObjectByType<LoadingManager>();
+        Debug.Log(PlayerName + " HasStateAuthority: " + HasStateAuthority);
+        this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
+        playerNameLabel.color = PlayerColor;
+        playerRenderer.color = PlayerColor;
+        //} catch (Exception ex)
+        //{
+        //    Debug.LogError  (ex);
+        //    FusionManager.Instance.DisconnectFromRoom();
+        //}
 
     }
 
@@ -79,11 +134,10 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     {
         try
         {
+            NetworkRunner runner = NetworkRunner.Instances[0];
             if (this.HasStateAuthority)
             {
-                voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
-                loadingManager = FindAnyObjectByType<LoadingManager>();
-                NetworkRunner runner = NetworkRunner.Instances[0];
+                runner.SetPlayerObject(runner.LocalPlayer, FusionManager.Instance.playerObject);
                 //PlayerName = FusionManager.Instance._playerName;
                 //PlayerColor = FusionManager.Instance._playerColor;
 
@@ -114,12 +168,14 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 SetSinger();
 
                 StartCoroutine(UpdateTime());
-                StartCoroutine(UpdateSearchSongUI());
+                //StartCoroutine(UpdateSearchSongUI(SongList));
                 StartCoroutine(NotiJoinRoom());
                 RoomLogString = "";
                 LoadSongList();
                 ClearSongQueue();
             }
+            voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
+            loadingManager = FindAnyObjectByType<LoadingManager>();
             Debug.Log(PlayerName + " HasStateAuthority: " + HasStateAuthority);
             this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
             playerNameLabel.color = PlayerColor;
@@ -128,7 +184,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         catch (Exception ex)
         {
             Debug.LogError(ex);
-            //StartCoroutine(InitRoom());
+            StartCoroutine(InitRoom());
         }
         yield return new WaitForSeconds(1f);
     }
@@ -137,15 +193,9 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     {
         if (this.HasStateAuthority)
         {
-            yield return new WaitForSeconds(2f);
-            if (ChatManager.Instance != null)
-            {
-                ChatManager.Instance.SendMessageAll(PlayerName + " has joined");
-            }
-            else
-            {
-                StartCoroutine(NotiJoinRoom());
-            }
+            yield return new WaitForSeconds(1f);
+
+            ChatManager.Instance.SendMessageAll(PlayerName + " has joined");
         }
     }
 
@@ -166,6 +216,29 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         {
             if (loadingManager == null) loadingManager = FindAnyObjectByType<LoadingManager>();
             loadingManager.DisableUIElement();
+            SongList = new();
+            StartCoroutine(UpdateSearchSongUI(SongList));
+            FindAnyObjectByType<ApiHelper>().gameObject
+                    .GetComponent<SongController>()
+                    .GetSongsFilterPagingCoroutine(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
+                                                    new SongFilter(),
+                                                    SongOrderFilter.SongName,
+                                                    new PagingRequest()
+                                                    {
+                                                        pageSize = 100
+                                                    },
+                                                    (drr) => { SongList = drr.Results.ToList(); StartCoroutine(UpdateSearchSongUI(SongList)); Debug.Log("Reload song success!"); },
+                                                    (ex) => Debug.LogError(ex));
+        }
+
+    }
+
+    private void LoadSongList(Action onSuccess, Action onError)
+    {
+        if (this.HasStateAuthority)
+        {
+            if (loadingManager == null) loadingManager = FindAnyObjectByType<LoadingManager>();
+            loadingManager.DisableUIElement();
             FindAnyObjectByType<SongItemManager>().ClearSongList();
             SongList = new();
             FindAnyObjectByType<ApiHelper>().gameObject
@@ -177,12 +250,19 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                                                     {
                                                         pageSize = 100
                                                     },
-                                                    (drr) => { SongList = drr.Results.ToList(); StartCoroutine(UpdateSearchSongUI()); Debug.Log("Reload song success!"); },
-                                                    (ex) => Debug.LogError(ex));
+                                                    (songDetail) =>
+                                                    {
+                                                        SongList = songDetail.Results.ToList();
+                                                        StartCoroutine(UpdateSearchSongUI(SongList));
+                                                        Debug.Log("Reload song success!");
+                                                        onSuccess.Invoke();
+                                                    },
+                                                    (ex) =>
+                                                    {
+                                                        Debug.LogError(ex);
+                                                        onError.Invoke();
+                                                    });
 
-            //Load purchased song list here
-
-            PurchasedSongList = new();
         }
 
     }
@@ -239,12 +319,19 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         if (videoPlayer != null)
         {
             videoPlayer.Play();
+            StartCoroutine(AutoStopRecording());
             if (this.HasStateAuthority)
             {
                 StartCoroutine(RecordingAndRemoveSongFromQueue());
             }
         }
 
+    }
+
+    IEnumerator AutoStopRecording()
+    {
+        yield return new WaitUntil(() => !videoPlayer.isPlaying);
+        StopRecording();
     }
 
     IEnumerator RecordingAndRemoveSongFromQueue()
@@ -498,7 +585,15 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     IEnumerator UpdateQueueSongUI()
     {
         yield return new WaitForSeconds(0.5f);
-        FindAnyObjectByType<SongItemManager>().UpdateQueueSongList();
+        var queueToggle = GameObject.Find("QueueToggle");
+        if (queueToggle == null)
+        {
+            StartCoroutine(UpdateQueueSongUI());
+        }
+        else
+        {
+            queueToggle.GetComponent<SongItemManager>().UpdateQueueSongList();
+        }
     }
 
     public void RefreshSearchSongUI()
@@ -510,23 +605,34 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     }
 
 
-    IEnumerator UpdateSearchSongUI()
+    IEnumerator UpdateSearchSongUI(List<SongDetail> songList)
     {
-        yield return new WaitForSeconds(0.5f);
-        FindAnyObjectByType<SongItemManager>().UpdateSongList();
+        if (HasStateAuthority)
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            var songToggle = GameObject.Find("SongToggle");
+            if (songToggle == null)
+            {
+                Debug.LogError(transform.root + " | " + songList.Count);
+                StartCoroutine(UpdateSearchSongUI(songList));
+            }
+            else
+            {
+                songToggle.GetComponent<SongItemManager>().UpdateSongList(songList);
+            }
+        }
     }
     public void SetSinger()
     {
-        if (this.HasStateAuthority)
+        if (QueueSinger1List[0].ToString() == PlayerName || QueueSinger2List[0].ToString() == PlayerName)
         {
-            if (QueueSinger1List[0].ToString() == PlayerName || QueueSinger2List[0].ToString() == PlayerName)
-            {
-                isSinger = true;
-            }
-            else { isSinger = false; }
-            //Debug.LogError(QueueSinger1List[0].ToString() + " | " + PlayerName + " | " + isSinger);
-            FindAnyObjectByType<RoomClientController>().CheckSinger(isSinger);
+            isSinger = true;
         }
+        else { isSinger = false; }
+        //Debug.LogError(QueueSinger1List[0].ToString() + " | " + PlayerName + " | " + isSinger);
+        FindAnyObjectByType<RoomClientController>().CheckSinger(isSinger);
+
 
     }
 
@@ -573,9 +679,6 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             if (isSinger)
             {
                 var audioFile = QueueSongCodeList[0] + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
-                //audioFile = audioFile.Replace(" ", "");
-                //audioFile = audioFile.Replace(":", "");
-                //audioFile = audioFile.Replace("/", "");
 
                 if (voiceRecorder == null) voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
                 voiceRecorder.StartRecording(audioFile);
@@ -626,10 +729,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 if (isCreateRecording) yield break;
                 isCreateRecording = true;
                 Debug.Log("Room recording is ready: " + singerAudioUrls.Count);
-                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
-                recordingName = recordingName.Replace(" ", "");
-                recordingName = recordingName.Replace(":", "");
-                recordingName = recordingName.Replace("/", "");
+                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + GetSongBySongCode(QueueSongCodeList[0].ToString()).SongName;
 
 
 
@@ -655,7 +755,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                             Debug.Log("Get purchased song success: " + successValue.Results[0].SongName.ToString());
                         },
                         (er) => { }
-                        ) ;
+                        );
 
 
                 RPCSongManager.Rpc_RemoveSong(NetworkRunner.Instances[0], 0);
@@ -665,6 +765,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     private void CreateRecording(string recordingName, string purchasedSongId, List<string> singerAudioUrls, List<string> singerAccountIds)
     {
+        Guid guid = new();
         RecordingManager.Instance.CreateRecording(
                         recordingName,
                         1,
@@ -673,6 +774,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                         PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
                         PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
                         RoomLogManager.Instance.roomId.ToString(),
+                        //guid.ToString(),
                         singerAudioUrls,
                         singerAccountIds
                         );
@@ -693,6 +795,19 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     public void GetAllPurchasedSongOfParticipant()
     {
+
+    }
+
+    public void SetupHostRole()
+    {
+        if (HasStateAuthority)
+        {
+            LoadSongList();
+            foreach (var songCode in QueueSongCodeList)
+            {
+                //if (GetSongBySongCode)
+            }
+        }
 
     }
 

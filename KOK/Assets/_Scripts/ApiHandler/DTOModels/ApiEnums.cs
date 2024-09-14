@@ -1,3 +1,5 @@
+﻿using System.Collections.Generic;
+
 namespace KOK.ApiHandler.DTOModels
 {
     #region Filter_and_Sorting
@@ -41,8 +43,9 @@ namespace KOK.ApiHandler.DTOModels
 
     public enum PostOrderFilter
     {
-        Caption = 1,
         PostId = 0,
+        Caption = 1,
+        UploadTime = 2,
     }
 
     public enum RecordingOrderFilter
@@ -212,6 +215,53 @@ namespace KOK.ApiHandler.DTOModels
     public enum PaymentType
     {
         MOMO = 1,
+        PAYOS = 2,
+    }
+
+    #endregion
+
+    #region ReportCategory
+    public static class ReportCategory
+    {
+        public static List<string> List = new()
+        {
+            "Nội dung liên quan đến tình dục",
+            "Bắt nạt hoặc quấy rối",
+            "Kêu gọi bạo lực, thù ghét",
+            "Tự tử hoặc tự gây thương tích",
+            "Bán hoặc quảng cáo mặt hàng bị cấm",
+            "Lừa đảo hoặc mạo danh",
+            "Spam",
+            "Thông tin sai sự thật",
+            "Vi phạm quyền sở hữu trí tuệ",
+        };
+    }
+
+    #endregion
+
+    #region ReportType
+    public enum ReportType
+    {
+        POST,
+        COMMENT,
+        ROOM
+    }
+    #endregion
+
+    #region Notification
+
+    public enum NotificationType
+    {
+        FRIEND_REQUEST,
+        MESSAGE_COMMING,
+        TRANSACTION_NOTI,
+    }
+
+    public enum NotificationStatus
+    {
+        READ,
+        UNREAD,
+        DELETE,
     }
 
     #endregion

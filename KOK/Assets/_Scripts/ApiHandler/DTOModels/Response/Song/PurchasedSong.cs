@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using System;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.InAppTransactions;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Songs;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 
 namespace KOK.ApiHandler.DTOModels
 {
@@ -17,5 +20,10 @@ namespace KOK.ApiHandler.DTOModels
         public List<string> Singers { get; set; }
         public List<string> Artists { get; set; }
         public bool IsFavorite { get; set; } = false;
+
+        public virtual Account Member { get; set; } = null!;
+        public virtual Song Song { get; set; } = null!;
+        public virtual InAppTransaction? InAppTransaction { get; set; }
+        public virtual ICollection<Recording> Recordings { get; set; }
     }
 }

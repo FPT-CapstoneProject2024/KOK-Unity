@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace KOK
 {
-    public class HostUIManager : MonoBehaviour
+    public class HostUIManager : NetworkBehaviour
     {
         bool isUIEnable = true;
         NetworkRunner runner;
@@ -15,49 +15,48 @@ namespace KOK
 
         void OnEnable()
         {
+                HostUIList.Clear();
+                List<HostUIMask> tmp = FindObjectsOfType<HostUIMask>().ToList();
+                foreach (var t in tmp)
+                {
+                    HostUIList.Add(t.gameObject);
+                }
+                StartCoroutine(CheckHost());
             
-            HostUIList.Clear();
-            List<HostUIMask> tmp = FindObjectsOfType<HostUIMask>().ToList();
-            foreach(var t in tmp)
-            {
-                HostUIList.Add(t.gameObject);
-            }
-            //foreach(var ui in HostUIList)
-            //{
-            //    ui.SetActive(false);
-            //}
-            StartCoroutine(CheckHost());
         }
 
         IEnumerator CheckHost()
         {
-            //Debug.LogError(role + " | " + isUIEnable);
-            yield return new WaitForSeconds(5f);
-            runner = FindAnyObjectByType<NetworkRunner>();
-            role = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole;
-            if (role == 0)
+            if (HasStateAuthority)
             {
-                if (!isUIEnable)
+                //Debug.LogError(role + " | " + isUIEnable);
+                yield return new WaitForSeconds(5f);
+                runner = FindAnyObjectByType<NetworkRunner>();
+                role = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole;
+                if (role == 0)
                 {
-                    foreach (var ui in HostUIList)
+                    if (!isUIEnable)
                     {
-                        ui.SetActive(true);
+                        foreach (var ui in HostUIList)
+                        {
+                            ui.SetActive(true);
+                        }
+                        isUIEnable = true;
                     }
-                    isUIEnable = true;
                 }
-            }
-            else
-            {
-                if (isUIEnable)
+                else
                 {
-                    foreach (var ui in HostUIList)
+                    if (isUIEnable)
                     {
-                        ui.SetActive(false);
+                        foreach (var ui in HostUIList)
+                        {
+                            ui.SetActive(false);
+                        }
+                        isUIEnable = false;
                     }
-                    isUIEnable = false;
                 }
+                StartCoroutine(CheckHost());
             }
-            StartCoroutine(CheckHost());
         }
     }
 }

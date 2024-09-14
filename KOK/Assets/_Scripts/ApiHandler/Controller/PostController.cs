@@ -17,6 +17,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using WebSocketSharp;
 
 namespace KOK
 {
@@ -53,26 +54,14 @@ namespace KOK
                 });
         }
 
-        public async Task<Post?> GetPostByIdAsync(Guid postId)
-        {
-            var url = postResourceUrl + "/" + postId.ToString();
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
 
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            ResponseResult<Post> result = JsonConvert.DeserializeObject<ResponseResult<Post>>(jsonResult);
-
-            return result.Value;
-        }
 
         public void GetPostsFilterPagingCoroutine(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging, Action<DynamicResponseResult<Post>> onSuccess /*Action<List<Post>> onSuccess*/, Action<string> onError)
         {
             var queryParams = GeneratePostQueryParams(filter, orderFilter, paging);
             var url = QueryHelper.BuildUrl(postResourceUrl, queryParams);
-
+            url = url.Replace("Ascending", "Descending");
+            Debug.Log(url);
             ApiHelper.Instance.GetCoroutine(url,
                 (successValue) =>
                 {
@@ -87,29 +76,18 @@ namespace KOK
                 });
         }
 
-        public async Task<DynamicResponseResult<Post>?> GetPostsFilterPagingAsync(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging)
-        {
-            var queryParams = GeneratePostQueryParams(filter, orderFilter, paging);
-            var url = QueryHelper.BuildUrl(postResourceUrl, queryParams);
 
-            Debug.Log(url);
-
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            DynamicResponseResult<Post> result = JsonConvert.DeserializeObject<DynamicResponseResult<Post>>(jsonResult);
-            return result;
-        }
 
         public NameValueCollection GeneratePostQueryParams(PostFilter filter, PostOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
-            if (filter.Caption != null)
+            if (!filter.Caption.IsNullOrEmpty())
             {
                 queryParams.Add(nameof(filter.Caption), filter.Caption.ToString());
+            }
+            if (filter.MemberId != null && filter.MemberId != Guid.Empty)
+            {
+                queryParams.Add(nameof(filter.MemberId), filter.MemberId.ToString());
             }
 
             queryParams.Add(nameof(paging.page), paging.page.ToString());
@@ -154,6 +132,46 @@ namespace KOK
                     onError?.Invoke(result);
                 });
         }
+
+        public void UpdatePostCoroutine(Guid postId, EditPostRequest request, Action<ResponseResult<Post>> onSuccess, Action<ResponseResult<Post>> onError)
+        {
+            var jsonData = JsonConvert.SerializeObject(request);
+            //jsonData = jsonData.Replace("\"Caption\":", "");
+            var url = postResourceUrl + "/" + postId;
+            Debug.Log(url + "  |  " + jsonData);
+            ApiHelper.Instance.PutCoroutine(url, jsonData,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Post>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<Post>>(errorValue);
+                    Debug.LogError(result.Value + "\n" + result.Message) ;
+                    onError?.Invoke(result);
+                });
+        }
+        public void DeletePostByIdCoroutine(Guid postId, Action onSuccess, Action onError)
+        {
+            if (postId == null)
+            {
+                Debug.Log("Failed to get Post by ID. Post ID is null!");
+                return;
+            }
+            var url = postResourceUrl + $"/{postId.ToString()}";
+            ApiHelper.Instance.DeleteCoroutine(url,
+                (successValue) =>
+                {
+                    onSuccess?.Invoke();
+                },
+                (errorValue) =>
+                {
+                    onError?.Invoke();
+                });
+
+        }
+
     }
 }
 

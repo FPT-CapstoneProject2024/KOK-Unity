@@ -1,12 +1,14 @@
-using Fusion;
+﻿using Fusion;
 using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.InAppTransactions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace KOK
 {
@@ -17,12 +19,28 @@ namespace KOK
         [SerializeField] List<TMP_InputField> inputFieldForm = new List<TMP_InputField>();
         [SerializeField] ProfileBinding profileBinding;
 
+        [SerializeField] Image avatar; 
+        [SerializeField] TMP_Text usernameLabel;
+        [SerializeField] TMP_Text upLabel;
+
+        [SerializeField] Transform inAppTransactionPanel;
+        [SerializeField] Transform inAppTransactionContentViewPort;
+        [SerializeField] GameObject inAppTransactionItemPrefab;
+
+
+        [SerializeField] public InAppTransactionBinding InAppTransactionDetailPanel;
+
+        [SerializeField] GameObject loading;
+        [SerializeField] AlertManager messageAlert;
+
+
         public void Awake()
         {
             if (Instance == null)
             {
                 Instance = this;
             }
+            else { Destroy(gameObject); }
         }
 
         public void Start()
@@ -41,13 +59,22 @@ namespace KOK
                         Debug.Log("111" + account);
                         profileBinding.UpdateUI();
                         PlayerPrefsHelper.SetProfileData(account);
+                        UpdateUI();
                     },
-                    (ex) => {}
+                    (ex) => { }
                 );
+        }
+
+        private void UpdateUI()
+        {
+            avatar.sprite = Resources.Load<Sprite>(profileBinding.Account.CharaterItemCode + "AVA");
+            usernameLabel.text = profileBinding.Account.UserName ?? string.Empty; 
+            upLabel.text = "" + (int)profileBinding.Account.UpBalance;
         }
 
         public void SaveMemberInformation()
         {
+            loading.SetActive(true);
             profileBinding.UpdateModel();
             var account = profileBinding.Account;
             UpdateAccountRequest updateAccountRequest = new UpdateAccountRequest()
@@ -59,7 +86,7 @@ namespace KOK
                 //Yob = account.Yob,
                 PhoneNumber = account.PhoneNumber,
                 CharacterItemId = account.CharacterItemId,
-                RoomItemId = account.RoomItemId,    
+                RoomItemId = account.RoomItemId,
 
             };
             ApiHelper.Instance.GetComponent<AccountController>()
@@ -70,14 +97,58 @@ namespace KOK
                     {
                         PlayerPrefsHelper.SetProfileData(result.Value);
                         Debug.Log("Save data success: " + result.Value);
+                        messageAlert.Alert("Lưu thông tin thành công!", true);
+                        loading.SetActive(false);
                     },
                     (result) =>
                     {
                         Debug.LogError(result);
+                        messageAlert.Alert("Lưu thông tin thất bại!", true);
+                        loading.SetActive(false);
                     }
 
                 );
         }
+
+        public void GetInAppTransactionList()
+        {
+            loading.SetActive(true);
+            List<InAppTransaction> inAppTransactions = new();
+            ApiHelper.Instance.GetComponent<InAppTransactionController>()
+                .GetInAppTransactionsByMemberIdCoroutine(
+                    Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
+                    (result) =>
+                    {
+                        inAppTransactions = result;
+                        //Debug.Log(inAppTransactions.Count);
+                        ShowInAppTransactionPanel(inAppTransactions);
+                        loading.SetActive(false);
+                    },
+                    (ex) =>
+                    {
+                        Debug.LogError(ex);
+                        loading.SetActive(false);
+                    }
+                );
+        }
+
+        private void ShowInAppTransactionPanel(List<InAppTransaction> inAppTransactions)
+        {
+            inAppTransactionPanel.gameObject.SetActive(true);
+            foreach (Transform child in inAppTransactionContentViewPort)
+            {
+                Destroy(child.gameObject);
+            }
+            Debug.Log(inAppTransactions.Count);
+            foreach (InAppTransaction transaction in inAppTransactions)
+            {
+                var inAppTransactionItem = Instantiate(inAppTransactionItemPrefab, inAppTransactionContentViewPort);
+                inAppTransactionItem.GetComponentInChildren<InAppTransactionBinding>().InAppTransaction = transaction;
+                inAppTransactionItem.GetComponentInChildren<InAppTransactionBinding>().UpdateUI();
+
+            }
+        }
+
 
         public void PopUpCharacterSelect()
         {

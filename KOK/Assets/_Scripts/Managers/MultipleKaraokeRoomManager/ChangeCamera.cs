@@ -9,6 +9,7 @@ namespace KOK
     {
         [SerializeField] private Camera _camera1;
         [SerializeField] private Camera _camera2;
+        [SerializeField] private GameObject _videoPlayer;
 
         int _camState = 0;
 
@@ -21,7 +22,6 @@ namespace KOK
 
         public void ToggleCamera()
         {
-            Debug.LogError("Click");
             if (_camState == 0)
             {
                 _camera1.gameObject.SetActive(false);
@@ -35,6 +35,37 @@ namespace KOK
             }
         }
 
-        
+        public void ToggleCameraAndRotateCanvas()
+        {
+            if (_camState == 0)
+            {
+                _camState = 1;
+                Screen.orientation = ScreenOrientation.LandscapeLeft;
+            }
+            else
+            {
+                _camState = 0;
+                Screen.orientation = ScreenOrientation.Portrait;
+            }
+        }
+
+        public void RotateCamera()
+        {
+            if (_camState == 0)
+            {
+                _camState = 1;
+                _videoPlayer.GetComponent<RectTransform>().localScale = new(2.2f, 2.2f, 0);
+                Screen.orientation = ScreenOrientation.LandscapeLeft;
+            }
+            else
+            {
+                _camState = 0;
+                _videoPlayer.GetComponent<RectTransform>().localScale = new(1, 1, 0);
+                Screen.orientation = ScreenOrientation.Portrait;
+            }
+        }
+
+
+
     }
 }

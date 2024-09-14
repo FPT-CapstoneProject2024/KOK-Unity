@@ -1,5 +1,5 @@
 ﻿using KOK.ApiHandler.DTOModels;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Song;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Songs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

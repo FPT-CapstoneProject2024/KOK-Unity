@@ -101,45 +101,6 @@ namespace KOK.ApiHandler.Controller
                 });
         }
 
-       
-
-        /// <summary>
-        /// Async method to create new member account.
-        /// </summary>
-        /// <param name="newAccount">Object contains data for new account. Required property: Username, Password, Email.</param>
-        /// <returns>Detail of newly created account.</returns>
-        public async Task<Account?> CreateAccountAsync(CreateAccountRequest newAccount)
-        {
-            var jsonData = JsonConvert.SerializeObject(newAccount);
-            var url = accountResourceUrl;
-            var jsonResult = await ApiHelper.Instance.PostAsync(url, jsonData);
-
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            Debug.Log(jsonResult);
-
-            ResponseResult<Account> result = JsonConvert.DeserializeObject<ResponseResult<Account>>(jsonResult);
-
-            return result.Value;
-        }
-
-        public async Task<DynamicResponseResult<Account>?> GetAccountsFilterPagingAsync(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging)
-        {
-            var queryParams = GenerateAccountQueryParams(filter, orderFilter, paging);
-            var url = QueryHelper.BuildUrl(accountResourceUrl, queryParams);
-
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            DynamicResponseResult<Account> result = JsonConvert.DeserializeObject<DynamicResponseResult<Account>>(jsonResult);
-            return result;
-        }
 
         private NameValueCollection GenerateAccountQueryParams(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging)
         {

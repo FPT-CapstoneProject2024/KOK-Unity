@@ -19,20 +19,7 @@ namespace KOK.ApiHandler.Controller
             songsResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Songs_Resource;
         }
 
-        private async Task<DynamicResponseResult<SongDetail>?> GetSongsFilterPagingAsync(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
-        {
-            var queryParams = GenerateSongQueryParams(filter, orderFilter, paging);
-            var url = QueryHelper.BuildUrl(songsResourceUrl, queryParams);
-
-            var jsonResult = await ApiHelper.Instance.GetAsync(url);
-            if (string.IsNullOrEmpty(jsonResult))
-            {
-                return null;
-            }
-
-            DynamicResponseResult<SongDetail> result = JsonConvert.DeserializeObject<DynamicResponseResult<SongDetail>>(jsonResult);
-            return result;
-        }
+        
 
         /// <summary>
         /// OLD METHOD, PLEASE DO NOT USE!
