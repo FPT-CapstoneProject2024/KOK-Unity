@@ -247,4 +247,22 @@ namespace KOK.ApiHandler.DTOModels
         ROOM
     }
     #endregion
+
+    #region Notification
+
+    public enum NotificationType
+    {
+        FRIEND_REQUEST,
+        MESSAGE_COMMING,
+        TRANSACTION_NOTI,
+    }
+
+    public enum NotificationStatus
+    {
+        READ,
+        UNREAD,
+        DELETE,
+    }
+
+    #endregion
 }

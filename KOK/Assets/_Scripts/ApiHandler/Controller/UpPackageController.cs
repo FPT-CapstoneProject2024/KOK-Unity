@@ -63,5 +63,35 @@ namespace KOK.ApiHandler.Controller
                     onError?.Invoke(result);
                 });
         }
+
+        public void CancelPayOSPackagePurchaseRequestCoroutine(Guid monetaryTransactionId, Action<ResponseResult<string>> onSuccess, Action<ResponseResult<string>> onError)
+        {
+            ApiHelper.Instance.DeleteCoroutine(packageResourceUrl + $"/cancel/payos/{monetaryTransactionId.ToString()}",
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<string>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<string>>(errorValue);
+                    onError?.Invoke(result);
+                });
+        }
+
+        public void GetMemberPendingPurchaseRequest(Guid memberId, Action<ResponseResult<PayOSPackagePaymentMethodResponse>> onSuccess, Action<ResponseResult<PayOSPackagePaymentMethodResponse>> onError)
+        {
+            ApiHelper.Instance.GetCoroutine(packageResourceUrl + $"/request/pending/{memberId.ToString()}",
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<PayOSPackagePaymentMethodResponse>>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<ResponseResult<PayOSPackagePaymentMethodResponse>>(errorValue);
+                    onError?.Invoke(result);
+                });
+        }
     }
 }
