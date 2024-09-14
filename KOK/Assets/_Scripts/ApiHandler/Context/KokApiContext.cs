@@ -23,5 +23,6 @@
         public static readonly string InAppTransaction_Resource = "in-app-transactions";
         public static readonly string AccountItems_Resource = "inventory-items";
         public static readonly string Accounts_Report = "reports";
+        public static readonly string Notification_Resource = "notifications";
     }
 }
