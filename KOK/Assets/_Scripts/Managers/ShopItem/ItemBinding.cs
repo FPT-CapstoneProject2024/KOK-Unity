@@ -1,4 +1,4 @@
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 using System.Linq;
 using TMPro;
 using UnityEngine;

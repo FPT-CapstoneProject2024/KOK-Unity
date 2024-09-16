@@ -8,6 +8,7 @@ namespace KOK
 {
     public class NotificationManager : MonoBehaviour
     {
+        public static NotificationManager Instance { get; private set; }
         //private const string NotificationHubUrl = "https://localhost:7017/notificationHub";
         private const string NotificationHubUrl = "https://kok-api.azurewebsites.net/notificationHub";
 
@@ -21,6 +22,16 @@ namespace KOK
         private const int MaxRetries = 10;
         private int retryCount = 0;
 
+        private void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(this);
+                return;
+            }
+
+            Instance = this;
+        }
         private async void Start()
         {
             await ConnectToNotificationHub();

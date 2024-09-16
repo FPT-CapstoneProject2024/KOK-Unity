@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response.AccountItem
+namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response
 {
     public class AccountItemFilter
     {

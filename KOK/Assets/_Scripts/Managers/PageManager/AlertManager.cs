@@ -22,8 +22,8 @@ namespace KOK
         public void Alert(string message)
         {
             alertPanel.SetActive(true);
-            alertText.color = neutralColor;
-            alertText.text = message;
+            string hex = neutralColor.ToHexString().Substring(0, 6);
+            alertText.text = $"<#{hex}>{message}</color>";
         }
 
         public void Alert(string message, bool isSuccess)

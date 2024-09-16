@@ -2,7 +2,7 @@
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Item;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 using System;
 using System.Collections;
 using System.Collections.Generic;

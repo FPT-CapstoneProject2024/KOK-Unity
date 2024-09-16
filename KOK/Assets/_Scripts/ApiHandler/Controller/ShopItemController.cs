@@ -3,7 +3,7 @@ using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Item;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
