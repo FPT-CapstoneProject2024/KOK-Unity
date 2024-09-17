@@ -23,7 +23,7 @@ namespace KOK
             var accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
             if (accountId.IsNullOrEmpty())
             {
-                SetUpBalanceText("Tải số dư thất bại");
+                SetUpBalanceText("???");
                 return;
             }
             ApiHelper.Instance.GetComponent<AccountController>().GetAccountCoroutine(Guid.Parse(accountId), OnLoadAccountSuccess, OnLoadAccountError);
@@ -43,16 +43,16 @@ namespace KOK
         {
             if (responseResult.Value == null || !(bool)responseResult.Result)
             {
-                SetUpBalanceText("Tải số dư thất bại");
+                SetUpBalanceText("???");
                 return;
             }
-            string upBalanceText = $"Số dư: {(int)responseResult.Value.UpBalance} UP";
+            string upBalanceText = $"{(int)responseResult.Value.UpBalance}";
             SetUpBalanceText(upBalanceText);
         }
 
         private void OnLoadAccountError(ResponseResult<Account> responseResult)
         {
-            SetUpBalanceText("Tải số dư thất bại");
+            SetUpBalanceText("???");
         }
     }
 }

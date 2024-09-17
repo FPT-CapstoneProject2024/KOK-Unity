@@ -61,7 +61,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.515906, g: 0.5295742, b: 0.93962264, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
@@ -150,7 +150,7 @@ MonoBehaviour:
   notiContent: {fileID: 2072956077859103795}
   notiDateTime: {fileID: 7082633577585249767}
   panelBackground: {fileID: 4387036300690674506}
-  unreadColor: {r: 0.24705884, g: 0.25490198, b: 0.44705886, a: 1}
+  unreadColor: {r: 0.7030616, g: 0.70908284, b: 0.85660374, a: 1}
   readColor: {r: 0.1954788, g: 0.1954788, b: 0.3207547, a: 1}
 --- !u!1 &2043048200435422945
 GameObject:

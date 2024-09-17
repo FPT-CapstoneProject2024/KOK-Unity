@@ -38,6 +38,11 @@ namespace KOK
         [SerializeField] EditPostBinding editPostBinding;
         [SerializeField] EditCommentBinding editCommentBinding;
 
+        [Header("Play Button")]
+        [SerializeField] private Sprite buttonOn;
+        [SerializeField] private Sprite buttonOff;
+        [SerializeField] private Button button;
+
         [Header("Option")]
         [SerializeField] TMP_Dropdown optionDropdown;
         List<string> ownPostOptions = new List<string>() { "Chỉnh sửa", "Xoá", "" };
@@ -76,7 +81,7 @@ namespace KOK
         string audioLocalDirectory = "";
 
         public Post post;
-        private ForumNewFeedManager forumNewFeedManager;
+        public ForumNewFeedManager forumNewFeedManager;
 
         private void Start()
         {
@@ -115,6 +120,7 @@ namespace KOK
         public void ShowThisPost()
         {
             StopAllCoroutines();
+            StartCoroutine(PlayButtonSwapSprite());
             readyToPlay = false;
             //Avatar here
             Debug.Log(post.Member.CharaterItemCode + "AVA");
@@ -376,6 +382,21 @@ namespace KOK
             videoPlayer.time = progressSlider.value;
         }
 
+        IEnumerator PlayButtonSwapSprite()
+        {
+            yield return new WaitForSeconds(0.5f);
+            //Debug.Log("play button " + videoPlayer.isPlaying);
+            if (videoPlayer.isPlaying)
+            {
+                button.image.sprite = buttonOn;
+            }
+            else
+            {
+                button.image.sprite = buttonOff;
+            }
+            StartCoroutine(PlayButtonSwapSprite());
+        }
+
         private void InitOptionDropdownValue()
         {
             optionDropdown.ClearOptions();
@@ -586,6 +607,7 @@ namespace KOK
 
         private void OnDestroy()
         {
+            StopAllCoroutines();
             DirectoryInfo dir = new DirectoryInfo(audioLocalDirectory);
 
             foreach (FileInfo file in dir.GetFiles())

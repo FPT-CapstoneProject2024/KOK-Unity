@@ -69,6 +69,10 @@ namespace KOK
             isFirstLoad = false;
             singlePlayerManager = FindAnyObjectByType<SinglePlayerManager>();
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
 
     }
 }

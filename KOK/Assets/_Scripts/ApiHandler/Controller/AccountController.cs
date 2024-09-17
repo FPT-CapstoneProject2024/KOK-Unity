@@ -199,6 +199,9 @@ namespace KOK.ApiHandler.Controller
                 });
         }
 
-
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

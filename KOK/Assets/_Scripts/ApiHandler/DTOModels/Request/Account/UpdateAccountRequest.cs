@@ -10,7 +10,7 @@ namespace KOK.ApiHandler.DTOModels
         //public string Email { get; set; } = string.Empty;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Gender { get; set; } = null;
-        //public  decimal UpBalance { get; set; } = 0;
+        //public decimal UpBalance { get; set; } = -1;
         //public int? Yob { get; set; } = 2000;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public  string PhoneNumber { get; set; } = null;

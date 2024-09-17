@@ -291,5 +291,9 @@ namespace KOK
                 Application.OpenURL(linkId);
             }
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

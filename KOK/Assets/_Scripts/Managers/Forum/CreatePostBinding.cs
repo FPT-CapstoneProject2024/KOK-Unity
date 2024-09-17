@@ -114,5 +114,9 @@ namespace KOK
                     (msg) => { Debug.Log("Clone recording fail " + msg); onError.Invoke(); }
                 );
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

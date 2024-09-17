@@ -346,5 +346,9 @@ namespace KOK
         {
             //Change to home page scene
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

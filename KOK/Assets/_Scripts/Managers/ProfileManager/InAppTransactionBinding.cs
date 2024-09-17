@@ -90,7 +90,32 @@ namespace KOK
                     }
                     );
             }
+            if (InAppTransaction.TransactionType.Equals(InAppTransactionType.BUY_ITEM.ToString()))
+            {
+                ApiHelper.Instance.GetComponent<SongController>()
+                    .GetSongByIdCoroutine((System.Guid)InAppTransaction.SongId,
+                    (result) =>
+                    {
+                        songOrItemName = result.Value.SongName;
+                        inAppTransactionDetailBinding.gameObject.SetActive(true);
+                        inAppTransactionDetailBinding.songOrItemName = songOrItemName;
+                        inAppTransactionDetailBinding.InAppTransaction = InAppTransaction;
+                        inAppTransactionDetailBinding.UpdateUI();
 
+                    },
+                    (ex) =>
+                    {
+                        Debug.LogError(ex);
+                        messageAlert = FindAnyObjectByType<AlertManager>();
+                        messageAlert.Alert("Tải thông tin thất bại!", false);
+                    }
+                    );
+            }
+
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

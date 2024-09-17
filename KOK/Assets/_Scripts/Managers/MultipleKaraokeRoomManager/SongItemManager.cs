@@ -216,6 +216,10 @@ namespace KOK
             //Add check host owned song here
             return true;
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
 
     }
 }

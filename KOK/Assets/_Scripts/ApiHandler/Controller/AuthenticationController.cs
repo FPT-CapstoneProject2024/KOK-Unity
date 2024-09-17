@@ -1,4 +1,5 @@
 using KOK.ApiHandler.Context;
+using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using Newtonsoft.Json;
@@ -102,6 +103,10 @@ namespace KOK
                     var result = JsonConvert.DeserializeObject<ResponseResult<Account>>(errorValue);
                     onError?.Invoke(result);
                 });
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

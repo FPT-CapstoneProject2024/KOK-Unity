@@ -116,6 +116,10 @@ namespace KOK
         {
             FusionManager.Instance?.OnUserSimulationMessage(runner, message);
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
 
 
 

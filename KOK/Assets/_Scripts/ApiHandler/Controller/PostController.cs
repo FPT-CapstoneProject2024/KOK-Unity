@@ -30,7 +30,7 @@ namespace KOK
             postResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Posts_Resource;
         }
 
-        public void GetPostByIdCoroutine(Guid postId, Action<List<Post>> onSuccess, Action<string> onError)
+        public void GetPostByIdCoroutine(Guid postId, Action<Post> onSuccess, Action<string> onError)
         {
             // Validate Post ID
             if (postId == null)
@@ -45,7 +45,7 @@ namespace KOK
                 (successValue) =>
                 {
                     var result = JsonConvert.DeserializeObject<DynamicResponseResult<Post>>(successValue);
-                    onSuccess?.Invoke(result.Results);
+                    onSuccess?.Invoke(result.Results[0]);
                 },
                 (errorValue) =>
                 {
@@ -170,6 +170,10 @@ namespace KOK
                     onError?.Invoke();
                 });
 
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
 
     }

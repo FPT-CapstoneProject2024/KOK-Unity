@@ -81,4 +81,8 @@ public class SwipeDetector : MonoBehaviour
     {
         isSwipeInProgress = false; // Reset flag when transition completes
     }
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+    }
 }

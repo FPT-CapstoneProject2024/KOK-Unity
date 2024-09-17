@@ -10,7 +10,7 @@ using WebSocketSharp;
 
 namespace KOK
 {
-    public class ChatManager : MonoBehaviour
+    public class ChatManager : NetworkBehaviour
     {
         [SerializeField] TMP_InputField chatInputField;
         RPCMessage RPCMessage;
@@ -116,6 +116,10 @@ namespace KOK
         {
             messageTMPP.text += $"{message}";
             runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().UpdateRoomLog($"[{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss")}] {message}");
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

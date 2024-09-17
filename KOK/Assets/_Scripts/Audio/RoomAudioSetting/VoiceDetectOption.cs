@@ -29,5 +29,9 @@ namespace KOK
             }
             _recorder.VoiceDetectionThreshold = _voiceDetectSlider.value/100;
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

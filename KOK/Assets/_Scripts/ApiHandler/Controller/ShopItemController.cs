@@ -137,6 +137,10 @@ namespace KOK
             return queryParams;
         }
 
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
 
     }
 }

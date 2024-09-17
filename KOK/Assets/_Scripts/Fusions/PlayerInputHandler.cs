@@ -79,6 +79,10 @@ namespace KOK
             }
             return acc * speed;
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 
 }

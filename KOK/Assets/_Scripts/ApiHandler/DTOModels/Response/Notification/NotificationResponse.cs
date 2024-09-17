@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace KOK.ApiHandler.DTOModels
 {
@@ -10,5 +11,10 @@ namespace KOK.ApiHandler.DTOModels
         public NotificationStatus Status { get; set; } = NotificationStatus.UNREAD;
         public DateTime CreateDate { get; set; }
         public Guid AccountId { get; set; }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

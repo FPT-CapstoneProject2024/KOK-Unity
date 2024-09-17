@@ -70,5 +70,9 @@ namespace KOK
         {
             alertPanel.SetActive(false);
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

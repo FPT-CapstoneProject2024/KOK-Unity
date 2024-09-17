@@ -70,12 +70,16 @@ namespace KOK
                         },
                         (ex) =>
                         {
-                            shopItemManager.MessageAlertManager.Alert("Giao dịch thất bại", false);
+                            shopItemManager.MessageAlertManager.Alert(ex.Message, false);
                         }
 
                 );
 
             });
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
 
     }

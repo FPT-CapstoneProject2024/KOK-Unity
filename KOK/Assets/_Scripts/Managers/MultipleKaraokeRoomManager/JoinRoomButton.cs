@@ -16,5 +16,9 @@ namespace KOK
         {
             FusionManager.Instance.JoinRoom(_roomName);
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

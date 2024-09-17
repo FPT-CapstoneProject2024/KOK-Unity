@@ -31,5 +31,9 @@ namespace KOK.ApiHandler.Controller
                     onError?.Invoke(result);
                 });
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

@@ -67,7 +67,9 @@ namespace KOK
                         PlayerPrefsHelper.SetProfileData(account);
                         UpdateUI();
                     },
-                    (ex) => { }
+                    (ex) => {
+                        LoadMemberInformation();
+                    }
                 );
         }
 
@@ -176,6 +178,10 @@ namespace KOK
         public void ChangeRoom(string roomCode)
         {
 
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
 
     }

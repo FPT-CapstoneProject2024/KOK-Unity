@@ -25,13 +25,14 @@ namespace KOK
 
         private void OnEnable()
         {
+            NotificationRedDotHandler.isHaveNewNoti = false;
             ReloadNotification();
         }
         public void ReloadNotification()
         {
             foreach (Transform child in notificationViewPortContent)
             {
-                GameObject.Destroy(child.gameObject);
+                Destroy(child.gameObject);
             }
             loadingManager.EnableLoadingSymbol();
             loadingManager.EnableLoadingSymbol();
@@ -42,6 +43,7 @@ namespace KOK
                     {
                         loadingManager.DisableLoadingSymbol();
                         notificationList = notification.Value;
+                        notificationBindingList.Clear();
                         foreach (var noti in notificationList)
                         {
                             var notiObject = Instantiate(notificationTemplatePrefab, notificationViewPortContent);
@@ -55,6 +57,26 @@ namespace KOK
 
                 );
 
+        }
+
+        public void AddNewNotificationOnTop(NotificationResponse notification)
+        {
+            notificationList.Insert(0, notification);
+            foreach (Transform child in notificationViewPortContent)
+            {
+                Destroy(child.gameObject);
+            }
+            notificationBindingList.Clear();
+            foreach (var noti in notificationList)
+            {
+                var notiObject = Instantiate(notificationTemplatePrefab, notificationViewPortContent);
+                notificationBindingList.Add(notiObject.GetComponent<NotificationBinding>());
+                notiObject.GetComponent<NotificationBinding>().Init(noti, this, systemNavigation);
+            }
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

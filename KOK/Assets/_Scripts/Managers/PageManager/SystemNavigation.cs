@@ -76,6 +76,7 @@ namespace KOK
         public void ToLogin()
         {
             ResetChecker();
+            NotificationManager.Instance.DisconnectFromHub();
             Screen.orientation = ScreenOrientation.Portrait;
             SceneManager.LoadScene(sceneName: "Login");
             PlayerPrefsHelper.DeleteAll();
@@ -107,6 +108,14 @@ namespace KOK
             Screen.orientation = ScreenOrientation.Portrait;
             isToTransaction = true;
             SceneManager.LoadScene(sceneName: "v_profile");
+        }
+
+        public void ToMessageScene()
+        {
+            ResetChecker();
+            Screen.orientation = ScreenOrientation.Portrait;
+            isToTransaction = true;
+            SceneManager.LoadScene(sceneName: "v_messenger");
         }
 
     }

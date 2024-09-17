@@ -33,5 +33,9 @@ namespace KOK
                 Destroy(child.gameObject);
             }
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

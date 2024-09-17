@@ -305,5 +305,9 @@ namespace KOK.Assets._Scripts.FileManager
         {
             StopAllCoroutines();
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

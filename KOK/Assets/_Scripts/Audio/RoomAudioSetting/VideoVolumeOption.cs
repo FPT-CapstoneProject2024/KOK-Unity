@@ -24,5 +24,9 @@ namespace KOK
         {
             _videoPlayer.SetDirectAudioVolume(0, _videoVolumeSlider.value / 100f);
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

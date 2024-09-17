@@ -290,5 +290,9 @@ namespace KOK.Audio
             // Return the newly created recorded clip
             return recordedClip;
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

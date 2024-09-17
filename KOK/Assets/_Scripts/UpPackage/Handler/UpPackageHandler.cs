@@ -35,7 +35,10 @@ namespace KOK
             currentPage = 1;
             totalPage = 1;
             pageSize = 6;
-            filter = new UpPackageFilter();
+            filter = new UpPackageFilter()
+            {
+                Status = PackageStatus.ACTIVE
+            };
             ClearContainer();
             SetPackageMessage(string.Empty);
             previousButton.gameObject.SetActive(false);
@@ -154,6 +157,10 @@ namespace KOK
             pendingPackageBinding.gameObject.SetActive(true);
             pendingPackageBinding.Init(this);
 
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

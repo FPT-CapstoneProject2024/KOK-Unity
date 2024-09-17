@@ -229,5 +229,9 @@ namespace KOK
         {
             songPurchaseCanvas.GetComponent<SongPurchaseHandler>().ShowPurchaseSongDialog(buySongParam);
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

@@ -116,5 +116,9 @@ namespace KOK
         {
             NotifyMessage.text = text;
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

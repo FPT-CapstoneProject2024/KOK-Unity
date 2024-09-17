@@ -45,6 +45,9 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] Transform spawnPoint;
 
     [SerializeField] float spawnOffset = 0f;
+
+    [SerializeField] SystemNavigation systemNavigation;
+
     public string _playerName = "Anonymous";
     private string _sessionName = "";
     public Color _playerColor;
@@ -95,6 +98,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     private void OnDestroy()
     {
+        StopAllCoroutines();
         runner.Shutdown();
     }
 
@@ -335,7 +339,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
     {
-        //Debug.Log("OnDisconnectedFromServer");
+        Debug.Log("OnDisconnectedFromServer");
         FindAnyObjectByType<RoomListUpdate>().ClearRoomList();
         createButton.interactable = false;
         isHost = false;
@@ -419,7 +423,10 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
+        Debug.Log("OnShutdown: " + shutdownReason);
         _sessionName = runner.SessionInfo.Name;
+        systemNavigation.ToHome();
+        
 
     }
 

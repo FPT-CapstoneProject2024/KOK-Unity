@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Video;
 
 namespace KOK
 {
@@ -48,10 +49,16 @@ namespace KOK
             StartCoroutine(HideNotiPanel());
         }
 
+
+
         IEnumerator HideNotiPanel()
         {
             yield return new WaitForSeconds(7);
             notiPanel.SetActive(false);
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

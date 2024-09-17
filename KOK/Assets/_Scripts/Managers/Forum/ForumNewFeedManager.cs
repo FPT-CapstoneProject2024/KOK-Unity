@@ -53,6 +53,20 @@ namespace KOK
             postBinding.Init(postList[currentPostIndex], isOwnedProfile, this);
         }
 
+        public void RefreshCurrentPost()
+        {
+            ApiHelper.Instance.GetComponent<PostController>()
+                .GetPostByIdCoroutine(
+                    (Guid)postList[currentPostIndex].PostId,
+                    (post) => {
+                        postList[currentPostIndex] = post;
+                        ShowPost();
+                    },
+                    (ex) => { }
+
+                );
+        }
+
         private void LoadNext()
         {
             if (isOwnedProfile)
@@ -195,8 +209,10 @@ namespace KOK
                 }
             );
         }
-
-        
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
 
     }
 }

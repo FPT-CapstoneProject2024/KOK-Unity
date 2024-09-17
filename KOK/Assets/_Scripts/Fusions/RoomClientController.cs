@@ -5,12 +5,15 @@ using Photon.Voice.Unity;
 using UnityEngine.UI;
 using Fusion;
 using TMPro;
+using KOK;
 
 public class RoomClientController : MonoBehaviour
 {
     [SerializeField] Toggle muteToggle;
     [SerializeField] Toggle echoToggle;
     [SerializeField] Recorder recorder;
+    [SerializeField] public AlertManager ConfirmAlert;
+    [SerializeField] public RoomNotification roomNotification;
 
 
     public TextMeshProUGUI textMeshProUGUI;
@@ -48,7 +51,7 @@ public class RoomClientController : MonoBehaviour
             //recorder.TransmitEnabled = !muteToggle.isOn;
             TurnOnMic();
         }
-        Debug.LogError(isSinger + " | " + recorder.TransmitEnabled);
+        //Debug.LogError(isSinger + " | " + recorder.TransmitEnabled);
     }
 
     public void TurnOffMic()
@@ -80,5 +83,9 @@ public class RoomClientController : MonoBehaviour
         yield return new WaitForSeconds(1);
         textMeshProUGUI.text = "Recorder: " + recorder.TransmitEnabled + " | " + recorder.DebugEchoMode;
         StartCoroutine(DebugTest());
+    }
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
     }
 }

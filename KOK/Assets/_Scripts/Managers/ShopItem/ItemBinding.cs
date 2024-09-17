@@ -49,5 +49,9 @@ namespace KOK
             shopItemManager.ItemDetailBinding.gameObject.SetActive(true);
             shopItemManager.ItemDetailBinding.Init(Item, shopItemManager);
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

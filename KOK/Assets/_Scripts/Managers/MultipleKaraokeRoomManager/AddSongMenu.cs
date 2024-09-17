@@ -29,5 +29,9 @@ namespace KOK
                                                     Singer2DropDown.options[Singer2DropDown.value].text);
             Destroy(gameObject);
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

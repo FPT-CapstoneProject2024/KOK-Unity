@@ -61,6 +61,15 @@ namespace KOK
             runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().StopRecording();
         }
 
-        
+        [Rpc]
+        public static void Rpc_ShowNoti(NetworkRunner runner, string content, bool isSuccess)
+        {
+            FindAnyObjectByType<RoomClientController>().roomNotification.ShowNoti(content, isSuccess);
+
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

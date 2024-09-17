@@ -7,7 +7,7 @@ namespace KOK
     public static class PlayerPrefsHelper
     {
         #region LoginData
-        public static string[] LoginDataKeys = { Key_AccessToken, "RefreshToken", "AccountId", "UserName", "Email", "Gender", "Role", "PhoneNumber", "CharacterItemId", "RoomItemId", "AccountStatus" };
+        public static string[] LoginDataKeys = { Key_AccessToken, "RefreshToken", "AccountId", "UserName", "Email", "Gender", "Role", "PhoneNumber", "CharacterItemId", "RoomItemId", "AccountStatus", "CharaterItemCode", "RoomItemCode" };
         public static readonly string Key_AccessToken = "AccessToken";
         public static readonly string Key_RefreshToken = "RefreshToken";
         public static readonly string Key_AccountId = "AccountId";
@@ -19,6 +19,8 @@ namespace KOK
         public static readonly string Key_CharacterItemId = "CharacterItemId";
         public static readonly string Key_RoomItemId = "RoomItemId";
         public static readonly string Key_AccountStatus = "AccountStatus";
+        public static readonly string Key_CharaterItemCode = "CharaterItemCode";
+        public static readonly string Key_RoomItemCode = "RoomItemCode";
         #endregion
         #region SetMethods
 
@@ -105,6 +107,8 @@ namespace KOK
             PlayerPrefs.SetString(LoginDataKeys[8], loginData.Value.CharacterItemId.ToString());
             PlayerPrefs.SetString(LoginDataKeys[9], loginData.Value.RoomItemId.ToString());
             PlayerPrefs.SetString(LoginDataKeys[10], loginData.Value.AccountStatus.ToString());
+            PlayerPrefs.SetString(LoginDataKeys[11], loginData.Value.CharaterItemCode.ToString());
+            PlayerPrefs.SetString(LoginDataKeys[12], loginData.Value.RoomItemCode == null ? string.Empty : loginData.Value.RoomItemCode.ToString());
             PlayerPrefs.Save();
         }
 
@@ -117,7 +121,7 @@ namespace KOK
             PlayerPrefs.SetString(Key_CharacterItemId, account.CharacterItemId.ToString());
             PlayerPrefs.SetString(Key_RoomItemId, account.RoomItemId.ToString());
             PlayerPrefs.Save();
-        } 
+        }
 
         public static void DeleteLoginData()
         {

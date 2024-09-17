@@ -22,6 +22,9 @@ namespace KOK
 
         public void SpawnPopupSingle()
         {
+            var networkRunner = NetworkRunner.Instances[0];
+            Debug.LogError("Player role: " + networkRunner.GetPlayerObject(networkRunner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole);
+
             if (_parent == null) { _parent = GameObject.Find("PopUpCanvas").transform; }
             if (transform.childCount > 0)
             {
@@ -55,6 +58,8 @@ namespace KOK
                 _popUp = Instantiate(_buySongPopUpPrefab, _parent);
                 _popUp.GetComponentInChildren<PurchasedSongPopup>().InitParam(songParam, 0);
             }
+
+
         }
         public void SpawnPopUp()
         {
@@ -66,6 +71,11 @@ namespace KOK
                 {
                     Destroy(child.gameObject);
                 }
+            }
+            if (_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole != 0)
+            {
+                GetComponentInChildren<SongBinding>().SuggestSong();
+                return;
             }
             if (IsHostOwnedSong(_originalItem.GetComponentInChildren<SongBinding>().Song.SongCode))
             {
@@ -135,6 +145,10 @@ namespace KOK
 
             return _runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().GetSongBySongCode(songCode).isPurchased;
 
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 

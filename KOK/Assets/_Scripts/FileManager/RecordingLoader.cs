@@ -360,6 +360,7 @@ public class RecordingLoader : MonoBehaviour
             file.Delete();
         }
 
+        StopAllCoroutines();
     }
 
     //bool readyToPlay = false;

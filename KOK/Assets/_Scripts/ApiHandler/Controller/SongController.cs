@@ -49,6 +49,7 @@ namespace KOK.ApiHandler.Controller
         private NameValueCollection GenerateSongQueryParams(SongFilter filter, SongOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
+            filter.SongStatus = SongStatus.ENABLE;
             if (!string.IsNullOrEmpty(filter.SongName))
             {
                 queryParams.Add(nameof(filter.SongName), filter.SongName);
@@ -123,6 +124,7 @@ namespace KOK.ApiHandler.Controller
             var queryParams = GenerateSongQueryParams(filter, orderFilter, paging);
             var endpoint = songsResourceUrl + $"/{accountId}/filter";
             var url = QueryHelper.BuildUrl(endpoint, queryParams);
+            Debug.Log(url);
             ApiHelper.Instance.GetCoroutine(url,
                 (successValue) =>
                 {
@@ -134,6 +136,11 @@ namespace KOK.ApiHandler.Controller
                     var result = JsonConvert.DeserializeObject<DynamicResponseResult<SongDetail>>(errorValue);
                     onError?.Invoke(result);
                 });
+        }
+
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

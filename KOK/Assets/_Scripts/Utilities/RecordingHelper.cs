@@ -233,6 +233,10 @@ namespace KOK
                 Debug.LogError($"File not found: {localFilePath}");
             }
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
 
         #region .wav file bytes to Unity AudioClip conversion methods
 

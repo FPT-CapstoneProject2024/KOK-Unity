@@ -6,7 +6,6 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
 
 namespace KOK
 {
@@ -33,6 +32,10 @@ namespace KOK
         {
             inventoryManager.AccountItemDetailBinding.gameObject.SetActive(true);
             inventoryManager.AccountItemDetailBinding.Init(accountItem, inventoryManager);
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
 
     }

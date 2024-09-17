@@ -974,7 +974,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1357156222}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 997280349}
+        m_TargetAssemblyTypeName: KOK.SystemNavigation, Assembly-CSharp
+        m_MethodName: ToHome
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &39231059
 GameObject:
   m_ObjectHideFlags: 0
@@ -1634,7 +1646,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -80, y: 326}
+  m_AnchoredPosition: {x: -79.99994, y: 326}
   m_SizeDelta: {x: -322.26, y: 116.32001}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &101379599
@@ -9013,6 +9025,9 @@ MonoBehaviour:
   - {fileID: 1790334406}
   editPostBinding: {fileID: 1930778381}
   editCommentBinding: {fileID: 714599924}
+  buttonOn: {fileID: 21300000, guid: 28d1b550e8d6ce34fa351e2421b5bfcf, type: 3}
+  buttonOff: {fileID: 21300000, guid: c6d26e352337ab047814d5b9e24f0f81, type: 3}
+  button: {fileID: 176130358}
   optionDropdown: {fileID: 634294627}
   scoreGivePanel: {fileID: 1465503456}
   scoreBinding: {fileID: 1465503458}
@@ -9055,6 +9070,7 @@ MonoBehaviour:
   audioSources:
   - {fileID: 0}
   - {fileID: 0}
+  forumNewFeedManager: {fileID: 0}
 --- !u!114 &506130617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25815,7 +25831,7 @@ GameObject:
   - component: {fileID: 1618598794}
   - component: {fileID: 1618598795}
   m_Layer: 5
-  m_Name: SongButton
+  m_Name: ShopButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32746,6 +32762,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2015393887}
   - component: {fileID: 2015393888}
+  - component: {fileID: 2015393889}
   m_Layer: 5
   m_Name: NotificationButton
   m_TagString: Untagged
@@ -32831,6 +32848,19 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &2015393889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015393886}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c817065bf9521341a79233fb02d8584, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  redDot: {fileID: 526376569}
 --- !u!1 &2025025867
 GameObject:
   m_ObjectHideFlags: 0
@@ -32901,6 +32931,9 @@ MonoBehaviour:
   selectableList: []
   editPostBinding: {fileID: 0}
   editCommentBinding: {fileID: 0}
+  buttonOn: {fileID: 0}
+  buttonOff: {fileID: 0}
+  button: {fileID: 0}
   optionDropdown: {fileID: 0}
   scoreGivePanel: {fileID: 0}
   scoreBinding: {fileID: 0}
@@ -32943,6 +32976,7 @@ MonoBehaviour:
   audioSources:
   - {fileID: 0}
   - {fileID: 0}
+  forumNewFeedManager: {fileID: 0}
 --- !u!114 &2025025870
 MonoBehaviour:
   m_ObjectHideFlags: 0

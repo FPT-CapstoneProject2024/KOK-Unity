@@ -98,8 +98,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 RoomLogManager.Instance.CreateRoomLog(roomName, Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)));
             }
 
-            CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
-            AvatarCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharacterItemId);
+            CharacterCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode);
+            AvatarCode = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode);
 
 
             videoPlayer = FindAnyObjectByType<VideoPlayer>();
@@ -112,10 +112,11 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             //StartCoroutine(UpdateSearchSongUI(SongList));
             StartCoroutine(NotiJoinRoom());
             RoomLogString = "";
-            LoadSongList();
+
             ClearSongQueue();
-            Debug.LogError(this.name);
+            Debug.Log(this.name);
         }
+        LoadSongList();
         voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
         loadingManager = FindAnyObjectByType<LoadingManager>();
         Debug.Log(PlayerName + " HasStateAuthority: " + HasStateAuthority);
@@ -212,58 +213,64 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     private void LoadSongList()
     {
-        if (this.HasStateAuthority)
-        {
-            if (loadingManager == null) loadingManager = FindAnyObjectByType<LoadingManager>();
-            loadingManager.DisableUIElement();
-            SongList = new();
-            StartCoroutine(UpdateSearchSongUI(SongList));
-            FindAnyObjectByType<ApiHelper>().gameObject
-                    .GetComponent<SongController>()
-                    .GetSongsFilterPagingCoroutine(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
-                                                    new SongFilter(),
-                                                    SongOrderFilter.SongName,
-                                                    new PagingRequest()
-                                                    {
-                                                        pageSize = 100
-                                                    },
-                                                    (drr) => { SongList = drr.Results.ToList(); StartCoroutine(UpdateSearchSongUI(SongList)); Debug.Log("Reload song success!"); },
-                                                    (ex) => Debug.LogError(ex));
-        }
+        if (!HasStateAuthority) return;
+        if (loadingManager == null) loadingManager = FindAnyObjectByType<LoadingManager>();
+        loadingManager.DisableUIElement();
+        SongList = new();
+        StartCoroutine(UpdateSearchSongUI(SongList));
+        ApiHelper.Instance
+                .GetComponent<SongController>()
+                .GetSongsFilterPagingCoroutine(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
+                                                new SongFilter(),
+                                                SongOrderFilter.SongName,
+                                                new PagingRequest()
+                                                {
+                                                    pageSize = 100
+                                                },
+                                                (drr) =>
+                                                {
+                                                    SongList = drr.Results.ToList();
+                                                    StartCoroutine(UpdateSearchSongUI(SongList));
+                                                    Debug.Log("Reload song success!");
+                                                },
+                                                (ex) =>
+                                                {
+                                                    Debug.LogError(ex);
+                                                    LoadSongList();
+                                                });
+
 
     }
 
     private void LoadSongList(Action onSuccess, Action onError)
     {
-        if (this.HasStateAuthority)
-        {
-            if (loadingManager == null) loadingManager = FindAnyObjectByType<LoadingManager>();
-            loadingManager.DisableUIElement();
-            FindAnyObjectByType<SongItemManager>().ClearSongList();
-            SongList = new();
-            FindAnyObjectByType<ApiHelper>().gameObject
-                    .GetComponent<SongController>()
-                    .GetSongsFilterPagingCoroutine(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
-                                                    new SongFilter(),
-                                                    SongOrderFilter.SongName,
-                                                    new PagingRequest()
-                                                    {
-                                                        pageSize = 100
-                                                    },
-                                                    (songDetail) =>
-                                                    {
-                                                        SongList = songDetail.Results.ToList();
-                                                        StartCoroutine(UpdateSearchSongUI(SongList));
-                                                        Debug.Log("Reload song success!");
-                                                        onSuccess.Invoke();
-                                                    },
-                                                    (ex) =>
-                                                    {
-                                                        Debug.LogError(ex);
-                                                        onError.Invoke();
-                                                    });
+        if (loadingManager == null) loadingManager = FindAnyObjectByType<LoadingManager>();
+        loadingManager.DisableUIElement();
+        FindAnyObjectByType<SongItemManager>().ClearSongList();
+        SongList = new();
+        FindAnyObjectByType<ApiHelper>().gameObject
+                .GetComponent<SongController>()
+                .GetSongsFilterPagingCoroutine(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
+                                                new SongFilter(),
+                                                SongOrderFilter.SongName,
+                                                new PagingRequest()
+                                                {
+                                                    pageSize = 100
+                                                },
+                                                (songDetail) =>
+                                                {
+                                                    SongList = songDetail.Results.ToList();
+                                                    StartCoroutine(UpdateSearchSongUI(SongList));
+                                                    Debug.Log("Reload song success!");
+                                                    onSuccess.Invoke();
+                                                },
+                                                (ex) =>
+                                                {
+                                                    Debug.LogError(ex);
+                                                    onError.Invoke();
+                                                });
 
-        }
+
 
     }
 
@@ -729,7 +736,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
                 if (isCreateRecording) yield break;
                 isCreateRecording = true;
                 Debug.Log("Room recording is ready: " + singerAudioUrls.Count);
-                string recordingName = "Record_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + GetSongBySongCode(QueueSongCodeList[0].ToString()).SongName;
+                string recordingName = GetSongBySongCode(QueueSongCodeList[0].ToString()).SongName;
 
 
 
@@ -809,6 +816,10 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             }
         }
 
+    }
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
     }
 
 }

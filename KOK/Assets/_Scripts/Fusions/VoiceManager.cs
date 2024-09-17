@@ -93,5 +93,9 @@ namespace KOK
         //        recorder.TransmitEnabled = false;
         //    }
         //}
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

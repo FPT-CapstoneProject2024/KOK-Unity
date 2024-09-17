@@ -1,8 +1,11 @@
-using KOK.ApiHandler.DTOModels;
+﻿using KOK.ApiHandler.DTOModels;
 using Microsoft.AspNetCore.SignalR.Client;
 using System;
+using System.Collections;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Playables;
 
 namespace KOK
 {
@@ -22,6 +25,8 @@ namespace KOK
         private const int MaxRetries = 10;
         private int retryCount = 0;
 
+        private NotificationResponse notification = null;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -31,10 +36,12 @@ namespace KOK
             }
 
             Instance = this;
+            StartCoroutine(TriggerNotification());
         }
         private async void Start()
         {
             await ConnectToNotificationHub();
+            
         }
 
         public async Task ConnectToNotificationHub()
@@ -96,11 +103,57 @@ namespace KOK
         private void HandleNotificationReceived(NotificationResponse notification)
         {
             Debug.Log($"New notification with object data: {notification.NotificationId} - {notification.Description} - {notification.NotificationType.ToString()} - {notification.Status.ToString()} - {notification.CreateDate.ToString()} - {notification.AccountId.ToString()}");
+            this.notification = notification;
+        }
+
+        IEnumerator TriggerNotification()
+        {
+            yield return new WaitForSeconds(1);
+            //Debug.Log(notification);
+            if (notification != null)
+            {
+                try
+                {
+                    //nếu ở trang khác thì enable cái red dot lên
+                    Debug.Log(FindAnyObjectByType<NotificationRedDotHandler>());
+                    var redDot = FindAnyObjectByType<NotificationRedDotHandler>();
+                    Debug.Log(redDot + " enable red dot for notification! ");
+                    if (redDot != null)
+                    {
+
+                        redDot.ShowNotiRedDot();
+                    }
+
+                    //nếu ở trang thông báo thì sẽ thêm cái noti lên đầu
+                    NotificationHandler notificationHandler = FindAnyObjectByType<NotificationHandler>();
+                    if (notificationHandler != null && notification != null)
+                    {
+                        notificationHandler.AddNewNotificationOnTop(notification);
+                    }   
+
+                    //nếu notiType là nạp tiền thì gọi upbalancehandler để reset
+                    UpBalanceHandler upBalanceHandler = FindAnyObjectByType<UpBalanceHandler>();
+                    if (upBalanceHandler != null)
+                    {
+                        upBalanceHandler.ReloadUserUpBalance();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError(ex);
+                }
+                notification = null;
+            }
+            StartCoroutine(TriggerNotification());
         }
 
         private void HandleInitialConnectingLogic(string message)
         {
             Debug.Log($"Connected to SignalR: {message}");
-        } 
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

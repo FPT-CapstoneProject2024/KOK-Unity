@@ -70,6 +70,10 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
                     onError?.Invoke(errorValue);
                 });
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 
 }

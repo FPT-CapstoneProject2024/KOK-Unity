@@ -65,5 +65,9 @@ namespace KOK
                 (isSuccess) => { Debug.LogError("Error at mark at read!"); }
             );
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

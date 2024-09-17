@@ -242,5 +242,9 @@ namespace KOK
             reportBinding.gameObject.SetActive(true);
             reportBinding.Init((Guid)postComment.CommentId, (Guid)postComment.MemberId, ReportType.COMMENT, forumNewFeedManager);
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }
