@@ -48,6 +48,10 @@ namespace KOK
                 return audioManager;
             }
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
 
     }
 }

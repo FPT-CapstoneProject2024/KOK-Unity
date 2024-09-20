@@ -62,11 +62,16 @@ namespace KOK
 
         private void Start()
         {
-            Debug.Log(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName));
-            if(!PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName).Trim().IsNullOrEmpty())
+            //Debug.Log(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName));
+            if (!PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId).Trim().IsNullOrEmpty()
+                && PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountStatus) == AccountStatus.ACTIVE.ToString())
             {
                 SceneManager.LoadScene("v_home");
                 return;
+            } else if (!PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId).Trim().IsNullOrEmpty()
+                && PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountStatus) == AccountStatus.NOT_VERIFY.ToString())
+            {
+                SwitchToVerification();
             }
             SwitchToLogin();
             VerificationEmail = string.Empty;
@@ -168,7 +173,7 @@ namespace KOK
             ApiHelper.Instance.SetJwtToken(result.AccessToken);
 
             // Validate user's account status
-            if (result.Value.AccountStatus != AccountStatus.ACTIVE)
+            if (result.Value.AccountStatus == AccountStatus.NOT_VERIFY)
             {
                 Debug.Log(ER_Login_NotVerifyUser);
                 // Validation logic
@@ -180,9 +185,19 @@ namespace KOK
                 });
                 return;
             }
+            else if (result.Value.AccountStatus == AccountStatus.INACTIVE)
+            {
+                // Block login
+                SetLoginErrorMessage("Tài khoản của bạn không được phép đăng nhập vào hệ thống!");
+                PlayerPrefsHelper.DeleteLoginData();
+                return;
+            }
+
+
 
             // Switch to home scene
             SceneManager.LoadScene("v_home");
+            NotificationManager.Instance.ConnectToNotificationHub();
         }
 
         private void OnLoginError(LoginResponse result)
@@ -224,7 +239,7 @@ namespace KOK
         public void OnSignUpButtonClick()
         {
             var validateResult = ValidateSignUpData();
-            if (validateResult == null) 
+            if (validateResult == null)
             {
                 return;
             }
@@ -399,14 +414,14 @@ namespace KOK
                 return false;
             }
 
-            if(verificationCode.Length != 6)
+            if (verificationCode.Length != 6)
             {
                 SetVerificationErrorMessage(ER_Verify_CodeRequiredLength);
                 return false;
             }
 
             Regex codeRegex = new Regex(@"^(100000|[1-9]\d{5}|[1-8]\d{5}|9\d{5}|999999)$");
-            if (!codeRegex.IsMatch(verificationCode)) 
+            if (!codeRegex.IsMatch(verificationCode))
             {
                 SetVerificationErrorMessage(ER_Verify_CodeRegex);
                 return false;
@@ -421,7 +436,7 @@ namespace KOK
             {
                 return;
             }
-            MemberAccountVerifyRequest verifyRequest = new MemberAccountVerifyRequest() 
+            MemberAccountVerifyRequest verifyRequest = new MemberAccountVerifyRequest()
             {
                 AccountEmail = VerificationEmail,
                 VerifyCode = verificationCodeInputField.text.Trim()
@@ -471,13 +486,17 @@ namespace KOK
             // Switch to home page if user is logged-in
             else
             {
-                SceneManager.LoadScene("Home");
+                SceneManager.LoadScene("v_home");
             }
         }
 
         public void OnVerificationError(ResponseResult<Account> responseResult)
         {
             SetVerificationErrorMessage(responseResult.Message);
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
 
         #endregion

@@ -48,5 +48,9 @@ namespace KOK
                     onError?.Invoke(result);
                 });
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Collections.Specialized;
 using System.Web;
 using System.Collections.Generic;
+using WebSocketSharp;
 
 namespace KOK.ApiHandler.Controller
 {
@@ -96,7 +97,7 @@ namespace KOK.ApiHandler.Controller
                 },
                 (errorValue) =>
                 {
-                    Debug.LogError($"Error when trying to retrieve an account by ID [{accountId.ToString()}]: {errorValue}");
+                    Debug.LogError($"{url} \nError when trying to retrieve an account by ID [{accountId.ToString()}]: {errorValue}");
                     onError?.Invoke(errorValue);
                 });
         }
@@ -105,17 +106,17 @@ namespace KOK.ApiHandler.Controller
         private NameValueCollection GenerateAccountQueryParams(AccountFilter filter, AccountOrderFilter orderFilter, PagingRequest paging)
         {
             var queryParams = new NameValueCollection();
-            if (filter.UserName != null)
+            if (!filter.UserName.IsNullOrEmpty())
             {
                 queryParams.Add(nameof(filter.UserName), filter.UserName);
             }
 
-            if (filter.Email != null)
+            if (!filter.Email.IsNullOrEmpty())
             {
                 queryParams.Add(nameof(filter.Email), filter.Email);
             }
 
-            if (filter.PhoneNumber != null)
+            if (!filter.PhoneNumber.IsNullOrEmpty())
             {
                 queryParams.Add(nameof(filter.PhoneNumber), filter.PhoneNumber);
             }
@@ -132,7 +133,7 @@ namespace KOK.ApiHandler.Controller
         {
             var jsonData = JsonConvert.SerializeObject(newAccount);
             var url = accountResourceUrl;
-
+            Debug.Log(url + "\n" + jsonData);
             ApiHelper.Instance.PostCoroutine(url, jsonData,
                 (successValue) =>
                 {
@@ -168,7 +169,7 @@ namespace KOK.ApiHandler.Controller
         {
             var jsonData = JsonConvert.SerializeObject(updateAccountRequest);
             var url = accountResourceUrl + "/" + accountId;
-
+            Debug.Log(url + "\n" + jsonData);
             ApiHelper.Instance.PutCoroutine(url, jsonData,
                 (successValue) =>
                 {
@@ -196,6 +197,11 @@ namespace KOK.ApiHandler.Controller
                     var result = JsonConvert.DeserializeObject<ResponseResult<Account>>(errorValue);
                     onError?.Invoke(result);
                 });
+        }
+
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

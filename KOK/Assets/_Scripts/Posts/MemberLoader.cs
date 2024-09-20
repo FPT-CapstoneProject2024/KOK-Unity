@@ -37,12 +37,12 @@ namespace KOK
 
         public void GetPostMemberCoroutine(Guid postId)
         {
-            FindAnyObjectByType<ApiHelper>().gameObject
-                .GetComponent<PostController>()
-                .GetPostByIdCoroutine(  postId,
-                                        GetMemberCoroutine,
-                                        OnError
-                );
+            //FindAnyObjectByType<ApiHelper>().gameObject
+            //    .GetComponent<PostController>()
+            //    .GetPostByIdCoroutine(  postId,
+            //                            GetMemberCoroutine,
+            //                            OnError
+            //    );
         }
 
         public void GetMemberCoroutine(List<Post> posts)
@@ -70,6 +70,10 @@ namespace KOK
         private void OnError(string error)
         {
             Debug.LogError(error);
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

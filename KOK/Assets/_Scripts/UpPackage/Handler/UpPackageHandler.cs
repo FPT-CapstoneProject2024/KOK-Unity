@@ -21,6 +21,9 @@ namespace KOK
         [SerializeField] public Button nextButton;
         [Header("Package Purchase Component")]
         [SerializeField] public GameObject packagePurchaseCanvas;
+        [SerializeField] PendingPackageBinding pendingPackageBinding;
+        [Header("Alert")]
+        [SerializeField] public AlertManager MessageAlertManager;
 
         private int currentPage = 1;
         private int totalPage = 1;
@@ -32,7 +35,10 @@ namespace KOK
             currentPage = 1;
             totalPage = 1;
             pageSize = 6;
-            filter = new UpPackageFilter();
+            filter = new UpPackageFilter()
+            {
+                Status = PackageStatus.ACTIVE
+            };
             ClearContainer();
             SetPackageMessage(string.Empty);
             previousButton.gameObject.SetActive(false);
@@ -144,6 +150,17 @@ namespace KOK
         public void OpenPackagePurchaseDialog(PurchasePackageParam param)
         {
             packagePurchaseCanvas.GetComponent<PackagePurchaseHandler>().ShowPurchasePackageDialog(param);
+        }
+
+        public void OnOpenPendingPurchasePanelClick()
+        {
+            pendingPackageBinding.gameObject.SetActive(true);
+            pendingPackageBinding.Init(this);
+
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

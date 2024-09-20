@@ -64,13 +64,15 @@ namespace KOK.ApiHandler.Controller
                 });
         }
 
-        public void CancelPayOSPackagePurchaseRequestCoroutine(Guid monetaryTransactionId, Action<ResponseResult<string>> onSuccess, Action<ResponseResult<string>> onError)
+        public void CancelPayOSPackagePurchaseRequestCoroutine(Guid monetaryTransactionId, Action onSuccess, Action<ResponseResult<string>> onError)
         {
-            ApiHelper.Instance.DeleteCoroutine(packageResourceUrl + $"/cancel/payos/{monetaryTransactionId.ToString()}",
+            var url = packageResourceUrl + $"/cancel/payos/{monetaryTransactionId}";
+            Debug.Log(url);
+            ApiHelper.Instance.DeleteCoroutine(url,
                 (successValue) =>
                 {
-                    var result = JsonConvert.DeserializeObject<ResponseResult<string>>(successValue);
-                    onSuccess?.Invoke(result);
+                    //var result = JsonConvert.DeserializeObject<ResponseResult<string>>(successValue);
+                    onSuccess?.Invoke();
                 },
                 (errorValue) =>
                 {
@@ -92,6 +94,10 @@ namespace KOK.ApiHandler.Controller
                     var result = JsonConvert.DeserializeObject<ResponseResult<PayOSPackagePaymentMethodResponse>>(errorValue);
                     onError?.Invoke(result);
                 });
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

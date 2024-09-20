@@ -256,5 +256,9 @@ namespace KOK
                     favoriteSongParam.SongItem.GetComponent<SongItemBinding>().EnableFavoriteToggle();
                 });
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

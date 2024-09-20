@@ -23,7 +23,7 @@ namespace KOK
             avatar.sprite = Resources.Load<Sprite>(Account.CharaterItemCode + "AVA");
             UsernameInputField.text = Account.UserName ?? string.Empty;
             EmailInputField.text = Account.Email ?? string.Empty;
-            GenderDropdown.value = (int)Account.Gender;
+            GenderDropdown.value = (int)Account.Gender - 1;
             YearOfBirthInputField.text = Account.Yob.ToString() ?? string.Empty;
             PhoneNumberInputField.text = Account.PhoneNumber ?? string.Empty;
             UpLabel.text = "" + (int)Account.UpBalance;
@@ -33,8 +33,12 @@ namespace KOK
         {
             Account.UserName = UsernameInputField.text;
             //Account.Email = EmailInputField.text;
-            Account.Gender = (AccountGender)GenderDropdown.value;
+            Account.Gender = (AccountGender)GenderDropdown.value + 1;
             Account.PhoneNumber = PhoneNumberInputField.text;
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

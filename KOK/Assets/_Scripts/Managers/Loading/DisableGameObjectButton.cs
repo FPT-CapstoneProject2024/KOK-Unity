@@ -12,5 +12,9 @@ namespace KOK
         {
             gameObjectToDisable.SetActive(false);
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

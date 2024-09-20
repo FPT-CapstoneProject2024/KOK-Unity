@@ -34,5 +34,9 @@ namespace KOK
             //Debug.LogError(videoPlayer.time + " | " + videoPlayer.length + " | " + progressBar.value.ToString());
             StartCoroutine(UpdateProgressBar());
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

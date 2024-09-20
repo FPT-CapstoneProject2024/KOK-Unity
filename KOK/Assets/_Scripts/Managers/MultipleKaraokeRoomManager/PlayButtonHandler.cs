@@ -38,6 +38,10 @@ namespace KOK
             }
             StartCoroutine(SwapSprite());
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
 
     }
 }

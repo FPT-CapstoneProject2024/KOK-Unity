@@ -330,6 +330,10 @@ namespace KOK
             //audioSources[audioSourceIndex].UnPause();
         }
 
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
         #endregion
     }
 }

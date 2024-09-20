@@ -198,6 +198,10 @@ public class RPCVideoPlayer : NetworkBehaviour
         }
         //Debug.Log(playerStats.PlayerName + " | " + test + " ======================================");
     }
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+    }
 }
 
 

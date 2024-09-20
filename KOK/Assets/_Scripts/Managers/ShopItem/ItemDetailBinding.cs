@@ -1,11 +1,11 @@
 ﻿using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Song;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 using System;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Item = KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item.Item;
 
 namespace KOK
 {
@@ -61,20 +61,26 @@ namespace KOK
                             MemberId = Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
                             ItemId = (Guid)Item.ItemId,
                         },
-                        (itemPurchaseResponse) => {
+                        (itemPurchaseResponse) =>
+                        {
                             Debug.Log("Item purchase success: " + itemPurchaseResponse);
                             shopItemManager.MessageAlertManager.Alert("Bạn đã mua " + Item.ItemName, true);
                             shopItemManager.ReloadItem();
                             this.gameObject.SetActive(false);
                         },
-                        (ex) => {
-                            shopItemManager.MessageAlertManager.Alert("Giao dịch thất bại", false);
+                        (ex) =>
+                        {
+                            shopItemManager.MessageAlertManager.Alert(ex.Message, false);
                         }
 
                 );
 
             });
-    }
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
 
-}
+    }
 }

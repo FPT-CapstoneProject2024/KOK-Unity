@@ -60,11 +60,11 @@ namespace KOK
             SongGenre.text = genre.Trim();
 
             PlaySongButton.AddEventListener(SongDetail.SongUrl, OnPlaySongClick);
-
+             
             if (SongDetail.isPurchased)
             {
                 BuySongButton.interactable = false;
-                BuySongButton.gameObject.GetComponent<Image>().color = Color.gray;
+                //BuySongButton.gameObject.GetComponent<Image>().color = Color.gray;
             }
             else
             {
@@ -76,6 +76,7 @@ namespace KOK
                     IsPurchased = SongDetail.isPurchased,
                     SongItem = gameObject
                 };
+                BuySongButton.interactable = true;
                 BuySongButton.AddEventListener(songParam, OnBuySongClick);
             }
 

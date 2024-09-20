@@ -31,5 +31,9 @@ namespace KOK
             yield return new WaitForSeconds(second);
             gameObject.GetComponentInChildren<VideoPlayer>().Stop();
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

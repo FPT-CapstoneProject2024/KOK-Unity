@@ -196,5 +196,9 @@ namespace KOK
                 LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
             }
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

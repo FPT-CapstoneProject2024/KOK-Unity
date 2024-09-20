@@ -23,6 +23,7 @@ namespace KOK
         [SerializeField] TMP_Text usernameLabel;
         [SerializeField] TMP_Text upLabel;
 
+        [SerializeField] Transform mainProfilePanel;
         [SerializeField] Transform inAppTransactionPanel;
         [SerializeField] Transform inAppTransactionContentViewPort;
         [SerializeField] GameObject inAppTransactionItemPrefab;
@@ -43,9 +44,14 @@ namespace KOK
             else { Destroy(gameObject); }
         }
 
-        public void Start()
+        public void OnEnable()
         {
             LoadMemberInformation();
+
+            if (SystemNavigation.isToTransaction)
+            {
+                GetInAppTransactionList();
+            }
         }
 
         public void LoadMemberInformation()
@@ -56,12 +62,14 @@ namespace KOK
                     (account) =>
                     {
                         profileBinding.Account = account;
-                        Debug.Log("111" + account);
+                        Debug.Log(account);
                         profileBinding.UpdateUI();
                         PlayerPrefsHelper.SetProfileData(account);
                         UpdateUI();
                     },
-                    (ex) => { }
+                    (ex) => {
+                        LoadMemberInformation();
+                    }
                 );
         }
 
@@ -82,7 +90,7 @@ namespace KOK
                 UserName = account.UserName,
                 //Email = account.Email,
                 Gender = account.Gender.ToString(),
-                UpBalance = (decimal)account.UpBalance,
+                //UpBalance = (decimal)account.UpBalance,
                 //Yob = account.Yob,
                 PhoneNumber = account.PhoneNumber,
                 CharacterItemId = account.CharacterItemId,
@@ -147,6 +155,8 @@ namespace KOK
                 inAppTransactionItem.GetComponentInChildren<InAppTransactionBinding>().UpdateUI();
 
             }
+
+            mainProfilePanel.gameObject.SetActive(false);
         }
 
 
@@ -168,6 +178,10 @@ namespace KOK
         public void ChangeRoom(string roomCode)
         {
 
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
 
     }

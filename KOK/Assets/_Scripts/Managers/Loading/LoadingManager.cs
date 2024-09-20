@@ -46,5 +46,9 @@ namespace KOK
         {
             loadingSymbol.SetActive(false);
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

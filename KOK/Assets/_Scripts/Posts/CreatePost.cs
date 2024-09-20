@@ -139,5 +139,9 @@ namespace KOK.Assets._Scripts.Posts
         {
             Debug.Log(error);
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

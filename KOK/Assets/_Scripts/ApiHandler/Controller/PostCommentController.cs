@@ -232,5 +232,9 @@ namespace KOK.Assets._Scripts.ApiHandler.Controller
                     onError?.Invoke(result);
                 });
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

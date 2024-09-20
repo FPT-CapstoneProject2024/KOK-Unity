@@ -54,16 +54,20 @@ namespace KOK
                     {
                         PostId = (Guid)postBinding.post.PostId,
                         MemberId = Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
-                        Score = scoreGive
+                        Score = scoreGive                        
                     },
                     (postRating) => {
-                        postBinding.ShowThisPost();
+                        postBinding.forumNewFeedManager.RefreshCurrentPost();
                         gameObject.SetActive(false);
                     },
                     (ex) => { }
                 );
 
 
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

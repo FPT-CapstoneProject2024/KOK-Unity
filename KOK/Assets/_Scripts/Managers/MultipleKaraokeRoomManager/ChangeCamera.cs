@@ -65,6 +65,10 @@ namespace KOK
             }
         }
 
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
 
 
     }

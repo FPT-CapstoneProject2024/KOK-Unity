@@ -56,6 +56,10 @@ namespace KOK
             }
             catch { }
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 
     public enum RoomRole

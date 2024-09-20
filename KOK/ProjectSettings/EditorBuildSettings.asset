@@ -35,5 +35,8 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/TestingScene.unity
     guid: ab6a037716a495941b42ab5981b11de9
+  - enabled: 1
+    path: Assets/Scenes/v_notification.unity
+    guid: ae1792ef042f95544ae1b56a06fbd34d
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 61ed0d596bf25db4f80291b5d9f5e798, type: 2}

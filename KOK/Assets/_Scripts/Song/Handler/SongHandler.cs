@@ -25,6 +25,7 @@ namespace KOK
         [SerializeField] public GameObject songPreviewCanvas;
         [Header("Purchase Components")]
         [SerializeField] public GameObject songPurchaseCanvas;
+        [SerializeField] SongPurchaseHandler songPurchaseHandler;
         [SerializeField] LoadingManager loadingManager;
         [SerializeField] TMP_Dropdown categoryDropdown;
 
@@ -52,10 +53,17 @@ namespace KOK
             loadingManager.DisableUIElement();
             ClearContainer();
             string accountId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
-            ApiHelper.Instance.GetComponent<SongController>().GetSongsFilterPagingCoroutine(!string.IsNullOrEmpty(accountId) ? accountId : Guid.Empty.ToString(), filter, SongOrderFilter.SongName, new PagingRequest()
-            {
-                page = currentPage,
-            }, OnLoadSongSuccess, OnLoadSongError);
+            ApiHelper.Instance.GetComponent<SongController>()
+                .GetSongsFilterPagingCoroutine(
+                !string.IsNullOrEmpty(accountId) ? accountId : Guid.Empty.ToString(), 
+                filter, 
+                SongOrderFilter.SongName, 
+                new PagingRequest()
+                    {
+                        page = currentPage,
+                    }, 
+                OnLoadSongSuccess, 
+                OnLoadSongError);
         }
 
         public void OnLoadSongSuccess(DynamicResponseResult<SongDetail> responseResult)
@@ -269,7 +277,8 @@ namespace KOK
 
         public void StartPurchaseSong(BuySongParam buySongParam)
         {
-            songPurchaseCanvas.GetComponent<SongPurchaseHandler>().ShowPurchaseSongDialog(buySongParam);
+            songPurchaseCanvas.SetActive(true);
+            songPurchaseHandler.ShowPurchaseSongDialog(buySongParam);
         }
 
         private void SetFilterKeyword()
@@ -279,6 +288,10 @@ namespace KOK
             filter.GenreName = searchKeyword;
             filter.ArtistName = searchKeyword;
             filter.SingerName = searchKeyword;
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

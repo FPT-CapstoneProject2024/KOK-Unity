@@ -1,4 +1,4 @@
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -48,6 +48,10 @@ namespace KOK
         {
             shopItemManager.ItemDetailBinding.gameObject.SetActive(true);
             shopItemManager.ItemDetailBinding.Init(Item, shopItemManager);
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

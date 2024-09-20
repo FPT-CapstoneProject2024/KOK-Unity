@@ -111,7 +111,7 @@ namespace KOK
             }
             Debug.Log($"Link: {responseResult.Value.checkoutUrl}");
 
-            string resultMessage = $"Tạo yêu cầu nạp UP thành công. Nhấn <color=#00BFFF><link=\"{responseResult.Value.checkoutUrl}\"><u>tại đây</u></link></color> để đến trang thanh toán.";
+            string resultMessage = $"Tạo yêu cầu nạp UP thành công. \nQuét QR hoặc nhấn <color=#00BFFF><link=\"{responseResult.Value.checkoutUrl}\"><u>tại đây</u></link></color> để đến trang thanh toán.";
             SetPurchaseResultMessage(resultMessage);
             SetPayOSQrImage(responseResult.Value);
             DisplayPurchaseResult();
@@ -125,10 +125,12 @@ namespace KOK
             if (responseResult == null)
             {
                 SetPurchaseResultMessage("Tạo yêu cầu nạp UP thất bại. Vui lòng thử lại!");
+                SetPayOSQrImage(null);
                 DisplayPurchaseResult();
                 return;
             }
             SetPurchaseResultMessage(responseResult.Message);
+            SetPayOSQrImage(null);
             DisplayPurchaseResult();
         }
 
@@ -233,6 +235,12 @@ namespace KOK
 
         private void SetPayOSQrImage(PayOSPackagePurchaseResponse purchaseResponse)
         {
+            qrImage.gameObject.SetActive(false);
+            if (purchaseResponse == null)
+            {
+                return;
+            }
+            qrImage.gameObject.SetActive(true);
             var texture = EncodeTextToQRCode(purchaseResponse.qrCode);
             qrImage.texture = texture;
         }
@@ -282,6 +290,10 @@ namespace KOK
                 // Open the link in the browser
                 Application.OpenURL(linkId);
             }
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

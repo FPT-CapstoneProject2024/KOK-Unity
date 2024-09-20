@@ -9,7 +9,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using KOK.ApiHandler.DTOModels;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Item;
-using KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item;
+using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 using KOK.ApiHandler.Context;
 using KOK.Assets._Scripts.Shop;
 using KOK.ApiHandler.Utilities;

@@ -59,6 +59,10 @@ namespace KOK
             yield return new WaitForSeconds(1f);
             isFirstLoad = false;
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
 
     }
 }

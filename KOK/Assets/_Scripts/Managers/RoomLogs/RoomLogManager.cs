@@ -148,6 +148,7 @@ namespace KOK
 
         private void OnDestroy()
         {
+            StopAllCoroutines();
             DirectoryInfo dir = new DirectoryInfo(FolderPath);
 
             foreach (FileInfo file in dir.GetFiles())

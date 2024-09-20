@@ -1,3 +1,4 @@
+﻿using Fusion;
 using KOK.ApiHandler.DTOModels;
 using System.Collections;
 using System.Collections.Generic;
@@ -43,5 +44,16 @@ namespace KOK
             Song = song;
             BindingData();
         }
+
+        public void SuggestSong()
+        {
+            var networkRunner = NetworkRunner.Instances[0];
+            var playerName = networkRunner.GetPlayerObject(networkRunner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerName;
+            FindAnyObjectByType<RoomClientController>().ConfirmAlert.Confirm($"Đề xuất bài hát {Song.SongName}", 
+                () => {
+                    RPCSongManager.Rpc_ShowNoti(networkRunner, $"{playerName} đề xuất bài {Song.SongName}", true);
+                });
+        }
+
     }
 }

@@ -17,6 +17,8 @@ namespace KOK
         [SerializeField] public TMP_Text NotifyMessage;
         [Header("Loading Components")]
         [SerializeField] public GameObject LoadingComponent;
+        [Header("Up Balance")]
+        [SerializeField] public UpBalanceHandler UpBalanceHandler;
 
         private BuySongParam SongParam;
 
@@ -54,6 +56,7 @@ namespace KOK
 
         public void ShowPurchaseSongDialog(BuySongParam buySongParam)
         {
+            Debug.LogError(buySongParam.ToString());
             SongParam = buySongParam;
             // Update UI
             SongName.text = SongParam.SongName;
@@ -91,12 +94,18 @@ namespace KOK
             SetNotifyMessage(response.Message);
             DisplayNotification();
             SongParam.SongItem.GetComponent<SongItemBinding>().DisableBuySongButton();
+
+            UpBalanceHandler.ReloadUserUpBalance();
         }
 
         private void OnPurchaseSongError(ResponseResult<SongPurchaseResponse> response)
         {
             SetNotifyMessage(response.Message);
             DisplayNotification();
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

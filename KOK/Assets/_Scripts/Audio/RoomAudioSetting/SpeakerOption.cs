@@ -31,5 +31,9 @@ namespace KOK
                 audioSource.volume = _speakerSlider.value / 100;
             }
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

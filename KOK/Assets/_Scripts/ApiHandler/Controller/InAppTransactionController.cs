@@ -37,12 +37,21 @@ namespace KOK.ApiHandler.Controller
                 (successValue) =>
                 {
                     var result = JsonConvert.DeserializeObject<DynamicResponseResult<InAppTransaction>>(successValue);
+
+                    foreach (var transaction in result.Results)
+                    {
+                        transaction.CreatedDate = transaction.CreatedDate.AddHours(7);
+                    }
                     onSuccess?.Invoke(result.Results);
                 },
                 (errorValue) =>
                 {
                     onError?.Invoke(errorValue);
                 });
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

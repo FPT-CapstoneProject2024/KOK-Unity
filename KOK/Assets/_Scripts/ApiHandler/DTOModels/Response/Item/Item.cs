@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response.Item
+namespace KOK.Assets._Scripts.ApiHandler.DTOModels.Response
 {
     [Serializable]
     public class Item

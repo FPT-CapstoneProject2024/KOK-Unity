@@ -87,6 +87,10 @@ namespace KOK
             StartCoroutine(SyncVideo());
         }
 
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
 
     }
 }

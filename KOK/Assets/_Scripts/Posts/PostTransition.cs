@@ -218,5 +218,9 @@ namespace KOK
         {
             Debug.LogError(error);
         }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }
