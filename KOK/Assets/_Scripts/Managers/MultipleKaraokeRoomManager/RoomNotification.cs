@@ -31,7 +31,7 @@ namespace KOK
         {
             StopAllCoroutines();
             notiPanel.SetActive(true);
-            notiText.text = $"<#{neutralColor}>{content}</color>";
+            notiText.text = $"<#{neutralColor}>{content}</color>".Replace("<#>", "");
             StartCoroutine(HideNotiPanel());
         }
 

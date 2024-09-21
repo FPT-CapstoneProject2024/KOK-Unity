@@ -79,7 +79,7 @@ namespace KOK
 
         public void SendMessageAll(string message)
         {
-            //runner = NetworkRunner.Instances[0];
+            runner = NetworkRunner.Instances[0];
             if (runner.ActivePlayers.Count() > 1)
             {
                 RPC_SendMessage(runner, $"{message}\n");
@@ -89,6 +89,7 @@ namespace KOK
                 CallMessageOnly1Player($"{message}\n");
             }
 
+            //RPC_SendMessage(runner, $"{message}\n");
         }
 
         public void SendMessageAll(string username, string message)

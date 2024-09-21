@@ -42,6 +42,7 @@ namespace KOK
 
         [SerializeField] LoadingManager _loadingManager;
 
+        [SerializeField] Animator _characterAnim;
         [SerializeField] GameObject _roomDeco;
 
         Guid karaokeRoomId;
@@ -49,6 +50,14 @@ namespace KOK
         private void OnEnable()
         {
             playerNameText.text = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName);
+            _characterAnim.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>(
+                PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode) + "/"
+                + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode) + "Animator"
+                );
+            _characterAnim.Play(AnimationName.IdleFront.ToString());
+            Debug.Log(
+                PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode) + "/"
+                + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode) + "Animator");
 
             string logFileName = "RoomLog_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName).ToString() + "_" + DateTime.Now + ".txt";
             logFileName = logFileName.Replace(" ", "");
@@ -91,7 +100,7 @@ namespace KOK
             //Call api load song
             songList = new();
 
-
+            _loadingManager.EnableLoadingSymbol();
             FindAnyObjectByType<ApiHelper>().gameObject
                     .GetComponent<SongController>()
                     .GetSongsFilterPagingCoroutine(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId),
@@ -101,9 +110,15 @@ namespace KOK
                                                     {
                                                         pageSize = 100
                                                     },
-                                                    (drr) => { songList = drr.Results.ToList(); UpdateSearchSongUI(); Debug.Log("Reload song success!"); },
-                                                    (ex) => Debug.LogError(ex)) ;
-            
+                                                    (drr) =>
+                                                    {
+                                                        _loadingManager.DisableLoadingSymbol();
+                                                        songList = drr.Results.ToList();
+                                                        UpdateSearchSongUI();
+                                                        Debug.Log("Reload song success!");
+                                                    },
+                                                    (ex) => Debug.LogError(ex));
+
 
             //Call api load purchased song
             purchasedSongList = new();
@@ -112,10 +127,7 @@ namespace KOK
             //Load song from devide
         }
 
-        public void DisableUIElement()
-        {
-            _loadingManager.DisableUIElement();
-        }
+        
         public void ClearSearchSongList()
         {
             try
@@ -130,7 +142,6 @@ namespace KOK
         public void UpdateSearchSongUI()
         {
             ClearSearchSongList();
-            DisableUIElement();
             string searchKeyword = searchSongInput.text;
             List<SongDetail> songListSearch = new();
             if (!searchKeyword.IsNullOrEmpty())
@@ -149,13 +160,13 @@ namespace KOK
             {
                 songListSearch = songListSearch.Where(s => s.isFavorite == true).ToList();
             }
-             
+
             if (songPanelPurchasedToggle.isOn)
             {
                 songListSearch = songListSearch.Where(s => s.isPurchased == true).ToList();
             }
 
-            
+
 
             foreach (var song in songListSearch)
             {
@@ -182,7 +193,6 @@ namespace KOK
                 catch { }
             }
 
-            _loadingManager.EnableUIElement();
         }
         public void UpdateQueueSongUI()
         {
@@ -260,7 +270,7 @@ namespace KOK
 
                 Guid songId = (Guid)queueSongList[0].SongId;
 
-                
+
 
                 string recordingName = queueSongList[0].SongName;
 
@@ -279,14 +289,17 @@ namespace KOK
                         {
                             pageSize = 1,
                         },
-                        (successValue) => { CreateRecording(recordingName, 
-                            audioFile, 
+                        (successValue) =>
+                        {
+                            CreateRecording(recordingName,
+                            audioFile,
                             successValue.Results[0].PurchasedSongId.ToString());
-                            Debug.Log("Get purchased song success: "+ successValue.Results[0].SongName.ToString()); },
+                            Debug.Log("Get purchased song success: " + successValue.Results[0].SongName.ToString());
+                        },
                         (er) => { }
                         );
 
-                
+
             }
         }
 

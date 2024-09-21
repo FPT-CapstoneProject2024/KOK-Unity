@@ -28,6 +28,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     [SerializeField] TextMeshPro playerNameLabel;
     [Networked] public Color PlayerColor { get; set; }
     [SerializeField] SpriteRenderer playerRenderer;
+    [SerializeField] Animator characterAnim;
 
     [Networked] public int PlayerRole { get; set; }
 
@@ -68,6 +69,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     private bool isRecording = false;
 
     [SerializeField] private LoadingManager loadingManager { get; set; }
+
+    [Networked] public NetworkString<_64> Animation { get; set; }
 
     private void Start()
     {
@@ -122,12 +125,15 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         Debug.Log(PlayerName + " HasStateAuthority: " + HasStateAuthority);
         this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
         playerNameLabel.color = PlayerColor;
-        playerRenderer.color = PlayerColor;
-        //} catch (Exception ex)
-        //{
-        //    Debug.LogError  (ex);
-        //    FusionManager.Instance.DisconnectFromRoom();
-        //}
+        //playerRenderer.color = PlayerColor;
+        characterAnim.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>(
+                PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode) + "/"
+                + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode) + "Animator"
+                );
+        characterAnim.Play(AnimationName.IdleFront.ToString());
+        Debug.Log(
+            PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode) + "/"
+            + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode) + "Animator");
 
     }
 
@@ -816,6 +822,24 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             }
         }
 
+    }
+
+    public void PlayAnimation(AnimationName animation)
+    {
+        if (Animation.Equals(animation.ToString())) return;
+        characterAnim.Play(animation.ToString());
+        Animation = animation.ToString();
+    }
+
+    IEnumerable UpdateAnimation()
+    {
+        yield return new WaitForSeconds(1);
+        var infor = characterAnim.GetCurrentAnimatorClipInfo(0);
+        string current = infor[0].clip.name;
+        //if (!current.Equals(Animation)) 
+
+        //characterAnim.Play(.ToString());
+        //Animation = animation.ToString();
     }
     private void OnDestroy()
     {

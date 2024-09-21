@@ -22,8 +22,8 @@ namespace KOK
 
         public void SpawnPopupSingle()
         {
-            var networkRunner = NetworkRunner.Instances[0];
-            Debug.LogError("Player role: " + networkRunner.GetPlayerObject(networkRunner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole);
+            //var networkRunner = NetworkRunner.Instances[0];
+            //Debug.LogError("Player role: " + networkRunner.GetPlayerObject(networkRunner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole);
 
             if (_parent == null) { _parent = GameObject.Find("PopUpCanvas").transform; }
             if (transform.childCount > 0)

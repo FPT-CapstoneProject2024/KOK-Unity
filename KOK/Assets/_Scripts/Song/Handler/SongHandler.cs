@@ -36,9 +36,8 @@ namespace KOK
 
         private void Start()
         {
-            if (SystemNavigation.isToPurchasedSong)
+            if (SystemNavigation.IsToPurchasedSong())
             {
-                SystemNavigation.isToPurchasedSong = false;
                 categoryDropdown = GameObject.Find("CategoryDropdown").GetComponent<TMP_Dropdown>();
                 categoryDropdown.value = 1;
                 return;

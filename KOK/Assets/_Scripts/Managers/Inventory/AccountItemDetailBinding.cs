@@ -74,6 +74,7 @@ namespace KOK
                         {
                             inventoryManager.MessageAlertManager.Alert("Bạn đã thay đổi sang nhân vật " + AccountItem.Item.ItemName, true);
                             inventoryManager.AccountItemDetailBinding.gameObject.SetActive(false);
+                            PlayerPrefsHelper.SetString(PlayerPrefsHelper.Key_CharaterItemCode, account.Value.CharaterItemCode);
                         },
                         (ex) =>
                         {

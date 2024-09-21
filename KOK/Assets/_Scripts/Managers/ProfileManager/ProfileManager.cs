@@ -28,6 +28,8 @@ namespace KOK
         [SerializeField] Transform inAppTransactionContentViewPort;
         [SerializeField] GameObject inAppTransactionItemPrefab;
 
+        [SerializeField] GameObject pakagePanel;
+
 
         [SerializeField] public InAppTransactionBinding InAppTransactionDetailPanel;
 
@@ -48,9 +50,13 @@ namespace KOK
         {
             LoadMemberInformation();
 
-            if (SystemNavigation.isToTransaction)
+            if (SystemNavigation.IsToTransaction())
             {
                 GetInAppTransactionList();
+            }
+            if (SystemNavigation.IsToPackage())
+            {
+                ShowPackagePanel();
             }
         }
 
@@ -156,6 +162,12 @@ namespace KOK
 
             }
 
+            mainProfilePanel.gameObject.SetActive(false);
+        }
+
+        public void ShowPackagePanel()
+        {
+            pakagePanel.gameObject.SetActive(true);
             mainProfilePanel.gameObject.SetActive(false);
         }
 

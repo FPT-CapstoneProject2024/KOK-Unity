@@ -41,7 +41,12 @@ namespace KOK
                         {
                             recordingDropDown.options.Add(new TMP_Dropdown.OptionData() { text = recording.RecordingName });
                         }
-                        recordingDropDown.value = 0;
+                        recordingDropDown.enabled = false;
+                        recordingDropDown.enabled = true;
+                        if (recordingList.Count > 1) {
+                            recordingDropDown.value = 1;
+                            recordingDropDown.value = 0;
+                        }
                     },
                     (msg) => { }
                 );

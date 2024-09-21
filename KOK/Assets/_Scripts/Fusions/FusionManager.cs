@@ -119,7 +119,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     public void CreateRoom()
     {
         isHost = true;
-        Debug.LogError("Create button click " + isHost);
+        //Debug.LogError("Create button click " + isHost);
         playerRole = 0;
         _playerName = nameInput.text;
         if (_playerName.IsNullOrEmpty())
@@ -424,8 +424,8 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
         Debug.Log("OnShutdown: " + shutdownReason);
-        _sessionName = runner.SessionInfo.Name;
         systemNavigation.ToHome();
+        //_sessionName = runner.SessionInfo.Name;
         
 
     }
