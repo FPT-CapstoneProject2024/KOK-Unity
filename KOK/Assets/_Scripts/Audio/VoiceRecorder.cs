@@ -42,6 +42,8 @@ namespace KOK.Audio
             isRecording = false;
             recordingSaveLocation = Application.persistentDataPath + "/Recordings/";
             if (roomNotification == null) roomNotification = FindAnyObjectByType<RoomNotification>();
+            roomNotification = FindAnyObjectByType<RoomNotification>();
+            roomNotification.gameObject.SetActive(false);
             InitializeMicrophone();
         }
 

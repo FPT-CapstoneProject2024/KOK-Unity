@@ -46,6 +46,7 @@ public class RecordingLoader : MonoBehaviour
     [SerializeField] Slider progressSlider;
     [SerializeField] RawImage videoRenderTexture;
     private List<Recording> recordingList;
+    [SerializeField] TMP_Text recordingMessage;
 
     [Header("Search and category")]
     [SerializeField] TMP_InputField searchInput;
@@ -127,8 +128,17 @@ public class RecordingLoader : MonoBehaviour
                                                     this.recordingList = recordingList;
                                                     RecordingsGenerate(recordingList);
                                                     loadingPanel.gameObject.SetActive(false);
+                                                    recordingMessage.gameObject.SetActive(false);
                                                 },
-                                                (ex) => { Debug.Log(ex); }
+                                                (ex) =>
+                                                {
+                                                    loadingPanel.gameObject.SetActive(false);
+                                                    recordingMessage.gameObject.SetActive(true);
+                                                    recordingMessage.text = "Hiện không có bản ghi âm nào!";
+                                                    recordingMessage.gameObject.SetActive(false);
+                                                    recordingMessage.gameObject.SetActive(true);
+                                                    Debug.Log(ex);
+                                                }
                                                 );
     }
 
