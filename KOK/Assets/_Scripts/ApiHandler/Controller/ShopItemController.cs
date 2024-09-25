@@ -29,7 +29,7 @@ namespace KOK
             itemResourceUrl = KokApiContext.KOK_Host_Url + KokApiContext.Items_Resource;
         }
 
-        public void GetItemByIdCoroutine(Guid itemId, Action<string> onSuccess, Action<string> onError)
+        public void GetItemByIdCoroutine(Guid itemId, Action<Item> onSuccess, Action<string> onError)
         {
             if (itemId == null)
             {
@@ -38,8 +38,18 @@ namespace KOK
             }
 
             // Prepare and send api request
-            var url = itemResourceUrl + "/" + itemId.ToString();
-            ApiHelper.Instance.GetCoroutine(url, onSuccess, onError);
+            var url = itemResourceUrl + "/" + itemId.ToString(); 
+            ApiHelper.Instance.GetCoroutine(url,
+                (successValue) =>
+                {
+                    var result = JsonConvert.DeserializeObject<Item>(successValue);
+                    onSuccess?.Invoke(result);
+                },
+                (errorValue) =>
+                {
+                    Debug.LogError($"Error when trying to retrieve items list: {errorValue}");
+                    onError?.Invoke(errorValue);
+                });
         }
 
         public void GetItemsFilterCoroutine(ItemFilter filter, ItemOrderFilter orderFilter, Action<List<Item>> onSuccess, Action<string> onError)

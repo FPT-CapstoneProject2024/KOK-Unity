@@ -92,11 +92,11 @@ namespace KOK
             }
             if (InAppTransaction.TransactionType.Equals(InAppTransactionType.BUY_ITEM.ToString()))
             {
-                ApiHelper.Instance.GetComponent<SongController>()
-                    .GetSongByIdCoroutine((System.Guid)InAppTransaction.SongId,
+                ApiHelper.Instance.GetComponent<ShopItemController>()
+                    .GetItemByIdCoroutine((System.Guid)InAppTransaction.ItemId,
                     (result) =>
                     {
-                        songOrItemName = result.Value.SongName;
+                        songOrItemName = result.ItemName;
                         inAppTransactionDetailBinding.gameObject.SetActive(true);
                         inAppTransactionDetailBinding.songOrItemName = songOrItemName;
                         inAppTransactionDetailBinding.InAppTransaction = InAppTransaction;
@@ -111,6 +111,7 @@ namespace KOK
                     }
                     );
             }
+
 
         }
         private void OnDestroy()
