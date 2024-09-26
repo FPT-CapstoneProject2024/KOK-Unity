@@ -52,6 +52,7 @@ namespace KOK
         [Rpc]
         public static void Rpc_StartRecording(NetworkRunner runner)
         {
+            Debug.LogError("Start recording 2");
             runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().StartRecording();
         }
         

@@ -1,4 +1,4 @@
-using ExitGames.Client.Photon.StructWrapping;
+﻿using ExitGames.Client.Photon.StructWrapping;
 using Fusion;
 using Fusion.Sockets;
 using KOK;
@@ -216,7 +216,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         });
 
         runner.ProvideInput = true;
-        roomIdTMP.text = "Room: " + runner.SessionInfo.Name;
+        roomIdTMP.text = "Phòng: " + runner.SessionInfo.Name;
     }
 
     public async void ConnectToRunner(string playerName, string roomName)
@@ -237,7 +237,7 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
         });
 
         runner.ProvideInput = true;
-        roomIdTMP.text = "Room: " + runner.SessionInfo.Name;
+        roomIdTMP.text = "Phòng: " + runner.SessionInfo.Name;
     }
 
     public async void DisconnectFromRoom()
@@ -382,13 +382,13 @@ public class FusionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
+        ChatManager.Instance.SendMessageAll(runner.GetPlayerObject(player).GetComponent<PlayerNetworkBehavior>().PlayerName + " đã rời phòng!");
 
         string test = runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0].ToString();
         Debug.Log("OnPlayerLeft | " + test);
         runner.GetPlayerObject(runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList()[0]).GetComponent<PlayerNetworkBehavior>().PlayerRole = 0;
         ParticipantItemHandlerManager.Instance.UpdateParticipantList();
 
-        ChatManager.Instance.SendMessageAll(playerObject.GetComponent<PlayerNetworkBehavior>().PlayerName + " has left");
     }
 
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress)

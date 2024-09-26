@@ -162,7 +162,7 @@ public class RecordingLoader : MonoBehaviour
             string recordingType = "";
             if (recording.RecordingType == RecordingType.SINGLE)
             {
-                recordingType = "Bản thư âm đơn";
+                recordingType = "Bản thu âm đơn";
             }
             else if (recording.RecordingType == RecordingType.MULTIPLE)
             {
@@ -171,7 +171,8 @@ public class RecordingLoader : MonoBehaviour
 
             recordingObj.transform.Find("Label 1").GetComponent<TMP_Text>().text = recording.RecordingName + " - " + recordingType;
             recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text = string.Empty;
-            recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text += "Recording time: " + recording.CreatedDate.ToString("dd/MM/yyyy HH:mm:ss") + "\n";
+            DateTime localtime = recording.CreatedDate.AddHours(7);
+            recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text += "Ngày thu: " + localtime.ToString("dd/MM/yyyy HH:mm:ss") + "\n";
 
             recordingObj.transform.Find("PlayButton").GetComponent<Button>().onClick.AddListener(delegate ()
             {

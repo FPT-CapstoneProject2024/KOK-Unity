@@ -29,7 +29,7 @@ namespace KOK
         {
             //Debug.LogError(role + " | " + isUIEnable);
             yield return new WaitForSeconds(5f);
-            runner = FindAnyObjectByType<NetworkRunner>();
+            runner = NetworkRunner.Instances[0];
             role = runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole;
             if (role == 0)
             {

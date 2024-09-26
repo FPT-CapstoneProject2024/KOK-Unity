@@ -72,6 +72,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
     [Networked] public NetworkString<_64> Animation { get; set; }
 
+
     private void Start()
     {
         //StartCoroutine(InitRoom());
@@ -118,6 +119,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
             ClearSongQueue();
             Debug.Log(this.name);
+
         }
         LoadSongList();
         voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
@@ -126,14 +128,28 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
         playerNameLabel.color = PlayerColor;
         //playerRenderer.color = PlayerColor;
-        characterAnim.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>(
-                PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode) + "/"
-                + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode) + "Animator"
-                );
-        characterAnim.Play(AnimationName.IdleFront.ToString());
-        Debug.Log(
-            PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode) + "/"
-            + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_CharaterItemCode) + "Animator");
+
+        
+        StartCoroutine(SetCharacter());
+    }
+
+    IEnumerator SetCharacter()
+    {
+        yield return new WaitForSeconds(1);
+        if (CharacterCode.IsNullOrEmpty())
+        {
+            StartCoroutine(SetCharacter());
+        }
+        else
+        {
+            characterAnim.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>(
+                    CharacterCode + "/"
+                    + CharacterCode + "Animator"
+                    );
+
+            characterAnim.Play(AnimationName.IdleFront.ToString());
+            StartCoroutine(UpdateAnimation());
+        }
 
     }
 
@@ -187,6 +203,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
             playerNameLabel.color = PlayerColor;
             playerRenderer.color = PlayerColor;
+
+            
         }
         catch (Exception ex)
         {
@@ -202,7 +220,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         {
             yield return new WaitForSeconds(1f);
 
-            ChatManager.Instance.SendMessageAll(PlayerName + " has joined");
+            ChatManager.Instance.SendMessageAll(PlayerName + " đã tham gia!");
         }
     }
 
@@ -354,12 +372,10 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         {
             if (isSinger)
             {
+                Debug.LogError("Start recording 3");
                 RPCSongManager.Rpc_StartRecording(NetworkRunner.Instances[0]);
             }
-            if (PlayerRole == 0)
-            {
-                StartCoroutine(CreateRecording());
-            }
+            StartCoroutine(CreateRecording());
 
         }
         else
@@ -688,9 +704,12 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     {
         if (this.HasStateAuthority)
         {
+            Debug.LogError("1 start recording");
             if (isRecording) return;
             if (isSinger)
             {
+
+                Debug.LogError("0 start recording");
                 var audioFile = QueueSongCodeList[0] + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
 
                 if (voiceRecorder == null) voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
@@ -708,7 +727,13 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     IEnumerator CreateRecording()
     {
         yield return new WaitForSeconds(0.1f);
-        if (PlayerRole == 0)
+        bool isOwnedSong = false;
+        if (SongList.FirstOrDefault(song => song.SongUrl == audioUrl) != null)
+        {
+            isOwnedSong = true;
+        };
+
+        if (PlayerRole == 0 || isOwnedSong)
         {
             List<string> singerAudioUrls = new();
             List<string> singerAccountIds = new();
@@ -831,15 +856,21 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         Animation = animation.ToString();
     }
 
-    IEnumerable UpdateAnimation()
+    IEnumerator UpdateAnimation()
     {
         yield return new WaitForSeconds(1);
-        var infor = characterAnim.GetCurrentAnimatorClipInfo(0);
-        string current = infor[0].clip.name;
-        //if (!current.Equals(Animation)) 
-
-        //characterAnim.Play(.ToString());
-        //Animation = animation.ToString();
+        if(HasStateAuthority)
+        {
+            var infor = characterAnim.GetCurrentAnimatorClipInfo(0);
+            string current = infor[0].clip.name;
+            Animation = current;
+            //Debug.LogError(Animation);
+        }
+        else
+        {
+            PlayAnimation((AnimationName)Enum.Parse(typeof(AnimationName), Animation.ToString(), true));
+        }
+        StartCoroutine(UpdateAnimation());
     }
     private void OnDestroy()
     {

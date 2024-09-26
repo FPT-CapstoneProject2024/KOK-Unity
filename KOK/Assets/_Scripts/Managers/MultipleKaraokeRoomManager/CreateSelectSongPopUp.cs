@@ -72,6 +72,11 @@ namespace KOK
                     Destroy(child.gameObject);
                 }
             }
+            Debug.LogError(_runner);
+            Debug.LogError(_runner.GetPlayerObject(_runner.LocalPlayer));
+            Debug.LogError(_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>());
+            Debug.LogError(_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole);
+
             if (_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole != 0)
             {
                 GetComponentInChildren<SongBinding>().SuggestSong();

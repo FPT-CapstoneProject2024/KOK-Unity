@@ -60,7 +60,7 @@ namespace KOK
             SongParam = buySongParam;
             // Update UI
             SongName.text = SongParam.SongName;
-            SongPrice.text = String.Format("{0:0.00}", SongParam.Price);
+            SongPrice.text = SongParam.Price.ToString("F0") + " UP";
             DisplayPurchase();
             gameObject.SetActive(true);
         }
