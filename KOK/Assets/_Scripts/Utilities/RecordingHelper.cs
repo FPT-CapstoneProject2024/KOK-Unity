@@ -14,7 +14,8 @@ namespace KOK
 {
     public class RecordingHelper : MonoBehaviour
     {
-        [SerializeField] AudioMixerGroup audioMixerGroup; const string STORAGE_BUCKET_URL = "gs://kok-unity.appspot.com";
+        [SerializeField] AudioMixerGroup audioMixerGroup; 
+        const string STORAGE_BUCKET_URL = "gs://kok-unity.appspot.com";
         const string VOICE_RECORDINGS_REF_NAME = "VoiceRecordings";
         const string ROOM_LOG_REF_NAME = "RoomLogs";
 

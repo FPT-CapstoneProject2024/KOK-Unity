@@ -22,8 +22,8 @@ namespace KOK
 
         public void SpawnPopupSingle()
         {
-            var networkRunner = NetworkRunner.Instances[0];
-            Debug.LogError("Player role: " + networkRunner.GetPlayerObject(networkRunner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole);
+            //var networkRunner = NetworkRunner.Instances[0];
+            //Debug.LogError("Player role: " + networkRunner.GetPlayerObject(networkRunner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole);
 
             if (_parent == null) { _parent = GameObject.Find("PopUpCanvas").transform; }
             if (transform.childCount > 0)
@@ -72,6 +72,11 @@ namespace KOK
                     Destroy(child.gameObject);
                 }
             }
+            Debug.LogError(_runner);
+            Debug.LogError(_runner.GetPlayerObject(_runner.LocalPlayer));
+            Debug.LogError(_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>());
+            Debug.LogError(_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole);
+
             if (_runner.GetPlayerObject(_runner.LocalPlayer).GetComponent<PlayerNetworkBehavior>().PlayerRole != 0)
             {
                 GetComponentInChildren<SongBinding>().SuggestSong();

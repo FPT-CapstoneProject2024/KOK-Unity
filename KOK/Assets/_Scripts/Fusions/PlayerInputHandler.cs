@@ -1,4 +1,5 @@
 using Fusion;
+using KOK.ApiHandler.DTOModels;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,26 +9,44 @@ namespace KOK
     public class PlayerInputHandler : NetworkBehaviour
     {
         [SerializeField] private float speed;
-        Vector3 direction;
+        [SerializeField] PlayerNetworkBehavior playerNetworkBehavior;
+        public bool upPress = false;
+        public bool downPress = false;
+        public bool leftPress = false;
+        public bool rightPress = false;
+        public bool faceUp = false;
+        public bool faceDown = false;
+        public bool faceLeft = false;
+        public bool faceRight = false;
+        public Vector3 direction;
         string deviceType;
 
         void Start()
         {
             deviceType = SystemInfo.deviceType.ToString();
-            //Debug.Log(deviceType + "============================");
+            if (HasStateAuthority)
+            {
+                PlayerController controller = FindAnyObjectByType<PlayerController>();
+                controller.Init(
+                    () => ButtonUpPress(),
+                    () => ButtonUpRelease(),
+                    () => ButtonDownPress(),
+                    () => ButtonDownRelease(),
+                    () => ButtonLeftPress(),
+                    () => ButtonLeftRelease(),
+                    () => ButtonRightPress(),
+                    () => ButtonRightRelease()
+                    );
+            }
         }
         private void Update()
         {
-            if (deviceType == "Desktop")
-            {
-                direction = GetWindowKeyInput();
-            }
-            else
-            {
-                //direction = GetMobileAccelerometerValue();
-            }
-
-
+            //if (deviceType == "Desktop")
+            //{
+            //    GetKeyBoardInput();
+            //}
+            direction = GetDirectionVector();
+            AnimationPlayer();
 
         }
 
@@ -35,50 +54,182 @@ namespace KOK
         public override void FixedUpdateNetwork()
         {
             transform.Translate(direction);
+
         }
 
-        Vector3 GetWindowKeyInput()
+        Vector3 GetDirectionVector()
         {
             float horizontal = 0;
             float vertical = 0;
-            if (Input.GetKey(KeyCode.W))
+            if (upPress)
             {
                 vertical += 1;
             }
-            else
-            if (Input.GetKey(KeyCode.S))
+            else if (downPress)
             {
                 vertical -= 1;
             }
-            else
-            if (Input.GetKey(KeyCode.A))
+            else if (leftPress)
             {
                 horizontal -= 1;
             }
-            else
-            if (Input.GetKey(KeyCode.D))
+            else if (rightPress)
             {
                 horizontal += 1;
             }
             return new Vector3(horizontal, vertical, 0) * speed;
         }
 
-        Vector3 GetMobileAccelerometerValue()
+        private void ResetFace()
         {
-            Vector3 acc = Vector3.zero;
-            float period = 0.0f;
-
-            foreach (AccelerationEvent evnt in Input.accelerationEvents)
-            {
-                acc += evnt.acceleration * evnt.deltaTime;
-                period += evnt.deltaTime;
-            }
-            if (period > 0)
-            {
-                acc *= 1.0f / period;
-            }
-            return acc * speed;
+            faceUp = false;
+            faceDown = false;
+            faceLeft = false;
+            faceRight = false;
         }
+        public void GetKeyBoardInput()
+        {
+
+            if (Input.GetKey(KeyCode.W))
+            {
+                upPress = true;
+                ResetFace();
+                faceUp = true;
+            }
+            else
+            {
+                upPress = false;
+            }
+
+            if (Input.GetKey(KeyCode.S))
+            {
+                downPress = true;
+                ResetFace();
+                faceDown = true;
+            }
+            else
+            {
+                downPress = false;
+            }
+
+            if (Input.GetKey(KeyCode.A))
+            {
+                leftPress = true;
+                ResetFace();
+                faceLeft = true;
+            }
+            else
+            {
+                leftPress = false;
+            }
+
+            if (Input.GetKey(KeyCode.D))
+            {
+                rightPress = true;
+                ResetFace();
+                faceRight = true;
+            }
+            else
+            {
+                rightPress = false;
+            }
+        }
+
+        #region Mobie Control
+        public void ButtonUpPress()
+        {
+            upPress = true;
+            ResetFace();
+            faceUp = true;
+            Debug.LogError("ButtonUpPress" + upPress);
+        }
+
+        public void ButtonUpRelease()
+        {
+            upPress = false;
+            Debug.LogError("ButtonUpPress" + upPress);
+        }
+        public void ButtonDownPress()
+        {
+            downPress = true;
+            ResetFace();
+            faceDown = true;
+        }
+
+        public void ButtonDownRelease()
+        {
+            downPress = false;
+        }
+        public void ButtonLeftPress()
+        {
+            leftPress = true;
+            ResetFace();
+            faceLeft = true;
+        }
+
+        public void ButtonLeftRelease()
+        {
+            leftPress = false;
+        }
+        public void ButtonRightPress()
+        {
+            rightPress = true;
+            ResetFace();
+            faceRight = true;
+        }
+
+        public void ButtonRightRelease()
+        {
+            rightPress = false;
+        }
+
+        #endregion
+
+        #region Animation
+
+        public void AnimationPlayer()
+        {
+            if (direction.x == 0f && direction.y == 0f)
+            {
+                if (faceUp)
+                {
+                    playerNetworkBehavior.PlayAnimation(AnimationName.IdleBack);
+                }
+                else if (faceDown)
+                {
+                    playerNetworkBehavior.PlayAnimation(AnimationName.IdleFront);
+                }
+                else if (faceRight)
+                {
+                    playerNetworkBehavior.PlayAnimation(AnimationName.IdleRight);
+                }
+                else if (faceLeft)
+                {
+                    playerNetworkBehavior.PlayAnimation(AnimationName.IdleLeft);
+                }
+            }
+            else
+            {
+                if (upPress)
+                {
+                    playerNetworkBehavior.PlayAnimation(AnimationName.WalkBack);
+                }
+                else if (downPress)
+                {
+                    playerNetworkBehavior.PlayAnimation(AnimationName.WalkFront);
+                }
+                else if (rightPress)
+                {
+                    playerNetworkBehavior.PlayAnimation(AnimationName.WalkRight);
+                }
+                else if (leftPress)
+                {
+                    playerNetworkBehavior.PlayAnimation(AnimationName.WalkLeft);
+                }
+            }
+        }
+
+        #endregion
         private void OnDestroy()
         {
             StopAllCoroutines();

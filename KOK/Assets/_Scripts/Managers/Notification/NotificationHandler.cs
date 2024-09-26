@@ -36,6 +36,8 @@ namespace KOK
             }
             loadingManager.EnableLoadingSymbol();
             loadingManager.EnableLoadingSymbol();
+
+            notificationMessage.gameObject.SetActive(false);
             ApiHelper.Instance.GetComponent<NotificationController>()
                 .GetMemberReadAndUnreadNotifications(
                     Guid.Parse(PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId)),
@@ -52,7 +54,10 @@ namespace KOK
                         }
                     },
                     (notification) => {
+                        Debug.Log("ReloadNotification error");
+                        loadingManager.DisableLoadingSymbol();
                         notificationMessage.text = "Chưa có thông báo nào";
+                        notificationMessage.gameObject.SetActive(true);
                     }
 
                 );

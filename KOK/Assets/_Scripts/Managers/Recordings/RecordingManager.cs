@@ -80,7 +80,7 @@ namespace KOK
             CreateRecordingRequest createRecordingRequest = new CreateRecordingRequest()
             {
                 RecordingName = recordingName,
-                RecordingType = 0,
+                RecordingType = recordingType,
                 Score = score,
                 PurchasedSongId = Guid.Parse(purchasedSongId),
                 HostId = Guid.Parse(hostId),

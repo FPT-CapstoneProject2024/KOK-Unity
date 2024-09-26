@@ -225,13 +225,13 @@ namespace KOK.ApiHandler.DTOModels
     {
         public static List<string> List = new()
         {
-            "Nội dung liên quan đến tình dục",
+            "Nội dung này là spam",
             "Bắt nạt hoặc quấy rối",
             "Kêu gọi bạo lực, thù ghét",
             "Tự tử hoặc tự gây thương tích",
             "Bán hoặc quảng cáo mặt hàng bị cấm",
             "Lừa đảo hoặc mạo danh",
-            "Spam",
+            "Nội dung liên quan đến tình dục",
             "Thông tin sai sự thật",
             "Vi phạm quyền sở hữu trí tuệ",
         };
@@ -262,6 +262,22 @@ namespace KOK.ApiHandler.DTOModels
         READ,
         UNREAD,
         DELETE,
+    }
+
+    #endregion
+
+    #region Animation
+
+    public enum AnimationName
+    {
+        IdleFront,
+        IdleBack,
+        IdleRight,
+        IdleLeft,
+        WalkFront,
+        WalkBack,
+        WalkRight,
+        WalkLeft,
     }
 
     #endregion

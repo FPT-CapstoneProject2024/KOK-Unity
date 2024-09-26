@@ -33,7 +33,6 @@ namespace KOK
                 singlePlayerManager = FindAnyObjectByType<SinglePlayerManager>();
             }
 
-            singlePlayerManager.DisableUIElement();
             singlePlayerManager.ClearSearchSongList();
 
             Guid songId = Guid.Parse(songCode.name.ToString());

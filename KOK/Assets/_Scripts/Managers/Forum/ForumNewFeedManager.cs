@@ -1,4 +1,4 @@
-using KOK.ApiHandler.Controller;
+﻿using KOK.ApiHandler.Controller;
 using KOK.ApiHandler.DTOModels;
 using KOK.ApiHandler.Utilities;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Request.Post;
@@ -19,6 +19,7 @@ namespace KOK
         [SerializeField] PostBinding postBinding;
         [SerializeField] Image ownAvatar;
         [SerializeField] Sprite forumIcon;
+        [SerializeField] LoadingManager loadingManager;
         private int currentPage = 1;
         private int currentPostIndex = 0;
         List<Post> postList = new();
@@ -144,12 +145,14 @@ namespace KOK
 
         public void RefreshForum()
         {
+            postBinding.Clear();
             if (ownAccount != null)
             {
                 ownAvatar.sprite = Resources.Load<Sprite>(ownAccount.CharaterItemCode + "AVA");
             }
             isOwnedProfile = false;
-            title.text = "Forum";
+            title.text = "Trang chủ";
+            loadingManager.EnableLoadingSymbol();
             ApiHelper.Instance.GetComponent<PostController>()
             .GetPostsFilterPagingCoroutine(
                 new PostFilter(),
@@ -166,21 +169,24 @@ namespace KOK
                     currentPostIndex = 0;
                     isOwnedProfile = false;
                     ShowPost();
+                    loadingManager.DisableLoadingSymbol();
                 },
                 (msg) =>
                 {
                     postList.Clear();
                     postBinding.Clear();
-                    //Refresh();
+                    loadingManager.DisableLoadingSymbol();
                 }
             );
         }
 
         public void RefreshOwnPost()
         {
+            postBinding.Clear();
             ownAvatar.sprite = forumIcon;
-            title.text = "Profile";
+            title.text = "Cá nhân";
             isOwnedProfile = true;
+            loadingManager.EnableLoadingSymbol();
             ApiHelper.Instance.GetComponent<PostController>()
             .GetPostsFilterPagingCoroutine(
                 new PostFilter()
@@ -200,12 +206,14 @@ namespace KOK
                     currentPostIndex = 0;
                     isOwnedProfile = true;
                     ShowPost();
+                    loadingManager.DisableLoadingSymbol();
                 },
                 (msg) =>
                 {
                     postList.Clear();
                     postBinding.Clear();
                     //Refresh();
+                    loadingManager.DisableLoadingSymbol();
                 }
             );
         }

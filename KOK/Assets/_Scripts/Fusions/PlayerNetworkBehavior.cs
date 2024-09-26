@@ -28,6 +28,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     [SerializeField] TextMeshPro playerNameLabel;
     [Networked] public Color PlayerColor { get; set; }
     [SerializeField] SpriteRenderer playerRenderer;
+    [SerializeField] Animator characterAnim;
 
     [Networked] public int PlayerRole { get; set; }
 
@@ -68,6 +69,9 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     private bool isRecording = false;
 
     [SerializeField] private LoadingManager loadingManager { get; set; }
+
+    [Networked] public NetworkString<_64> Animation { get; set; }
+
 
     private void Start()
     {
@@ -115,6 +119,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
 
             ClearSongQueue();
             Debug.Log(this.name);
+
         }
         LoadSongList();
         voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
@@ -122,12 +127,29 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         Debug.Log(PlayerName + " HasStateAuthority: " + HasStateAuthority);
         this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
         playerNameLabel.color = PlayerColor;
-        playerRenderer.color = PlayerColor;
-        //} catch (Exception ex)
-        //{
-        //    Debug.LogError  (ex);
-        //    FusionManager.Instance.DisconnectFromRoom();
-        //}
+        //playerRenderer.color = PlayerColor;
+
+        
+        StartCoroutine(SetCharacter());
+    }
+
+    IEnumerator SetCharacter()
+    {
+        yield return new WaitForSeconds(1);
+        if (CharacterCode.IsNullOrEmpty())
+        {
+            StartCoroutine(SetCharacter());
+        }
+        else
+        {
+            characterAnim.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>(
+                    CharacterCode + "/"
+                    + CharacterCode + "Animator"
+                    );
+
+            characterAnim.Play(AnimationName.IdleFront.ToString());
+            StartCoroutine(UpdateAnimation());
+        }
 
     }
 
@@ -181,6 +203,8 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             this.name = "Player: " + PlayerName; playerNameLabel.text = PlayerName.ToString();
             playerNameLabel.color = PlayerColor;
             playerRenderer.color = PlayerColor;
+
+            
         }
         catch (Exception ex)
         {
@@ -196,7 +220,7 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         {
             yield return new WaitForSeconds(1f);
 
-            ChatManager.Instance.SendMessageAll(PlayerName + " has joined");
+            ChatManager.Instance.SendMessageAll(PlayerName + " đã tham gia!");
         }
     }
 
@@ -348,12 +372,10 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
         {
             if (isSinger)
             {
+                Debug.LogError("Start recording 3");
                 RPCSongManager.Rpc_StartRecording(NetworkRunner.Instances[0]);
             }
-            if (PlayerRole == 0)
-            {
-                StartCoroutine(CreateRecording());
-            }
+            StartCoroutine(CreateRecording());
 
         }
         else
@@ -682,9 +704,12 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     {
         if (this.HasStateAuthority)
         {
+            Debug.LogError("1 start recording");
             if (isRecording) return;
             if (isSinger)
             {
+
+                Debug.LogError("0 start recording");
                 var audioFile = QueueSongCodeList[0] + "_" + PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_UserName) + "_" + DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss");
 
                 if (voiceRecorder == null) voiceRecorder = FindAnyObjectByType<VoiceRecorder>();
@@ -702,7 +727,13 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
     IEnumerator CreateRecording()
     {
         yield return new WaitForSeconds(0.1f);
-        if (PlayerRole == 0)
+        bool isOwnedSong = false;
+        if (SongList.FirstOrDefault(song => song.SongUrl == audioUrl) != null)
+        {
+            isOwnedSong = true;
+        };
+
+        if (PlayerRole == 0 || isOwnedSong)
         {
             List<string> singerAudioUrls = new();
             List<string> singerAccountIds = new();
@@ -816,6 +847,30 @@ public class PlayerNetworkBehavior : NetworkBehaviour, IComparable<PlayerNetwork
             }
         }
 
+    }
+
+    public void PlayAnimation(AnimationName animation)
+    {
+        if (Animation.Equals(animation.ToString())) return;
+        characterAnim.Play(animation.ToString());
+        Animation = animation.ToString();
+    }
+
+    IEnumerator UpdateAnimation()
+    {
+        yield return new WaitForSeconds(1);
+        if(HasStateAuthority)
+        {
+            var infor = characterAnim.GetCurrentAnimatorClipInfo(0);
+            string current = infor[0].clip.name;
+            Animation = current;
+            //Debug.LogError(Animation);
+        }
+        else
+        {
+            PlayAnimation((AnimationName)Enum.Parse(typeof(AnimationName), Animation.ToString(), true));
+        }
+        StartCoroutine(UpdateAnimation());
     }
     private void OnDestroy()
     {

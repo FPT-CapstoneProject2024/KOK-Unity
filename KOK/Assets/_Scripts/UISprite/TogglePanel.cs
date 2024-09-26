@@ -29,7 +29,8 @@ namespace KOK
         }
 
         public void ToggleOnOffPanel()
-        {            
+        {
+            Debug.Log("ToggleOnOffPanel " + _panel.name);
             if (_toggle.isOn)
             {
                 foreach (var togglePanel in _groupTogglePanel)

@@ -41,7 +41,7 @@ namespace KOK
             purchasePackageParam = param;
             // Update UI
             PackageName.text = param.PackageName;
-            PackageAmount.text = $"{param.StarNumber.ToString()} UP";
+            PackageAmount.text = $"{param.StarNumber} UP";
             PackagePrice.text = $"{param.MoneyAmount.ToString("#,##0")} VND";
             gameObject.SetActive(true);
             DisplayConfirmPurchase();

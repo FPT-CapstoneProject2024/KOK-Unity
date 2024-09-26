@@ -14,6 +14,8 @@ using System.Collections;
 using KOK.Assets._Scripts.ApiHandler.DTOModels.Response;
 using UnityEngine.Video;
 using System.Linq;
+using WebSocketSharp;
+using Unity.VisualScripting;
 
 public class RecordingLoader : MonoBehaviour
 {
@@ -43,6 +45,12 @@ public class RecordingLoader : MonoBehaviour
     Recording recording;
     [SerializeField] Slider progressSlider;
     [SerializeField] RawImage videoRenderTexture;
+    private List<Recording> recordingList;
+    [SerializeField] TMP_Text recordingMessage;
+
+    [Header("Search and category")]
+    [SerializeField] TMP_InputField searchInput;
+    [SerializeField] TMP_Dropdown categoryDropdown;
 
     //public RecordingHelper recordingHelper;
 
@@ -56,7 +64,7 @@ public class RecordingLoader : MonoBehaviour
         var playerId = PlayerPrefsHelper.GetString(PlayerPrefsHelper.Key_AccountId);
         GetRecordingByOwnerId(Guid.Parse(playerId));
         //ApiHelper.Instance.ToString();
-        
+
     }
 
     public void RefreshRecordingList()
@@ -65,26 +73,43 @@ public class RecordingLoader : MonoBehaviour
         GetRecordingByOwnerId(Guid.Parse(playerId));
     }
 
-    public void GetPurchasedSongCoroutine(Guid purchasedSongId)
+    public void FilterRecordingList()
     {
-        ApiHelper.Instance.gameObject
-            .GetComponent<PurchasedSongController>()
-            .GetPurchasedSongByIdCoroutine(purchasedSongId,
-                                            GetSongCoroutine,
-                                            Test2
-                                            );
+        var tmpRecordingList = recordingList;
+        if (!searchInput.text.IsNullOrEmpty())
+        {
+            tmpRecordingList = tmpRecordingList.Where((recording) => recording.RecordingName.ContainsInsensitive(searchInput.text.ToString())).ToList();
+        }
+        if (categoryDropdown.value == 1)
+        {
+            tmpRecordingList = tmpRecordingList.Where((recording) => recording.RecordingType == RecordingType.SINGLE).ToList();
+        }
+        else if (categoryDropdown.value == 0)
+        {
+            tmpRecordingList = tmpRecordingList.Where((recording) => recording.RecordingType == RecordingType.MULTIPLE).ToList();
+        }
+
+        RecordingsGenerate(tmpRecordingList);
     }
 
+    //public void GetPurchasedSongCoroutine(Guid purchasedSongId)
+    //{
+    //    ApiHelper.Instance.gameObject
+    //        .GetComponent<PurchasedSongController>()
+    //        .GetPurchasedSongByIdCoroutine(purchasedSongId,
+    //                                        GetSongCoroutine,
+    //                                        );
+    //}
+
     // Dont ask me about the song[0], fk api
-    private void GetSongCoroutine(List<PurchasedSong> song)
-    {
-        ApiHelper.Instance.gameObject
-            .GetComponent<SongController>()
-            .GetSongByIdCoroutine(song[0].SongId,
-                                    SetSongUrl,
-                                    Test4
-                                    );
-    }
+    //private void GetSongCoroutine(List<PurchasedSong> song)
+    //{
+    //    ApiHelper.Instance.gameObject
+    //        .GetComponent<SongController>()
+    //        .GetSongByIdCoroutine(song[0].SongId,
+    //                                SetSongUrl,
+    //                                );
+    //}
 
     private void SetSongUrl(ResponseResult<SongDetail> song)
     {
@@ -100,24 +125,26 @@ public class RecordingLoader : MonoBehaviour
             .GetRecordingsByOwnerIdCoroutine(ownerId,
                                                 (recordingList) =>
                                                 {
+                                                    this.recordingList = recordingList;
                                                     RecordingsGenerate(recordingList);
                                                     loadingPanel.gameObject.SetActive(false);
+                                                    recordingMessage.gameObject.SetActive(false);
                                                 },
-                                                Test2
+                                                (ex) =>
+                                                {
+                                                    loadingPanel.gameObject.SetActive(false);
+                                                    recordingMessage.gameObject.SetActive(true);
+                                                    recordingMessage.text = "Hiện không có bản ghi âm nào!";
+                                                    recordingMessage.gameObject.SetActive(false);
+                                                    recordingMessage.gameObject.SetActive(true);
+                                                    Debug.Log(ex);
+                                                }
                                                 );
     }
 
-    private void Test2(string error)
-    {
-        Debug.Log(error);
-    }
 
-    private void Test4(ResponseResult<SongDetail> detail)
-    {
-        Debug.Log(detail);
-    }
 
-    void RecordingsGenerate(List<Recording> recordingList)
+    void RecordingsGenerate(List<Recording> recordings)
     {
         optionMappings = new List<(Recording recording, List<VoiceAudio> voiceAudio)>();
 
@@ -126,15 +153,26 @@ public class RecordingLoader : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        foreach (var recording in recordingList)
+        foreach (var recording in recordings)
         {
             GameObject recordingObj = Instantiate(recordingPrefab, displayPanel.transform);
 
             optionMappings.Add((recording, (List<VoiceAudio>)recording.VoiceAudios));
             recordingObj.GetComponent<RecordingItem>().Init(recording, messageAlert, confirmAlert, this);
-            recordingObj.transform.Find("Label 1").GetComponent<TMP_Text>().text = recording.RecordingName + " - " + recording.RecordingType;
+            string recordingType = "";
+            if (recording.RecordingType == RecordingType.SINGLE)
+            {
+                recordingType = "Bản thu âm đơn";
+            }
+            else if (recording.RecordingType == RecordingType.MULTIPLE)
+            {
+                recordingType = "Bản thu âm đôi";
+            }
+
+            recordingObj.transform.Find("Label 1").GetComponent<TMP_Text>().text = recording.RecordingName + " - " + recordingType;
             recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text = string.Empty;
-            recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text += "Recording time: " + recording.CreatedDate.ToString("dd/MM/yyyy HH:mm:ss") + "\n";
+            DateTime localtime = recording.CreatedDate.AddHours(7);
+            recordingObj.transform.Find("Label 2").GetComponent<TMP_Text>().text += "Ngày thu: " + localtime.ToString("dd/MM/yyyy HH:mm:ss") + "\n";
 
             recordingObj.transform.Find("PlayButton").GetComponent<Button>().onClick.AddListener(delegate ()
             {
@@ -167,7 +205,7 @@ public class RecordingLoader : MonoBehaviour
         foreach (RecordingHelper recordingHelper in recordingHelpers)
         {
             Destroy(recordingHelper);
-        }    
+        }
         foreach (var audio in recording.VoiceAudios)
         {
             isAudioReady.Add(false);
@@ -200,7 +238,7 @@ public class RecordingLoader : MonoBehaviour
                             audioSources.Add(audioSource);
                             isAudioReady.RemoveAt(0);
                             Debug.Log($"Audio {audio.VoiceUrl} is ready!");
-                            
+
                         },
                         () => { loadingPanel.SetActive(false); }
 
@@ -218,7 +256,8 @@ public class RecordingLoader : MonoBehaviour
     IEnumerator AutoCancelLoadFail()
     {
         yield return new WaitForSeconds(30);
-        if (!readyToPlay) {
+        if (!readyToPlay)
+        {
             StopAllCoroutines();
             loadingPanel.SetActive(false);
             videoDisplayPanel.SetActive(false);
@@ -255,7 +294,7 @@ public class RecordingLoader : MonoBehaviour
         videoRenderTexture.gameObject.SetActive(true);
         videoPlayer.Play();
         StartCoroutine(SyncVoiceAudioWithVideo());
-        StartCoroutine(SyncStart(recording.StartTime, audioSources)) ;
+        StartCoroutine(SyncStart(recording.StartTime, audioSources));
     }
 
     IEnumerator SyncStart(float videoStartTime, List<AudioSource> audioSources)

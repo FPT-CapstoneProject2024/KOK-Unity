@@ -32,12 +32,13 @@ namespace KOK
         {
             try
             {
-                var runner = FindAnyObjectByType<NetworkRunner>();
+                var runner = NetworkRunner.Instances[0];
 
                 //string test = runner.ActivePlayers.ToList().OrderBy(x => x.ToString()).ToList().ToSeparatedString(",");
                 //Debug.Log(test);
 
                 if (_viewportContent == null) { return; }
+                _viewportContent.SetActive(true);
                 if (_runner == null) { _runner = NetworkRunner.Instances[0]; }
                 foreach (Transform child in _viewportContent.transform)
                 {

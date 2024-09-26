@@ -16,22 +16,19 @@ namespace KOK
         [SerializeField] Color neutralColor;
         [SerializeField] Color successColor;
         [SerializeField] Color errorColor;
-        private string neutralColorHex;
-        private string successColorHex;
-        private string errorColorHex;
+        private const string neutralColorHex = "#FFFFFF";
+        private const string successColorHex= "#50FF54";
+        private const string errorColorHex= "#F76464";
 
         private void Start()
         {
-            neutralColorHex = neutralColor.ToHexString().Substring(0, 6);
-            neutralColorHex = neutralColor.ToHexString().Substring(0, 6);
-            neutralColorHex = neutralColor.ToHexString().Substring(0, 6);
         }
 
         public void ShowNoti(string content)
         {
             StopAllCoroutines();
             notiPanel.SetActive(true);
-            notiText.text = $"<#{neutralColor}>{content}</color>";
+            notiText.text = $"<color={neutralColorHex}>{content}</color>";
             StartCoroutine(HideNotiPanel());
         }
 
@@ -40,11 +37,11 @@ namespace KOK
             StopAllCoroutines();
             notiPanel.SetActive(true);
             if (isSuccess ) { 
-                notiText.text = $"<#{successColorHex}>{content}</color>";
+                notiText.text = $"<color={successColorHex}>{content}</color>";
             } 
             else
             {
-                notiText.text = $"<#{errorColor}>{content}</color>";
+                notiText.text = $"<color={errorColorHex}>{content}</color>";
             }
             StartCoroutine(HideNotiPanel());
         }

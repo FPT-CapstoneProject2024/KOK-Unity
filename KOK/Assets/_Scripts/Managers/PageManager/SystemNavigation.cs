@@ -10,8 +10,37 @@ namespace KOK
 {
     public class SystemNavigation : MonoBehaviour
     {
-        public static bool isToPurchasedSong = false;
-        public static bool isToTransaction = false;
+        private static bool isToPurchasedSong = false;
+        private static bool isToTransaction = false;
+        private static bool isToPackage = false;
+
+        public static bool IsToPurchasedSong()
+        {
+            if (isToPurchasedSong)
+            {
+                isToPurchasedSong = false;
+                return true;
+            }
+            return false;
+        }
+        public static bool IsToTransaction()
+        {
+            if (isToTransaction)
+            {
+                isToTransaction = false;
+                return true;
+            }
+            return false;
+        }
+        public static bool IsToPackage()
+        {
+            if (isToPackage)
+            {
+                isToPackage = false;
+                return true;
+            }
+            return false;
+        }
 
         private void ResetChecker()
         {
@@ -118,5 +147,12 @@ namespace KOK
             SceneManager.LoadScene(sceneName: "v_messenger");
         }
 
+        public void ToPackageScene()
+        {
+            ResetChecker();
+            Screen.orientation = ScreenOrientation.Portrait;
+            isToPackage = true;
+            SceneManager.LoadScene(sceneName: "v_profile");
+        }
     }
 }
